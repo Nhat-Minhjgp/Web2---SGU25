@@ -50,26 +50,6 @@ CREATE TABLE `chitietphieunhap` (
   `MaLoHang` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Triggers `chitietphieunhap`
---
-DELIMITER $$
-CREATE TRIGGER `tg_CapNhatGiaBinhQuan` AFTER INSERT ON `chitietphieunhap` FOR EACH ROW BEGIN
-    -- Cập nhật giá nhập trung bình, giá bán và số lượng tồn trong bảng sanpham
-    UPDATE sanpham
-    SET 
-        -- Công thức: (Tồn cũ * Giá trung bình cũ + Số lượng mới * Giá nhập mới) / (Tồn cũ + Số lượng mới)
-        GiaNhapBinhQuan = ( (SoLuongTon * GiaNhapBinhQuan) + (NEW.SoLuong * NEW.Gia_Nhap) ) / (SoLuongTon + NEW.SoLuong),
-        
-        -- Cập nhật số lượng tồn mới
-        SoLuongTon = SoLuongTon + NEW.SoLuong,
-        
-        -- Cập nhật giá bán dựa trên giá nhập trung bình mới tính ở trên
-        GiaBan = (( (SoLuongTon * GiaNhapBinhQuan) + (NEW.SoLuong * NEW.Gia_Nhap) ) / (SoLuongTon + NEW.SoLuong)) * (1 + PhanTramLoiNhuan / 100)
-    WHERE SanPham_id = NEW.SanPham_id;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
