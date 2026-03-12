@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" prefix="og: https://ogp.me/ns#">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -202,7 +202,7 @@
                                                     <div class="mb-4">
                                                         <div class="flex items-center justify-between mb-2">
                                                             <h3 class="font-bold">Thương hiệu nổi bật</h3>
-                                                            <a href="/shop"
+                                                            <a href="./view/shop.php"
                                                                 class="text-sm text-red-600 hover:text-red-700 flex items-center">
                                                                 Xem tất cả <i
                                                                     class="fas fa-chevron-right ml-1 text-xs"></i>
@@ -297,7 +297,7 @@
                                                     <div>
                                                         <div class="flex items-center justify-between mb-2">
                                                             <h3 class="font-bold">Theo sản phẩm</h3>
-                                                            <a href="/shop"
+                                                            <a href="./view/shop"
                                                                 class="text-sm text-red-600 hover:text-red-700 flex items-center">
                                                                 Xem tất cả <i
                                                                     class="fas fa-chevron-right ml-1 text-xs"></i>
@@ -403,7 +403,7 @@
                                 </li>
 
                                 <li>
-                                    <a href="https://nvbplay.vn/shop"
+                                    <a href="./view/shop.php"
                                         class="flex items-center text-gray-700 hover:text-red-600 font-medium">
                                         <img src="./img/icons/shop.svg" class="w-5 h-5 flex-shrink-0 mr-2">
                                         <span>CỬA HÀNG</span>
@@ -613,7 +613,7 @@
                             <h2
                                 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
                                 ÁO NVBPLAY</h2>
-                            <a href="https://nvbplay.vn/shop"
+                            <a href="./view/shop.php"
                                 class="text-red-600 hover:text-red-700 font-medium flex items-center">
                                 Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
                             </a>
@@ -842,7 +842,7 @@
                             <h2
                                 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
                                 Hàng mới đổ bộ</h2>
-                            <a href="https://nvbplay.vn/shop"
+                            <a href="./view/shop.php"
                                 class="text-red-600 hover:text-red-700 font-medium flex items-center">
                                 Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
                             </a>
