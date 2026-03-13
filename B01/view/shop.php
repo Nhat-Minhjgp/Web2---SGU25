@@ -45,7 +45,8 @@ body.filter-open { overflow: hidden; }
 .noUi-target { border: none; box-shadow: none; background: #e5e7eb; height: 6px; }
 .noUi-handle { width: 20px; height: 20px; border-radius: 50%; top: -7px; right: -10px; }
 </style>
-<link rel="icon" href="https://nvbplay.vn/wp-content/uploads/2024/06/LOGO-NVB-PLAY-NEW-05-RED-100x100.png" sizes="32x32">
+ <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png"
+        sizes="32x32">
 </head>
 <body class="font-sans antialiased bg-gray-50">
 
@@ -125,11 +126,11 @@ body.filter-open { overflow: hidden; }
                                 </div>
                             </div>
                         </li>
-                        <li><a href="./shop.php" class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img src="../img/icons/shop.svg" class="w-5 h-5 flex-shrink-0 mr-2"><span>CỬA HÀNG</span></a></li>
+                        <li><a href="./shop.php" class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2"><span>CỬA HÀNG</span></a></li>
                     </ul>
                 </div>
                 <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-                    <a href="https://nvbplay.vn/" title="NVBPlay" rel="home"><img width="100" height="40" src="https://nvbplay.vn/wp-content/uploads/2024/08/LOGO-NVB-PLAY-NEW-04-RED.png" alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75"></a>
+                    <a href="../index.php" title="NVBPlay" rel="home"><img width="100" height="40" src="https://nvbplay.vn/wp-content/uploads/2024/08/LOGO-NVB-PLAY-NEW-04-RED.png" alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75"></a>
                 </div>
                 <div class="hidden md:flex items-center space-x-4">
                     <div class="address-book"><a href="/my-account/address-book?back=true" class="flex items-center text-gray-700 hover:text-red-600"><i class="fas fa-map-marker-alt mr-1"></i><span class="shipping-address text-sm"><span class="text">Chọn địa chỉ</span></span></a></div>

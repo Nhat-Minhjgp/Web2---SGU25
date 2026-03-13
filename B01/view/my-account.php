@@ -65,7 +65,7 @@
         }
     </style>
 
-  <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png"
+    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png"
         sizes="32x32">
 </head>
 
@@ -89,7 +89,7 @@
                         <!-- Mobile Menu Toggle (Left) -->
                         <div class="md:hidden">
                             <button class="menu-toggle p-2">
-                                <img src="./img/icons/menu.svg" class="fas fa-bars text-2xl"></i>
+                                <img src="../img/icons/menu.svg" class="fas fa-bars text-2xl"></i>
                             </button>
                         </div>
 
@@ -103,7 +103,7 @@
                                     <!-- Mega Menu Trigger -->
                                     <button id="mega-menu-trigger"
                                         class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                                        <img src="./img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
+                                        <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
                                         <span>Danh mục</span>
                                     </button>
 
@@ -202,7 +202,7 @@
                                                     <div class="mb-4">
                                                         <div class="flex items-center justify-between mb-2">
                                                             <h3 class="font-bold">Thương hiệu nổi bật</h3>
-                                                            <a href="./view/shop.php"
+                                                            <a href="../view/shop.php"
                                                                 class="text-sm text-red-600 hover:text-red-700 flex items-center">
                                                                 Xem tất cả <i
                                                                     class="fas fa-chevron-right ml-1 text-xs"></i>
@@ -297,7 +297,7 @@
                                                     <div>
                                                         <div class="flex items-center justify-between mb-2">
                                                             <h3 class="font-bold">Theo sản phẩm</h3>
-                                                            <a href="./view/shop"
+                                                            <a href="../view/shop"
                                                                 class="text-sm text-red-600 hover:text-red-700 flex items-center">
                                                                 Xem tất cả <i
                                                                     class="fas fa-chevron-right ml-1 text-xs"></i>
@@ -403,9 +403,9 @@
                                 </li>
 
                                 <li>
-                                    <a href="./view/shop.php"
+                                    <a href="../view/shop.php"
                                         class="flex items-center text-gray-700 hover:text-red-600 font-medium">
-                                        <img src="./img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
+                                        <img src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
                                         <span>CỬA HÀNG</span>
                                     </a>
                                 </li>
@@ -414,9 +414,9 @@
 
                         <!-- Logo (Center on mobile, left on desktop) -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-                            <a href="./index.php" title="NVBPlay" rel="home">
+                            <a href="../index.php" title="NVBPlay" rel="home">
                                 <img width="100" height="40"
-                                    src="https://nvbplay.vn/wp-content/uploads/2024/08/LOGO-NVB-PLAY-NEW-04-RED.png"
+                                    src="../img/icons/logonvb.png"
                                     alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75">
                             </a>
                         </div>
@@ -470,420 +470,203 @@
                     </div>
                 </div>
 
-                <!-- Bottom Header / Wide Nav -->
-                <div id="wide-nav" class="bg-gray-900 text-white py-2">
-                    <div class="container mx-auto px-4 text-center">
-                        <div class="top-hot">
-                            <a href="https://nvbplay.vn/product-tag/control-collection"
-                                class="text-white hover:text-yellow-300 transition text-sm md:text-base">
-                                ⚡ VỢT YONEX NANOFLARE 1000 GAME - RESTOCKED ⚡
-                            </a>
-                        </div>
-                    </div>
-                </div>
+
+
             </div>
         </header>
 
-        <!-- Hidden H1 for SEO -->
-        <h1 class="hidden">NVBPlay chuyên cung cấp đồ cầu lông và pickleball cao cấp, từ vợt, giày, đến phụ kiện chính
-            hãng. Nâng cao trải nghiệm của bạn tại NVBPlay.</h1>
+        <main class="flex-1 m-[30px]">
 
-        <!-- Main Content -->
-        <main id="main" class="flex-grow">
-            <div id="content" class="content-area">
-                <div class="container mx-auto px-4 py-6 md:py-8">
 
-                    <!-- Hero Banner Section với Masonry Layout - Cân bằng chiều cao -->
-                    <section class="banner-hero mb-6 md:mb-8">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <!-- Banner chính chiếm 2 cột -->
-                            <div class="md:col-span-2 rounded-lg overflow-hidden shadow-lg h-full">
-                                <a href="https://nvbplay.vn/product-tag/san-deal-sieu-hoi-giam-gia-len-den-45"
-                                    class="block h-full">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2026/02/MUA-DEAL-RON-RANG-scaled.png"
-                                        alt="MUA DEAL RON RANG" class="w-full h-full object-cover">
-                                </a>
-                            </div>
+            <!-- Main Content -->
+            <div class="container mx-auto px-4 py-8">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Sidebar -->
+                    <div class="lg:w-1/4">
+                        <!-- User Info Card -->
+                        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                            <div class="flex items-center space-x-4">
+                                <!-- Avatar -->
+                                <img src="../img/icons/account.svg" alt="User avatar"
+                                    class="w-16 h-16 rounded-full border-2 border-gray-200">
 
-                            <!-- Cột banner phụ với chiều cao bằng banner chính -->
-                            <div class="flex flex-col space-y-4 h-full">
-                                <!-- Banner phụ 1 - Chiếm 50% chiều cao -->
-                                <div class="rounded-lg overflow-hidden shadow-lg flex-1">
-                                    <a href="https://nvbplay.vn/ctkm-t3-thay-do-tha-ga-khong-lo-ve-gia.html"
-                                        class="block h-full">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ThayDoThaGa-KhongLoVeGia-2x1-1.png"
-                                            alt="ThayDoThaGa" class="w-full h-full object-cover">
-                                    </a>
-                                </div>
-
-                                <!-- Banner phụ 2 - Chiếm 50% chiều cao -->
-                                <div class="rounded-lg overflow-hidden shadow-lg flex-1">
-                                    <a href="https://nvbplay.vn/ron-rang-xuan-sang-san-deal-hoanh-trang.html"
-                                        class="block h-full">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ron-rang-xuan-sang-san-deal-hoanh-trang-1200x600-1-1.png"
-                                            alt="Ron rang xuan sang" class="w-full h-full object-cover">
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    <!-- Categories Section -->
-                    <section class="home-product mb-8 ">
-                        <div class="mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                Danh mục</h2>
-                        </div>
-
-                        <!-- Categories Slider (horizontal scroll on mobile, grid on desktop) -->
-                        <div class="categories-slider overflow-x-auto scrollbar-hide">
-                            <div class="flex md:grid md:grid-cols-4 lg:grid-cols-4 gap-2 pb-4 justify-items-center ">
-                                <!-- Category Item 1 -->
-                                <div class="flex-shrink-0 w-36 md:w-auto">
-                                    <a href="https://nvbplay.vn/product-category/vot-cau-long" class="block group">
-                                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                            <div class="aspect-square w-[288px] overflow-hidden p-1">
-                                                <img src="https://nvbplay.vn/wp-content/uploads/2024/12/vot-yonex-nanoflare-nextage-dark-gray-4u5z-4.webp"
-                                                    alt="Vợt cầu lông"
-                                                    class="w-full h-full rounded-lg object-cover group-hover:scale-105 transition duration-300 ">
-                                            </div>
-                                            <div class="p-3 text-center">
-                                                <h3 class="font-medium text-sm">Vợt cầu lông</h3>
-                                            </div>
+                                <!-- User Info và Rank -->
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <h3 class="font-semibold text-gray-900">Placeholder</h3>
                                         </div>
-                                    </a>
-                                </div>
-
-                                <!-- Category Item 2 -->
-                                <div class="flex-shrink-0 w-36 md:w-auto ">
-                                    <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball"
-                                        class="block group">
-                                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                            <div class="aspect-square w-[288px] overflow-hidden p-1">
-                                                <img src="./img/pickleball.png" alt="Vợt Pickleball"
-                                                    class="w-full h-full object-cover rounded-lg group-hover:scale-105  transition duration-300">
-                                            </div>
-                                            <div class="p-3 text-center">
-                                                <h3 class="font-medium text-sm">Vợt Pickleball</h3>
-                                            </div>
+                                        <!-- Div rank - bên phải cùng -->
+                                        <div class="rank">
+                                            <img src="../img/icons/subscription.svg" class="w-25 h-25 transform">
                                         </div>
-                                    </a>
-                                </div>
-
-                                <!-- Category Item 3 -->
-                                <div class="flex-shrink-0 w-36 md:w-auto">
-                                    <a href="https://nvbplay.vn/product-category/phu-kien-cau-long" class="block group">
-                                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                            <div class="aspect-square w-[288px] overflow-hidden p-1">
-                                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/PK-cau-long.png"
-                                                    alt="Phụ kiện cầu lông"
-                                                    class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
-                                            </div>
-                                            <div class="p-3 text-center">
-                                                <h3 class="font-medium text-sm">Phụ kiện cầu lông</h3>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <!-- Category Item 4 -->
-                                <div class="flex-shrink-0 w-36 md:w-auto">
-                                    <a href="https://nvbplay.vn/product-category/tui-vot-cau-long" class="block group">
-                                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                            <div class="aspect-square w-[288px] overflow-hidden p-1">
-                                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/Tui-vot-cau-long.png"
-                                                    alt="Túi vợt cầu lông"
-                                                    class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition duration-300">
-                                            </div>
-                                            <div class="p-3 text-center">
-                                                <h3 class="font-medium text-sm">Túi vợt cầu lông</h3>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <!-- Add more categories as needed -->
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Featured Products Section - Áo NVBPLAY -->
-                    <section class="home-product-recommended mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                ÁO NVBPLAY</h2>
-                            <a href="./view/shop.php"
-                                class="text-red-600 hover:text-red-700 font-medium flex items-center">
-                                Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-                            </a>
-                        </div>
-
-                        <!-- Products Grid -->
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <!-- Product Card 1 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
                                     </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-smash"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/AO-THE-THAO-NVBPLAY-SMASH-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Smash"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-smash"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Smash</a>
-                                    </h3>
-                                    <div class="text-red-600 font-bold">168.000₫</div>
-                                </div>
-                            </div>
-
-                            <!-- Product Card 2 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-drive"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/AO-THE-THAO-NVBPLAY-DRIVE-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Drive"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-drive"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Drive</a>
-                                    </h3>
-                                    <div class="text-red-600 font-bold">168.000₫</div>
-                                </div>
-                            </div>
-
-                            <!-- Product Card 3 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-clear"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/AO-THE-THAO-NVBPLAY-CLEAR-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Clear"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-clear"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Clear</a>
-                                    </h3>
-                                    <div class="text-red-600 font-bold">168.000₫</div>
-                                </div>
-                            </div>
-
-                            <!-- Product Card 4 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-drop"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/AO-THE-THAO-NVBPLAY-DROP-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Drop"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-drop"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Drop</a>
-                                    </h3>
-                                    <div class="text-red-600 font-bold">168.000₫</div>
-                                </div>
-                            </div>
-
-                            <!-- Product Card 5 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-aura"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2025/10/nvbplay-aura-3-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Aura"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-aura"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Aura</a>
-                                    </h3>
-                                    <div class="text-red-600 font-bold">168.000₫</div>
+                                    <p class="text-sm text-gray-500">###</p>
                                 </div>
                             </div>
                         </div>
-                    </section>
 
-                    <!-- Banner Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <div class="rounded-lg overflow-hidden shadow-md">
-                            <a href="https://nvbplay.vn/7-doi-giay-cau-long-sieu-pham-khong-the-bo-qua.html">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/7-doi-giay-cau-long-sieu-pham-khong-the-bo-qua-1-1024x512.jpg"
-                                    alt="7 đôi giày cầu lông siêu phẩm" class="w-full h-auto object-cover">
-                            </a>
-                        </div>
-                        <div class="rounded-lg overflow-hidden shadow-md">
-                            <a href="https://nvbplay.vn/kham-pha-vot-cau-long-chuyen-nghiep.html">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/kham-pha-vot-cau-long-chuyen-nghiep-1-1024x512.jpg"
-                                    alt="Khám phá vợt cầu lông chuyên nghiệp" class="w-full h-auto object-cover">
-                            </a>
-                        </div>
+                        <!-- Navigation Menu -->
+                        <nav class="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <ul class="divide-y divide-gray-200">
+                                <!-- Thông tin tài khoản  -->
+                                <li>
+                                    <a href="./my-account.php"
+                                        class="flex items-center px-4 py-3 bg-[red-50] text-[#FF3F1A] font-medium border-l-4 border-[#FF3F1A]">
+                                        <img src="../img/icons/account.svg" class="w-5 h-5 mr-3" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                        </path>
+
+                                        Thông tin tài khoản
+                                    </a>
+                                </li>
+
+                                <!-- Quản lý đơn hàng -->
+                                <li>
+                                    <a href="./my-account/orders.php"
+                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
+                                        <img src="../img/icons/clipboard.svg" class="w-5 h-5 mr-3" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                        </svg>
+                                        Quản lý đơn hàng
+                                    </a>
+                                </li>
+
+                                <!-- Sổ địa chỉ -->
+                                <li>
+                                    <a href="/my-account/address-book"
+                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
+                                        <img src="../img/icons/diachi.svg" class="w-5 h-5 mr-3" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        Sổ địa chỉ
+                                    </a>
+                                </li>
+
+                                <!-- Ví voucher -->
+                                <li>
+                                    <a href="/my-account/coupons"
+                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
+                                        <img src="../img/icons/vi.svg" class="w-5 h-5 mr-3" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7">
+                                        </path>
+                                        </svg>
+                                        Ví voucher
+                                    </a>
+                                </li>
+
+                                <!-- Đăng xuất -->
+                                <li>
+                                    <a href="/my-account/logout"
+                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
+                                        <img src="../img/icons/logout.svg" class="w-5 h-5 mr-3" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                        </path>
+                                        </svg>
+                                        Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
 
-                    <!-- Services Section -->
-                    <section class="mb-8">
-                        <div class="mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                Dịch vụ</h2>
+                    <!-- Main Content Area -->
+                    <div class="lg:w-3/4">
+                        <!-- Mobile Header (visible on mobile only) -->
+                        <div class="lg:hidden flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <button class="mr-3">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                                <h2 class="text-lg font-semibold">Tài khoản của tôi</h2>
+                            </div>
+                            <button>
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
                         </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <!-- Service 1 -->
-                            <div class="rounded-lg overflow-hidden shadow-md">
-                                <a href="https://nvbplay.vn/product/dich-vu-in-ten-thuong-hieu-logo-len-vot">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2025/02/dich-vu-in-ten-logo-len-vot-scaled.jpg"
-                                        alt="In tên lên vợt" class="w-full h-auto object-cover">
-                                </a>
-                            </div>
+                        <!-- Edit Account Form -->
+                        <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-6">Thông tin cá nhân</h3>
 
-                            <!-- Service 2 -->
-                            <div class="rounded-lg overflow-hidden shadow-md">
-                                <a href="https://nvbplay.vn/product/dich-vu-thay-gen-bo">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/11/dich-vu-thay-gen.jpg"
-                                        alt="Thay gen vợt" class="w-full h-auto object-cover">
-                                </a>
-                            </div>
-
-                            <!-- Service 3 -->
-                            <div class="rounded-lg overflow-hidden shadow-md">
-                                <a href="https://nvbplay.vn/product/dich-vu-dan-luoi-vot">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/11/dich-vu-dan-luoi-vot.jpg"
-                                        alt="Đan lưới vợt" class="w-full h-auto object-cover">
-                                </a>
-                            </div>
-
-                            <!-- Service 4 -->
-                            <div class="rounded-lg overflow-hidden shadow-md">
-                                <a href="https://nvbplay.vn/product/dich-vu-ca-nhan-hoa-in-ten-len-ao">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2025/02/dich-vu-in-ten-ao.jpg"
-                                        alt="In tên áo" class="w-full h-auto object-cover">
-                                </a>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Sale Products Section -->
-                    <section class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                GIẢM GIÁ LÊN ĐẾN 45%</h2>
-                            <a href="https://nvbplay.vn/product-tag/top-sale"
-                                class="text-red-600 hover:text-red-700 font-medium flex items-center">
-                                Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-                            </a>
-                        </div>
-
-                        <!-- Sale Products Grid -->
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <!-- Sale Product 1 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-50%</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-boost-your-power"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2025/01/ao-the-thao-nvbplay-boost-your-power-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Boost Your Power"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
+                            <form class="space-y-6">
+                                <!-- First Name -->
+                                <div>
+                                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Tên <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="first_name" name="first_name" value="" maxlength="10"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                                        oninput="this.value = this.value.replace(/[0-9]/g, '')">
                                 </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-boost-your-power"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Boost Your Power</a>
-                                    </h3>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-red-600 font-bold">99.000₫</span>
-                                        <span class="text-gray-400 text-sm line-through">199.000₫</span>
-                                    </div>
+
+                                <!-- Last Name -->
+                                <div>
+                                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Họ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="last_name" name="last_name" value="" maxlength="20"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                                        oninput="this.value = this.value.replace(/[0-9]/g, '')">
                                 </div>
-                            </div>
 
-                            <!-- More sale products would go here -->
-                        </div>
-                    </section>
-
-                    <!-- New Arrivals Section -->
-                    <section class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                Hàng mới đổ bộ</h2>
-                            <a href="./view/shop.php"
-                                class="text-red-600 hover:text-red-700 font-medium flex items-center">
-                                Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-                            </a>
-                        </div>
-
-                        <!-- New Arrivals Grid -->
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <!-- New Product 1 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10 flex flex-col space-y-1">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
-                                        <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-10%</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/sypik-triton-5-pro-ultimate-tim"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/03/vot-pickleball-sypik-triton-5-pro-ultimate-3-768x768.jpg"
-                                            alt="Vợt Pickleball Sypik Triton"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
+                                <!-- Display Name -->
+                                <div>
+                                    <label for="display_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Tên hiển thị <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="display_name" name="display_name" value=""
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition">
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Đây sẽ là cách tên của bạn được hiển thị trong phần tài khoản và trong các đánh
+                                        giá
+                                    </p>
                                 </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                                        <a href="https://nvbplay.vn/product/sypik-triton-5-pro-ultimate-tim"
-                                            class="hover:text-red-600">Vợt Pickleball Sypik Triton 5 Pro Ultimate –
-                                            Tím</a>
-                                    </h3>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-red-600 font-bold">3.590.000₫</span>
-                                        <span class="text-gray-400 text-sm line-through">3.990.000₫</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- More new products would go here -->
+                                <!-- Email -->
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Địa chỉ email <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="email" id="email" name="email" value="@gmail.com" readonly
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="pt-4 flex justify-end">
+                                    <button type="submit"
+                                        class="px-6 py-3 bg-[#FF3F1A] text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition whitespace-nowrap">
+                                        Cập nhật thông tin
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                    </section>
+                    </div>
                 </div>
             </div>
         </main>
+
 
         <!-- Footer -->
         <footer id="footer" class="bg-black text-white">
@@ -1008,9 +791,10 @@
         <div class="p-4">
             <!-- Header với nút đóng -->
             <div class="flex justify-between items-center mb-6">
-                <img src="./img/icons/logonvb.png" height="30" width="50" class="relative-top-left transform scale-75 ">
-                    <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition">
-                <i class="fas fa-times text-2xl text-gray-600"></i>
+                <img src="../img/icons/logonvb.png" height="30" width="50"
+                    class="relative-top-left transform scale-75 ">
+                <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition">
+                    <i class="fas fa-times text-2xl text-gray-600"></i>
                 </button>
             </div>
 
