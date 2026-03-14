@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NVBPlay - Showroom Đồ Thể Thao Cầu Lông & Pickleball Chính Hãng</title>
+    <title>My Account | NVBPlay</title>
     <meta name="description"
         content="NVBPlay chuyên cung cấp đồ cầu lông và pickleball cao cấp, từ vợt, giày, đến phụ kiện chính hãng. Nâng cao trải nghiệm của bạn tại NVBPlay.">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -425,7 +425,7 @@
                         <div class="hidden md:flex items-center space-x-4">
                             <!-- Address Book -->
                             <div class="address-book">
-                                <a href="/my-account/address-book?back=true"
+                                <a href="./my-account/address-book.php"
                                     class="flex items-center text-gray-700 hover:text-red-600">
                                     <i class="fas fa-map-marker-alt mr-1"></i>
                                     <span class="shipping-address text-sm">
@@ -479,7 +479,7 @@
 
 
             <!-- Main Content -->
-            <div class="container mx-auto px-4 py-8">
+            <div class="container mx-auto px-4 py-8 m-[50px]">
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Sidebar -->
                     <div class="lg:w-1/4">
@@ -512,7 +512,7 @@
                                 <!-- Thông tin tài khoản  -->
                                 <li>
                                     <a href="./my-account.php"
-                                        class="flex items-center px-4 py-3 bg-[red-50] text-[#FF3F1A] font-medium border-l-4 border-[#FF3F1A]">
+                                        class="flex items-center px-4 py-3 bg-red-50 text-[#FF3F1A] font-medium border-l-4 border-[#FF3F1A]">
                                         <img src="../img/icons/account.svg" class="w-5 h-5 mr-3" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -538,7 +538,7 @@
 
                                 <!-- Sổ địa chỉ -->
                                 <li>
-                                    <a href="/my-account/address-book"
+                                    <a href="./my-account/address-book.php"
                                         class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
                                         <img src="../img/icons/diachi.svg" class="w-5 h-5 mr-3" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">
@@ -757,30 +757,7 @@
                 </div>
             </div>
 
-            <!-- Mobile Bottom Navigation -->
-            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 text-gray-700 z-50">
-                <div class="grid grid-cols-5 gap-1 p-2">
-                    <a href="/" class="flex flex-col items-center text-red-600">
-                        <i class="fas fa-home text-xl"></i>
-                        <span class="text-xs">Trang chủ</span>
-                    </a>
-                    <a href="/blogs" class="flex flex-col items-center">
-                        <i class="fas fa-newspaper text-xl"></i>
-                        <span class="text-xs">Bảng tin</span>
-                    </a>
-                    <a href="#" class="flex flex-col items-center">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span class="text-xs">Thông báo</span>
-                    </a>
-                    <a href="https://nvbplay.vn/cart" class="flex flex-col items-center">
-                        <i class="fas fa-shopping-cart text-xl"></i>
-                        <span class="text-xs">Giỏ hàng</span>
-                    </a>
-                    <a href="https://nvbplay.vn/my-account" class="flex flex-col items-center">
-                        <i class="fas fa-user text-xl"></i>
-                        <span class="text-xs">Tài khoản</span>
-                    </a>
-                </div>
+            
             </div>
         </footer>
     </div>

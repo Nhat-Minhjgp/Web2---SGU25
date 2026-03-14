@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account | NVBPlay</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -84,7 +83,7 @@
     <!-- Main Wrapper -->
     <div id="wrapper" class="min-h-screen flex flex-col">
         <!-- Header -->
-         <header id="header" class="sticky top-0 z-40 bg-white shadow-sm">
+        <header id="header" class="sticky top-0 z-40 bg-white shadow-sm">
             <div class="header-wrapper">
 
 
@@ -421,9 +420,8 @@
                         <!-- Logo (Center on mobile, left on desktop) -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
                             <a href="../index.php" title="NVBPlay" rel="home">
-                                <img width="100" height="40"
-                                    src="../../img/icons/logonvb.png"
-                                    alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75">
+                                <img width="100" height="40" src="../../img/icons/logonvb.png" alt="NVBPlay"
+                                    class="h-12 md:h-14 w-auto transform scale-75">
                             </a>
                         </div>
 
@@ -431,7 +429,7 @@
                         <div class="hidden md:flex items-center space-x-4">
                             <!-- Address Book -->
                             <div class="address-book">
-                                <a href="./address-book.php"
+                                <a href="./address=book.php"
                                     class="flex items-center text-gray-700 hover:text-red-600">
                                     <i class="fas fa-map-marker-alt mr-1"></i>
                                     <span class="shipping-address text-sm">
@@ -481,6 +479,7 @@
             </div>
         </header>
 
+
         <!-- MAIN CONTENT - -->
         <main class="flex-1">
             <!-- Mobile Account Header (visible on mobile only) -->
@@ -489,7 +488,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
 
-                            <h1 class="text-lg font-semibold">Quản lý đơn hàng</h1>
+                            <h1 class="text-lg font-semibold">Sổ địa chỉ</h1>
                         </div>
                         <button class="show-menu p-2" onclick="toggleMobileAccountMenu()">
                             <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/dot-line.svg"
@@ -508,11 +507,10 @@
                         <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4 md:mb-6 relative">
                             <div class="flex items-center space-x-3 md:space-x-4">
                                 <!-- Avatar -->
-                                <img src="../../img/icons/account.svg"
-                                    alt="User avatar"
+                                <img src="../../img/icons/account.svg" alt="User avatar"
                                     class="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-200">
                                 <!-- User Info và Rank -->
-                               <div class="flex-1">
+                                <div class="flex-1">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
                                             <h3 class="font-semibold text-gray-900">Placeholder</h3>
@@ -546,15 +544,15 @@
                                 <!-- Quản lý đơn hàng -->
                                 <li>
                                     <a href="./orders.php"
-                                        class="flex items-center px-4 py-3 bg-red-50 text-[#FF3F1A] font-medium border-l-4 border-[#FF3F1A]">
+                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition ">
                                         <img src="../../img/icons/clipboard.svg" class="w-5 h-5 mr-3" alt="Orders">
                                         <span class="text-sm md:text-base">Quản lý đơn hàng</span>
                                     </a>
                                 </li>
                                 <!-- Sổ địa chỉ -->
                                 <li>
-                                    <a href="./address-book.php"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
+                                    <a href=".address-book.php"
+                                        class="flex items-center px-4 py-3  text-[#FF3F1A] bg-red-50 font-medium border-l-4 border-[#FF3F1A] ">
                                         <img src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address">
                                         <span class="text-sm md:text-base">Sổ địa chỉ</span>
                                     </a>
@@ -579,377 +577,412 @@
                         </nav>
                     </div>
 
-                    <!-- Main Content Area -->
+                    <!-- Main Content Area - Sổ địa chỉ -->
                     <div class="lg:w-3/4">
-                        <!-- Order Management Header -->
-                        <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 lg:p-8 mb-6">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                <h3 class="text-lg md:text-xl font-semibold text-gray-900">Đơn hàng của tôi</h3>
-                                <!-- Search Orders -->
-                                <form class="flex flex-col sm:flex-row gap-3">
-                                    <div class="relative flex-1">
-                                        <input type="text" placeholder="Tìm kiếm đơn hàng (Mã đơn, tên sản phẩm...)"
-                                            class="w-full px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition pl-10 text-sm md:text-base">
-                                        <i
-                                            class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    </div>
-                                    <button type="submit"
-                                        class="px-4 md:px-6 py-2 md:py-3 bg-[#FF3F1A] text-white rounded-lg hover:bg-red-700 transition whitespace-nowrap text-sm md:text-base">
-                                        Tìm kiếm
-                                    </button>
-                                </form>
-                            </div>
-                            <!-- Order Status Tabs -->
-                            <div class="flex overflow-x-auto scrollbar-hide mt-6 border-b border-gray-200"
-                                id="order-tabs">
-                                <button data-status="all"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-[#FF3F1A] border-b-2 border-[#FF3F1A] whitespace-nowrap transition">Tất
-                                    cả</button>
-                                <button data-status="pending-payment"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Chờ
-                                    thanh toán</button>
-                                <button data-status="processing"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Đang
-                                    xử lý</button>
-                                <button data-status="shipping"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Đang
-                                    giao</button>
-                                <button data-status="completed"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Đã
-                                    giao</button>
-                                <button data-status="cancelled"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Đã
-                                    hủy</button>
-                                <button data-status="refunded"
-                                    class="tab-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#FF3F1A] whitespace-nowrap transition">Trả
-                                    hàng/Hoàn tiền</button>
-                            </div>
-                        </div>
+                        <div class="woocommerce">
+                            <div class="woocommerce-MyAccount-content">
+                                <div class="woocommerce-notices-wrapper"></div>
+                                <div id="address_book_section">
+                                    <!-- Address List -->
+                                    <div class="address-list">
+                                        <div class="is-page">
+                                            <div class="is-page inner-top-large">
+                                                <div class="affiliate-header">
+                                                    <div class="affiliate-header-title">
+                                                        <div class="flex items-center justify-between mb-6">
+                                                            <div class="flex items-center gap-2">
+                                                                <h1 class="text-xl font-semibold">Sổ địa chỉ</h1>
+                                                            </div>
 
-                        <!-- Loading Spinner -->
-                        <div id="orders-loading" class="hidden py-12 text-center">
-                            <div
-                                class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent">
-                            </div>
-                            <p class="mt-4 text-gray-500">Đang tải đơn hàng...</p>
-                        </div>
+                                                            <div class="flex items-center gap-3">
+                                                                <span
+                                                                    class="add_new_address_btn inline-flex items-center px-4 py-2 bg-[#FF3F1A] text-white rounded-lg hover:bg-red-700 transition cursor-pointer">
+                                                                    <i class="fas fa-plus mr-2"></i>Thêm địa chỉ mới
+                                                                </span>
+                                                               
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                        <!-- Orders List -->
-                        <div id="orders-list" class="space-y-4">
-                            <!-- Order Item 1 - Completed -->
-                            <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 hover:shadow-md transition">
-                                <!-- Order Header -->
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-100">
-                                    <div class="flex items-center gap-4">
-                                        <div>
-                                            <span class="text-sm text-gray-500">Mã đơn hàng</span>
-                                            <p class="font-semibold text-gray-900">#NVB-2024-001</p>
+                                        <div class="inner-center mt-6">
+                                            <div class="title-wrap is-popup hidden">
+                                                <span>Danh sách địa chỉ</span>
+                                                <a class="address-page" href="/my-account/address-book?back=true">
+                                                    <i></i>
+                                                    Sổ địa chỉ
+                                                </a>
+                                            </div>
+
+                                            <!-- Danh sách địa chỉ -->
+                                            <div class="space-y-4">
+                                                <!-- Địa chỉ mẫu 1 - Mặc định -->
+                                                <div
+                                                    class="address-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                                    <div class="flex items-start justify-between">
+                                                        <div class="flex-1 relative">
+                                                            <div class="flex items-center gap-3 mb-2">
+                                                                <span class="font-semibold text-gray-900">Thanh
+                                                                    Sang</span>
+                                                                <span class="text-sm text-gray-500">|
+                                                                    0987.879.243</span>
+                                                                <span
+                                                                    class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full text-center transform">Mặc
+                                                                    định</span>
+                                                            </div>
+                                                            <p class="text-gray-700 mb-2">62 Lê Bình, Phường Tân An,
+                                                                Quận Ninh Kiều, Cần Thơ</p>
+                                                            <div class="flex items-center gap-2">
+                                                                <span
+                                                                    class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">Nhà
+                                                                    riêng</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-2 relative">
+                                                            <button
+                                                                class="edit-address p-2 text-gray-500 hover:text-blue-600 transition"
+                                                                data-id="1" data-name="Thanh Sang"
+                                                                data-phone="0987879243"
+                                                                data-address="62 Lê Bình, Phường Tân An, Quận Ninh Kiều, Cần Thơ"
+                                                                data-type="Nhà riêng" data-default="1">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button
+                                                                class="delete-address p-2 text-gray-500 hover:text-red-600 transition"
+                                                                data-id="1">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Địa chỉ mẫu 2 -->
+                                                <div
+                                                    class="address-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                                    <div class="flex items-start justify-between">
+                                                        <div class="flex-1">
+                                                            <div class="flex items-center gap-3 mb-2">
+                                                                <span class="font-semibold text-gray-900">Trần Văn
+                                                                    A</span>
+                                                                <span class="text-sm text-gray-500">|
+                                                                    0909.123.456</span>
+                                                            </div>
+                                                            <p class="text-gray-700 mb-2">123 Đường 30/4, Phường Xuân
+                                                                Khánh, Quận Ninh Kiều, Cần Thơ</p>
+                                                            <div class="flex items-center gap-2">
+                                                                <span
+                                                                    class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">Cơ
+                                                                    quan</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <button
+                                                                class="edit-address p-2 text-gray-500 hover:text-blue-600 transition"
+                                                                data-id="2" data-name="Trần Văn A"
+                                                                data-phone="0909123456"
+                                                                data-address="123 Đường 30/4, Phường Xuân Khánh, Quận Ninh Kiều, Cần Thơ"
+                                                                data-type="Cơ quan" data-default="0">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button
+                                                                class="delete-address p-2 text-gray-500 hover:text-red-600 transition"
+                                                                data-id="2">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Thông báo khi chưa có địa chỉ -->
+                                            <p class="addressbook text-center py-8 text-gray-500 hidden"
+                                                data-address="false">Chưa có địa chỉ nào</p>
+
+                                            <span class="add_new_address_btn is-popup hidden button"><i></i>Thêm địa chỉ
+                                                mới</span>
                                         </div>
-                                        <div class="hidden sm:block w-px h-8 bg-gray-200"></div>
-                                        <div>
-                                            <span class="text-sm text-gray-500">Ngày đặt</span>
-                                            <p class="font-medium">15/03/2024</p>
+
+                                        <div class="is-popup inner-bottom hidden">
+                                            <span id="apply-address" class="apply">Áp dụng</span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-3">
-                                        <span
-                                            class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Đã
-                                            giao</span>
-                                        <button class="text-gray-400 hover:text-gray-600"
-                                            onclick="toggleOrderDetails(1)">
-                                            <i class="fas fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Order Products -->
-                                <div class="py-4 space-y-3 order-details" id="order-details-1">
-                                    <!-- Product 1 -->
-                                    <div class="flex items-start gap-4">
-                                        <img src="../img/icons/product-placeholder.jpg" alt="Product"
-                                            class="w-16 h-16 object-cover rounded-lg border border-gray-200">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-gray-900">Vợt cầu lông Yonex Nanoflare 800</h4>
-                                            <p class="text-sm text-gray-500">Màu: Xanh đen | Số: 4U5</p>
-                                            <div class="flex items-center justify-between mt-1">
-                                                <span class="text-sm text-gray-600">Số lượng: 1</span>
-                                                <span class="font-semibold text-[#FF3F1A]">3,890,000₫</span>
+
+                                    <!-- Popup thêm/sửa địa chỉ -->
+                                    <div class="address-add-new popup-current fixed inset-0 z-50 hidden"
+                                        style="display: none;">
+                                        <div class="absolute inset-0 bg-black bg-opacity-50"
+                                            onclick="closeAddressPopup()"></div>
+                                        <div
+                                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl">
+                                            <div
+                                                class="inner-top flex items-center justify-between p-4 border-b border-gray-200">
+                                                <span
+                                                    class="back button text-gray-500 hover:text-gray-700 cursor-pointer">
+                                                    <i class="fas fa-arrow-left"></i>
+                                                </span>
+                                                <div>
+                                                    <span class="type-add font-semibold text-lg">Thêm địa chỉ
+                                                        khác</span>
+                                                    <span class="type-edit font-semibold text-lg"
+                                                        style="display: none">Cập nhật địa chỉ</span>
+                                                </div>
+                                                <span
+                                                    class="mfp-close button text-gray-500 hover:text-gray-700 cursor-pointer">
+                                                    <i class="fas fa-times"></i>
+                                                </span>
+                                            </div>
+
+                                            <div class="inner-center p-4">
+                                                <input type="hidden" id="address_id">
+                                                <div class="field-wrap space-y-4">
+                                                    <div class="item">
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                            Họ và tên <span class="text-red-500">*</span>
+                                                        </label>
+                                                        <input type="text" id="full_name" name="full_name"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                                                            oninput="this.value = this.value.replace(/[0-9]/g, '')"
+                                                            placeholder="Nhập họ và tên người nhận" maxlength="20"
+                                                            required="">
+                                                    </div>
+
+                                                    <div class="item">
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                            Số điện thoại <span class="text-red-500">*</span>
+                                                        </label>
+                                                        <input type="text" id="phone_number" name="phone_number"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                                                            pattern="^\d{10}$"
+                                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                            maxlength="10" placeholder="Nhập số điện thoại" required="">
+                                                    </div>
+
+                                                    <div class="item item-full">
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                            Địa chỉ <span class="text-red-500">*</span>
+                                                        </label>
+                                                        <input type="text" id="full_address" name="full_address"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                                                            placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                                                            required="">
+                                                    </div>
+
+                                                    <div class="item item-full">
+                                                        <label class="block text-sm font-medium text-gray-700 mb-2">Loại
+                                                            địa chỉ</label>
+                                                        <div class="type-checkbox flex gap-4">
+                                                            <div class="checkbox-item">
+                                                                <input type="radio" class="address_type mr-2"
+                                                                    id="address_type_home" name="address_type"
+                                                                    value="Nhà riêng">
+                                                                <label for="address_type_home"
+                                                                    class="text-sm text-gray-700">Nhà riêng</label>
+                                                            </div>
+                                                            <div class="checkbox-item">
+                                                                <input type="radio" class="address_type mr-2"
+                                                                    id="address_type_office" name="address_type"
+                                                                    value="Cơ quan">
+                                                                <label for="address_type_office"
+                                                                    class="text-sm text-gray-700">Cơ quan</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="item item-full set-default">
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" id="is_default" name="is_default"
+                                                                class="mr-2">
+                                                            <span class="text-sm text-gray-700">Đặt làm mặc định</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="inner-bottom flex items-center justify-end gap-3 p-4 border-t border-gray-200">
+                                                <span
+                                                    class="back button px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition cursor-pointer">Trở
+                                                    lại</span>
+                                                <span id="save_address"
+                                                    class="apply button px-4 py-2 bg-[#FF3F1A] text-white rounded-lg hover:bg-red-700 transition cursor-pointer">
+                                                    <span class="type-add">Thêm</span>
+                                                    <span class="type-edit" style="display: none">Cập nhật</span>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Product 2 -->
-                                    <div class="flex items-start gap-4">
-                                        <img src="../img/icons/product-placeholder.jpg" alt="Product"
-                                            class="w-16 h-16 object-cover rounded-lg border border-gray-200">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-gray-900">Áo cầu lông Yonex 15009</h4>
-                                            <p class="text-sm text-gray-500">Màu: Trắng | Size: L</p>
-                                            <div class="flex items-center justify-between mt-1">
-                                                <span class="text-sm text-gray-600">Số lượng: 2</span>
-                                                <span class="font-semibold text-[#FF3F1A]">1,180,000₫</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Order Footer -->
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-gray-600">Tổng tiền:</span>
-                                        <span class="text-xl font-bold text-[#FF3F1A]">5,070,000₫</span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button
-                                            class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">Mua
-                                            lại</button>
-                                        <button
-                                            class="px-4 py-2 text-sm bg-[#FF3F1A] text-white rounded-lg hover:bg-red-700 transition">Đánh
-                                            giá</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Order Item 2 - Processing -->
-                            <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 hover:shadow-md transition">
-                                <!-- Order Header -->
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-100">
-                                    <div class="flex items-center gap-4">
-                                        <div>
-                                            <span class="text-sm text-gray-500">Mã đơn hàng</span>
-                                            <p class="font-semibold text-gray-900">#NVB-2024-002</p>
-                                        </div>
-                                        <div class="hidden sm:block w-px h-8 bg-gray-200"></div>
-                                        <div>
-                                            <span class="text-sm text-gray-500">Ngày đặt</span>
-                                            <p class="font-medium">18/03/2024</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <span
-                                            class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Đang
-                                            xử lý</span>
-                                        <button class="text-gray-400 hover:text-gray-600"
-                                            onclick="toggleOrderDetails(2)">
-                                            <i class="fas fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Order Products -->
-                                <div class="py-4 order-details" id="order-details-2">
-                                    <div class="flex items-start gap-4">
-                                        <img src="../img/icons/product-placeholder.jpg" alt="Product"
-                                            class="w-16 h-16 object-cover rounded-lg border border-gray-200">
-                                        <div class="flex-1">
-                                            <h4 class="font-medium text-gray-900">Giày cầu lông Yonex 65Z3</h4>
-                                            <p class="text-sm text-gray-500">Màu: Trắng/Vàng | Size: 42</p>
-                                            <div class="flex items-center justify-between mt-1">
-                                                <span class="text-sm text-gray-600">Số lượng: 1</span>
-                                                <span class="font-semibold text-[#FF3F1A]">2,450,000₫</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Order Footer -->
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-gray-600">Tổng tiền:</span>
-                                        <span class="text-xl font-bold text-[#FF3F1A]">2,450,000₫</span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button
-                                            class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">Hủy
-                                            đơn</button>
-                                        <button
-                                            class="px-4 py-2 text-sm bg-[#FF3F1A] text-white rounded-lg hover:bg-red-700 transition">Theo
-                                            dõi</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Pagination -->
-                        <div id="orders-pagination" class="flex justify-center mt-8">
-                            <nav class="flex items-center gap-2 flex-wrap justify-center">
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-                                    <i class="fas fa-chevron-left text-sm"></i>
+
+
+
+
+
+                    <!-- Mobile Account Menu Overlay -->
+                    <div id="mobile-account-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"
+                        onclick="toggleMobileAccountMenu()"></div>
+
+                    <!-- Mobile Account Slide Menu -->
+                    <div id="mobile-account-menu"
+                        class="fixed top-0 left-0 h-full w-80 bg-white z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+                        <div class="p-4">
+                            <!-- Mobile Menu Header -->
+                            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://nvbplay.vn/wp-content/uploads/nsl_avatars/7424eec3a804c2625ac8426e7d634274.jpg"
+                                        alt="User avatar" class="w-12 h-12 rounded-full border-2 border-gray-200">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Thanh Sang</h3>
+                                        <p class="text-xs text-gray-500">#527</p>
+                                    </div>
+                                </div>
+                                <button onclick="toggleMobileAccountMenu()" class="p-2">
+                                    <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/close.svg"
+                                        alt="Close" class="w-5 h-5">
                                 </button>
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg bg-[#FF3F1A] text-white">1</button>
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">2</button>
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">3</button>
-                                <span class="w-10 h-10 flex items-center justify-center">...</span>
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">8</button>
-                                <button
-                                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-                                    <i class="fas fa-chevron-right text-sm"></i>
-                                </button>
+                            </div>
+
+                            <!-- Mobile Menu Navigation -->
+                            <nav>
+                                <ul class="space-y-2">
+                                    <li>
+                                        <a href="../my-account.php"
+                                            class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                            <img src="../../img/icons/account.svg" class="w-5 h-5 mr-3" alt="Account">
+                                            <span>Thông tin tài khoản</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="./orders.php"
+                                            class=" flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                            <img src="../../img/icons/clipboard.svg" class="w-5 h-5 mr-3" alt="Orders">
+                                            <span>Quản lý đơn hàng</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="./address-book.php"
+                                            class="flex items-center px-4 py-3 bg-red-50 text-[#FF3F1A] font-medium rounded-lg">
+                                            <img src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address">
+                                            <span>Sổ địa chỉ</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/my-account/coupons"
+                                            class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                            <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
+                                            <span>Ví voucher</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/my-account/logout"
+                                            class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                            <img src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
+                                            <span>Đăng xuất</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </nav>
                         </div>
                     </div>
+
                 </div>
+
             </div>
-        </main>
-
-        <!-- Mobile Account Menu Overlay -->
-        <div id="mobile-account-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"
-            onclick="toggleMobileAccountMenu()"></div>
-
-        <!-- Mobile Account Slide Menu -->
-        <div id="mobile-account-menu"
-            class="fixed top-0 left-0 h-full w-80 bg-white z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
-            <div class="p-4">
-                <!-- Mobile Menu Header -->
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                    <div class="flex items-center space-x-3">
-                        <img src="https://nvbplay.vn/wp-content/uploads/nsl_avatars/7424eec3a804c2625ac8426e7d634274.jpg"
-                            alt="User avatar" class="w-12 h-12 rounded-full border-2 border-gray-200">
+            <!-- Footer -->
+            <footer id="footer" class="bg-black text-white">
+                <div class="container mx-auto px-4 py-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Column 1: Brand -->
+                        <div class="pl-5">
+                            <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
+                            <div class="flex space-x-3 mb-4">
+                                <a href="https://www.facebook.com/nvbplay" target="_blank"
+                                    class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+                                    class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                                    <i class="fab fa-tiktok"></i>
+                                </a>
+                                <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+                                    class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Column 2: Policies -->
                         <div>
-                            <h3 class="font-semibold text-gray-900">Thanh Sang</h3>
-                            <p class="text-xs text-gray-500">#527</p>
+                            <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
+                            <ul class="space-y-2">
+                                <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                        SÁCH BẢO MẬT</a></li>
+                                <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                        SÁCH THANH TOÁN</a></li>
+                                <li><a href="a" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO
+                                        HÀNH ĐỔI
+                                        TRẢ</a>
+                                </li>
+                                <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                        SÁCH VẬN CHUYỂN</a></li>
+                                <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ
+                                        THUẬN SỬ DỤNG</a></li>
+                            </ul>
+                        </div>
+                        <!-- Column 3: Contact -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
+                                        <span class="font-medium w-20">Địa chỉ:</span>
+                                        <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="flex">
+                                        <span class="font-medium w-20">Giờ làm việc:</span>
+                                        <span class="text-gray-400">08:00 - 21:00</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="tel:0987.879.243" class="flex">
+                                        <span class="font-medium w-20">Hotline:</span>
+                                        <span class="text-gray-400">0987.879.243</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="mailto:info@nvbplay.vn" class="flex">
+                                        <span class="font-medium w-20">Email:</span>
+                                        <span class="text-gray-400">info@nvbplay.vn</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                    <button onclick="toggleMobileAccountMenu()" class="p-2">
-                        <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/close.svg" alt="Close"
-                            class="w-5 h-5">
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Navigation -->
-                <nav>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="../my-account.php"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/account.svg" class="w-5 h-5 mr-3" alt="Account">
-                                <span>Thông tin tài khoản</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="./orders.php"
-                                class="flex items-center px-4 py-3 bg-red-50 text-[#FF3F1A] font-medium rounded-lg">
-                                <img src="../../img/icons/clipboard.svg" class="w-5 h-5 mr-3" alt="Orders">
-                                <span>Quản lý đơn hàng</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="./address-book.php"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address">
-                                <span>Sổ địa chỉ</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/my-account/coupons"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
-                                <span>Ví voucher</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/my-account/logout"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
-                                <span>Đăng xuất</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer id="footer" class="bg-black text-white">
-            <div class="container mx-auto px-4 py-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Column 1: Brand -->
-                    <div class="pl-5">
-                        <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
-                        <div class="flex space-x-3 mb-4">
-                            <a href="https://www.facebook.com/nvbplay" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-tiktok"></i>
-                            </a>
-                            <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fas fa-shopping-bag"></i>
-                            </a>
+                    <!-- Divider -->
+                    <div class="border-t border-gray-800 my-6"></div>
+                    <!-- Bottom Footer -->
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                            <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
+                            <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                         </div>
-                    </div>
-                    <!-- Column 2: Policies -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
-                        <ul class="space-y-2">
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH BẢO MẬT</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH THANH TOÁN</a></li>
-                            <li><a href="a" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                    TRẢ</a>
-                            </li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH VẬN CHUYỂN</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ
-                                    THUẬN SỬ DỤNG</a></li>
-                        </ul>
-                    </div>
-                    <!-- Column 3: Contact -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
-                                    <span class="font-medium w-20">Địa chỉ:</span>
-                                    <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
-                                </a>
-                            </li>
-                            <li>
-                                <div class="flex">
-                                    <span class="font-medium w-20">Giờ làm việc:</span>
-                                    <span class="text-gray-400">08:00 - 21:00</span>
-                                </div>
-                            </li>
-                            <li>
-                                <a href="tel:0987.879.243" class="flex">
-                                    <span class="font-medium w-20">Hotline:</span>
-                                    <span class="text-gray-400">0987.879.243</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="mailto:info@nvbplay.vn" class="flex">
-                                    <span class="font-medium w-20">Email:</span>
-                                    <span class="text-gray-400">info@nvbplay.vn</span>
-                                </a>
-                            </li>
-                        </ul>
+                        <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
+                            <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
+                                alt="Bộ Công Thương" class="h-12 w-auto">
+                        </a>
                     </div>
                 </div>
-                <!-- Divider -->
-                <div class="border-t border-gray-800 my-6"></div>
-                <!-- Bottom Footer -->
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-gray-500 text-sm mb-4 md:mb-0">
-                        <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
-                        <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
-                    </div>
-                    <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
-                        <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-                            alt="Bộ Công Thương" class="h-12 w-auto">
-                    </a>
-                </div>
-            </div>
 
-        </footer>
+            </footer>
     </div>
+
+
 
 
 
@@ -1177,7 +1210,8 @@
                     <!-- Submenu Tin Tức -->
                     <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-news">
                         <div>
-                            <a href="https://nvbplay.vn/thong-tin" class="block py-2 text-gray-700">Thông tin</a>
+                            <a href="https://nvbplay.vn/thong-tin" class="block py-2 text-gray-700">Thông
+                                tin</a>
                         </div>
                         <div>
                             <a href="https://nvbplay.vn/cau-long" class="block py-2 text-gray-700">Cầu lông</a>
@@ -1250,7 +1284,7 @@
             }
         });
     </script>
- <!-- javascript for desktop menu-->
+    <!-- javascript for desktop menu-->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const menuTrigger = document.getElementById('mega-menu-trigger');
