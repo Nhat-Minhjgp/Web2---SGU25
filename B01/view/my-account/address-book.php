@@ -557,14 +557,7 @@
                                         <span class="text-sm md:text-base">Sổ địa chỉ</span>
                                     </a>
                                 </li>
-                                <!-- Ví voucher -->
-                                <li>
-                                    <a href="/my-account/coupons"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
-                                        <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
-                                        <span class="text-sm md:text-base">Ví voucher</span>
-                                    </a>
-                                </li>
+                              
                                 <!-- Đăng xuất -->
                                 <li>
                                     <a href="/my-account/logout"
@@ -834,16 +827,16 @@
                             <!-- Mobile Menu Header -->
                             <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                                 <div class="flex items-center space-x-3">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/nsl_avatars/7424eec3a804c2625ac8426e7d634274.jpg"
+                                    <img src="../../img/icons/account.svg"
                                         alt="User avatar" class="w-12 h-12 rounded-full border-2 border-gray-200">
                                     <div>
-                                        <h3 class="font-semibold text-gray-900">Thanh Sang</h3>
-                                        <p class="text-xs text-gray-500">#527</p>
+                                        <h3 class="font-semibold text-gray-900">Placeholder</h3>
+                                        <p class="text-xs text-gray-500">###</p>
                                     </div>
                                 </div>
                                 <button onclick="toggleMobileAccountMenu()" class="p-2">
-                                    <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/close.svg"
-                                        alt="Close" class="w-5 h-5">
+                                    <img src="../../img/icons/subscription.svg"
+                                        alt="subscription" class="w-25 h-25">
                                 </button>
                             </div>
 
@@ -871,13 +864,7 @@
                                             <span>Sổ địa chỉ</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="/my-account/coupons"
-                                            class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                            <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
-                                            <span>Ví voucher</span>
-                                        </a>
-                                    </li>
+                                   
                                     <li>
                                         <a href="/my-account/logout"
                                             class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
