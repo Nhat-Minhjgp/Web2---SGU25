@@ -136,7 +136,7 @@ body.filter-open { overflow: hidden; }
                     <div class="address-book"><a href="/my-account/address-book?back=true" class="flex items-center text-gray-700 hover:text-red-600"><i class="fas fa-map-marker-alt mr-1"></i><span class="shipping-address text-sm"><span class="text">Chọn địa chỉ</span></span></a></div>
                     <div class="h-5 w-px bg-gray-300"></div>
                     <div class="search-header relative"><button class="search-toggle p-2"><i class="fas fa-search text-gray-700 hover:text-red-600"></i></button></div>
-                    <a href="https://nvbplay.vn/my-account" class="p-2"><i class="far fa-user text-gray-700 hover:text-red-600 text-xl"></i></a>
+                    <a href="./my-account.php" class="p-2"><i class="far fa-user text-gray-700 hover:text-red-600 text-xl"></i></a>
                     <a href="https://nvbplay.vn/cart" class="relative p-2"><i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i><span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span></a>
                 </div>
                 <div class="md:hidden flex items-center space-x-3">

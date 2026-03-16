@@ -65,8 +65,7 @@
         }
     </style>
 
-    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png"
-        sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
@@ -415,9 +414,8 @@
                         <!-- Logo (Center on mobile, left on desktop) -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
                             <a href="../index.php" title="NVBPlay" rel="home">
-                                <img width="100" height="40"
-                                    src="../img/icons/logonvb.png"
-                                    alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75">
+                                <img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay"
+                                    class="h-12 md:h-14 w-auto transform scale-75">
                             </a>
                         </div>
 
@@ -475,12 +473,27 @@
             </div>
         </header>
 
-        <main class="flex-1 m-[30px]">
 
+        <!-- MAIN CONTENT(Mobile)  -->
+        <main class="flex-1">
+            <!-- Mobile Account Header (visible on mobile only) -->
+            <div class="lg:hidden bg-white border-b border-gray-200">
+                <div class="container mx-auto px-4 py-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
 
+                            <h1 class="text-lg font-semibold">Tài khoản của tôi</h1>
+                        </div>
+                        <button class="show-menu p-2" onclick="toggleMobileAccountMenu()">
+                            <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/dot-line.svg"
+                                alt="Menu" class="w-6 h-6">
+                        </button>
+                    </div>
+                </div>
+            </div>
             <!-- Main Content -->
-            <div class="container mx-auto px-4 py-8 m-[50px]">
-                <div class="flex flex-col lg:flex-row gap-8">
+            <div class="container mx-auto px-4 py-4 md:py-8 m-[50px]">
+                <div class="flex flex-col lg:flex-row gap-4 md:gap-8">
                     <!-- Sidebar -->
                     <div class="lg:w-1/4">
                         <!-- User Info Card -->
@@ -507,7 +520,7 @@
                         </div>
 
                         <!-- Navigation Menu -->
-                        <nav class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <nav class="bg-white rounded-lg shadow-sm overflow-hidden hidden lg:block">
                             <ul class="divide-y divide-gray-200">
                                 <!-- Thông tin tài khoản  -->
                                 <li>
@@ -552,19 +565,7 @@
                                     </a>
                                 </li>
 
-                                <!-- Ví voucher -->
-                                <li>
-                                    <a href="/my-account/coupons"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
-                                        <img src="../img/icons/vi.svg" class="w-5 h-5 mr-3" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7">
-                                        </path>
-                                        </svg>
-                                        Ví voucher
-                                    </a>
-                                </li>
+
 
                                 <!-- Đăng xuất -->
                                 <li>
@@ -585,26 +586,6 @@
 
                     <!-- Main Content Area -->
                     <div class="lg:w-3/4">
-                        <!-- Mobile Header (visible on mobile only) -->
-                        <div class="lg:hidden flex items-center justify-between mb-6">
-                            <div class="flex items-center">
-                                <button class="mr-3">
-                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7"></path>
-                                    </svg>
-                                </button>
-                                <h2 class="text-lg font-semibold">Tài khoản của tôi</h2>
-                            </div>
-                            <button>
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"></path>
-                                </svg>
-                            </button>
-                        </div>
 
                         <!-- Edit Account Form -->
                         <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
@@ -668,99 +649,161 @@
         </main>
 
 
-        <!-- Footer -->
-        <footer id="footer" class="bg-black text-white">
-            <div class="container mx-auto px-4 py-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Column 1: Brand -->
-                    <div class="pl-5">
-                        <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
-                        <div class="flex space-x-3 mb-4">
-                            <a href="https://www.facebook.com/nvbplay" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-tiktok"></i>
-                            </a>
-                            <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fas fa-shopping-bag"></i>
-                            </a>
+        <!-- Mobile Account Menu Overlay -->
+        <div id="mobile-account-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"
+            onclick="toggleMobileAccountMenu()"></div>
+
+        <!-- Mobile Account Slide Menu -->
+        <div id="mobile-account-menu"
+            class="fixed top-0 left-0 h-full w-80 bg-white z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+            <div class="p-4">
+                <!-- Mobile Menu Header -->
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <img src="../img/icons/account.svg"
+                            alt="User avatar" class="w-12 h-12 rounded-full border-2 border-gray-200">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Placeholder</h3>
+                            <p class="text-xs text-gray-500">###</p>
                         </div>
                     </div>
-
-                    <!-- Column 2: Policies -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
-                        <ul class="space-y-2">
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH BẢO MẬT</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH THANH TOÁN</a></li>
-                            <li><a href="a" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                    TRẢ</a>
-                            </li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
-                                    SÁCH VẬN CHUYỂN</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ
-                                    THUẬN SỬ DỤNG</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Column 3: Contact -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
-                                    <span class="font-medium w-20">Địa chỉ:</span>
-                                    <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
-                                </a>
-                            </li>
-                            <li>
-                                <div class="flex">
-                                    <span class="font-medium w-20">Giờ làm việc:</span>
-                                    <span class="text-gray-400">08:00 - 21:00</span>
-                                </div>
-                            </li>
-                            <li>
-                                <a href="tel:0987.879.243" class="flex">
-                                    <span class="font-medium w-20">Hotline:</span>
-                                    <span class="text-gray-400">0987.879.243</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="mailto:info@nvbplay.vn" class="flex">
-                                    <span class="font-medium w-20">Email:</span>
-                                    <span class="text-gray-400">info@nvbplay.vn</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <button onclick="toggleMobileAccountMenu()" class="p-2">
+                        <img src="../img/icons/subscription.svg" alt="Close"
+                            class="w-25 h-25">
+                    </button>
                 </div>
 
-                <!-- Divider -->
-                <div class="border-t border-gray-800 my-6"></div>
+                <!-- Mobile Menu Navigation -->
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="./my-account.php"
+                                class="flex items-center px-4 py-3 bg-red-50 text-[#FF3F1A] font-medium rounded-lg">
+                                <img src="../img/icons/account.svg" class="w-5 h-5 mr-3" alt="Account">
+                                <span>Thông tin tài khoản</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./my-account/orders.php"
+                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                <img src="../img/icons/clipboard.svg" class="w-5 h-5 mr-3" alt="Orders">
+                                <span>Quản lý đơn hàng</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./my-account/address-book.php"
+                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                <img src="../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address">
+                                <span>Sổ địa chỉ</span>
+                            </a>
+                        </li>
 
-                <!-- Bottom Footer -->
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-gray-500 text-sm mb-4 md:mb-0">
-                        <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
-                        <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
-                    </div>
-                    <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
-                        <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-                            alt="Bộ Công Thương" class="h-12 w-auto">
-                    </a>
-                </div>
+                        <li>
+                            <a href="/my-account/logout"
+                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+                                <img src="../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
+                                <span>Đăng xuất</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-
-            
-            </div>
-        </footer>
+        </div>
     </div>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-black text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Column 1: Brand -->
+                <div class="pl-5">
+                    <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
+                    <div class="flex space-x-3 mb-4">
+                        <a href="https://www.facebook.com/nvbplay" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fas fa-shopping-bag"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Policies -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
+                    <ul class="space-y-2">
+                        <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                SÁCH BẢO MẬT</a></li>
+                        <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                SÁCH THANH TOÁN</a></li>
+                        <li><a href="a" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+                                TRẢ</a>
+                        </li>
+                        <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH
+                                SÁCH VẬN CHUYỂN</a></li>
+                        <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ
+                                THUẬN SỬ DỤNG</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Contact -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
+                                <span class="font-medium w-20">Địa chỉ:</span>
+                                <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex">
+                                <span class="font-medium w-20">Giờ làm việc:</span>
+                                <span class="text-gray-400">08:00 - 21:00</span>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="tel:0987.879.243" class="flex">
+                                <span class="font-medium w-20">Hotline:</span>
+                                <span class="text-gray-400">0987.879.243</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:info@nvbplay.vn" class="flex">
+                                <span class="font-medium w-20">Email:</span>
+                                <span class="text-gray-400">info@nvbplay.vn</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-800 my-6"></div>
+
+            <!-- Bottom Footer -->
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                    <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
+                    <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
+                </div>
+                <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
+                    <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
+                        alt="Bộ Công Thương" class="h-12 w-auto">
+                </a>
+            </div>
+        </div>
+
+
+        </div>
+    </footer>
+ 
 
     <!-- Mobile Menu (Hidden by default) -->
     <div id="main-menu"
@@ -1056,19 +1099,18 @@
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
-
             if (menuToggle) {
                 menuToggle.addEventListener('click', function () {
                     mobileMenu.classList.remove('-translate-x-full');
+                    document.body.style.overflow = 'hidden';
                 });
             }
-
             if (closeMenu) {
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
+                    document.body.style.overflow = '';
                 });
             }
-
             // Category dropdown toggle
             const categoryButton = document.querySelector('.relative button');
             if (categoryButton) {
@@ -1081,7 +1123,6 @@
             }
         });
     </script>
-
     <!-- javascript for desktop menu-->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -1229,14 +1270,77 @@
             });
         });
     </script>
-    <!-- Add padding bottom for mobile to account for bottom nav -->
-    <style>
-        @media (max-width: 768px) {
-            body {
-                padding-bottom: 70px;
+    <!-- JavaScript for mobile account menu -->
+    <script>
+        function toggleMobileAccountMenu() {
+            const mobileMenu = document.getElementById('mobile-account-menu');
+            const overlay = document.getElementById('mobile-account-overlay');
+            const body = document.body;
+
+            if (mobileMenu.classList.contains('-translate-x-full')) {
+                // Open menu
+                mobileMenu.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                body.style.overflow = 'hidden';
+            } else {
+                // Close menu
+                mobileMenu.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                body.style.overflow = '';
             }
         }
-    </style>
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (e) {
+            const mobileMenu = document.getElementById('mobile-account-menu');
+            const overlay = document.getElementById('mobile-account-overlay');
+            const showMenuBtn = document.querySelector('.show-menu');
+
+            if (mobileMenu && !mobileMenu.contains(e.target) &&
+                !overlay.contains(e.target) &&
+                showMenuBtn && !showMenuBtn.contains(e.target)) {
+                mobileMenu.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+
+    <!-- Category dropdown toggles -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Category dropdown toggles
+            const categoryToggles = document.querySelectorAll('.category-toggle');
+            categoryToggles.forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const category = this.getAttribute('data-category');
+                    const submenu = document.getElementById(`submenu-${category}`);
+                    const icon = this.querySelector('.fa-chevron-down');
+                    // Toggle submenu
+                    if (submenu) {
+                        submenu.classList.toggle('hidden');
+                        // Rotate icon
+                        if (icon) {
+                            icon.classList.toggle('rotate-180');
+                        }
+                        // Toggle active state
+                        this.classList.toggle('bg-red-50');
+                        this.classList.toggle('text-red-600');
+                    }
+                });
+            });
+            // Close menu when clicking outside (optional)
+            const mobileMenu = document.getElementById('main-menu');
+            const menuToggle = document.querySelector('.menu-toggle');
+            document.addEventListener('click', function (e) {
+                if (mobileMenu && !mobileMenu.contains(e.target) && menuToggle && !menuToggle.contains(e.target)) {
+                    mobileMenu.classList.add('-translate-x-full');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>

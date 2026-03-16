@@ -481,7 +481,7 @@
             </div>
         </header>
 
-        <!-- MAIN CONTENT - -->
+        <!-- MAIN CONTENT(Mobile)  -->
         <main class="flex-1">
             <!-- Mobile Account Header (visible on mobile only) -->
             <div class="lg:hidden bg-white border-b border-gray-200">
@@ -499,7 +499,7 @@
                 </div>
             </div>
 
-            <!-- Main Content -->
+            <!-- Main Content (Desktop) -->
             <div class="container mx-auto px-4 py-4 md:py-8 m-[50px]">
                 <div class="flex flex-col lg:flex-row gap-4 md:gap-8">
                     <!-- Sidebar (Desktop) / Collapsible Menu (Mobile) -->
@@ -511,7 +511,7 @@
                                 <img src="../../img/icons/account.svg"
                                     alt="User avatar"
                                     class="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-200">
-                                <!-- User Info và Rank -->
+                                <!-- User Info -->
                                <div class="flex-1">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
@@ -525,11 +525,7 @@
                                     <p class="text-sm text-gray-500">###</p>
                                 </div>
                             </div>
-                            <!-- Close button for mobile -->
-                            <button class="lg:hidden absolute top-4 right-4 p-2" onclick="toggleMobileAccountMenu()">
-                                <img src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/icon/close.svg"
-                                    alt="Close" class="w-5 h-5">
-                            </button>
+                         
                         </div>
 
                         <!-- Navigation Menu - Hidden on mobile -->
@@ -559,14 +555,7 @@
                                         <span class="text-sm md:text-base">Sổ địa chỉ</span>
                                     </a>
                                 </li>
-                                <!-- Ví voucher -->
-                                <li>
-                                    <a href="/my-account/coupons"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
-                                        <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
-                                        <span class="text-sm md:text-base">Ví voucher</span>
-                                    </a>
-                                </li>
+                               
                                 <!-- Đăng xuất -->
                                 <li>
                                     <a href="/my-account/logout"
@@ -844,13 +833,7 @@
                                 <span>Sổ địa chỉ</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="/my-account/coupons"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/vi.svg" class="w-5 h-5 mr-3" alt="Voucher">
-                                <span>Ví voucher</span>
-                            </a>
-                        </li>
+                       
                         <li>
                             <a href="/my-account/logout"
                                 class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
