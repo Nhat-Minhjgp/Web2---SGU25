@@ -4,6 +4,11 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+CREATE DATABASE IF NOT EXISTS b01_nhahodau
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_general_ci;
+
+USE b01_nhahodau;
 
 
 --
@@ -224,7 +229,7 @@ CREATE TABLE `users` (
   `Ho_ten` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
-  `role` varchar(20) DEFAULT 'customer',
+  `role` int (10) DEFAULT '0',
   `status` varchar(20) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -517,6 +522,3 @@ ALTER TABLE `tracuutonkho`
   ADD CONSTRAINT `tracuutonkho_ibfk_1` FOREIGN KEY (`SP_id`) REFERENCES `sanpham` (`SanPham_id`);
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
