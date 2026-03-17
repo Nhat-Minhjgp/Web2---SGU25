@@ -229,7 +229,7 @@ CREATE TABLE `users` (
   `Ho_ten` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
-  `role` int (10) DEFAULT '0',
+  `role` boolean DEFAULT 0, 
   `status` varchar(20) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
