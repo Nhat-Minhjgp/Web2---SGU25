@@ -65,7 +65,7 @@
         }
     </style>
 
-    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="./img/icons/favicon.png" sizes="32x32">
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
