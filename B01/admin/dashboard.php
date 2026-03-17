@@ -69,7 +69,7 @@ $admin_username = $_SESSION['admin_username'] ?? '';
                 <a href="categories.php" class="menu-btn">
                     <i class="fas fa-tags"></i> Quản lý danh mục
                 </a>
-                <a href="products.php" class="menu-btn">
+                <a href="./product.php" class="menu-btn">
                     <i class="fas fa-box"></i> Quản lý sản phẩm
                 </a>
                 <a href="import.php" class="menu-btn">
