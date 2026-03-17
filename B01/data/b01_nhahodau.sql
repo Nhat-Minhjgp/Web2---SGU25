@@ -229,7 +229,7 @@ CREATE TABLE `users` (
   `Ho_ten` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
-  `role` varchar(20) DEFAULT 'customer',
+  `role` int (10) DEFAULT '0',
   `status` varchar(20) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -522,23 +522,3 @@ ALTER TABLE `tracuutonkho`
   ADD CONSTRAINT `tracuutonkho_ibfk_1` FOREIGN KEY (`SP_id`) REFERENCES `sanpham` (`SanPham_id`);
 COMMIT;
 
--- ============================================
--- THÊM TÀI KHOẢN ADMIN VÀ STAFF
--- ============================================
-
--- Xóa tài khoản cũ nếu có (để tránh trùng lặp)
-DELETE FROM users WHERE Username IN ('admin', 'staff1', 'staff2');
-
--- Tạo 1 tài khoản ADMIN (mật khẩu: admin123)
-INSERT INTO `users` (`Username`, `password`, `Ho_ten`, `email`, `role`, `status`, `created_at`) 
-VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Quản trị viên', 'admin@nvbplay.vn', 'admin', 'active', NOW());
-
--- Tạo 2 tài khoản STAFF (mật khẩu: staff123)
-INSERT INTO `users` (`Username`, `password`, `Ho_ten`, `email`, `role`, `status`, `created_at`) 
-VALUES 
-('staff1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nhân viên 1', 'staff1@nvbplay.vn', 'staff', 'active', NOW()),
-('staff2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nhân viên 2', 'staff2@nvbplay.vn', 'staff', 'active', NOW());
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
