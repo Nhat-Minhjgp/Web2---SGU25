@@ -74,46 +74,38 @@ $result = $conn->query($sql);
 
         .search-box input {
             width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px 35px 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
             font-size: 14px;
-            transition: all 0.3s;
         }
 
         .search-box input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .search-box i {
             position: absolute;
             right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
+            top: 12px;
+            color: #aaa;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #3498db;
             color: white;
-            padding: 12px 24px;
-            border: none;
+            padding: 10px 20px;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             text-decoration: none;
-            transition: all 0.3s;
+            display: inline-block;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            background: #2980b9;
         }
 
         /* Table */
@@ -148,34 +140,19 @@ $result = $conn->query($sql);
         }
 
         .product-img {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
             border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            background: #f5f5f5;
-        }
-
-        .no-image {
-            width: 60px;
-            height: 60px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-size: 12px;
-            border: 1px solid #e0e0e0;
+            background: #eee;
         }
 
         /* Badges */
         .badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .badge-stock {
@@ -194,32 +171,24 @@ $result = $conn->query($sql);
             gap: 8px;
         }
 
-        .action-btn {
-            width: 35px;
-            height: 35px;
-            border: none;
-            border-radius: 6px;
+        .btn-edit {
+            color: #3498db;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            color: white;
-            font-size: 14px;
+            border: none;
             background: none;
+            font-size: 18px;
         }
 
-        .btn-edit { 
-            background: #ffc107; 
-            color: #333;
-        }
-        .btn-delete { 
-            background: #dc3545; 
+        .btn-delete {
+            color: #e74c3c;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 18px;
         }
 
-        .action-btn:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
+        .btn-edit:hover, .btn-delete:hover {
+            opacity: 0.8;
         }
 
         /* Role Badge */
@@ -239,6 +208,101 @@ $result = $conn->query($sql);
 
         .role-staff {
             background: #28a745;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
             color: white;
         }
     </style>
@@ -271,7 +335,7 @@ $result = $conn->query($sql);
     </header>
 
     <div class="main-container">
-        <!-- SIDEBAR - ĐẦY ĐỦ CÁC MỤC NHƯ DASHBOARD -->
+        <!-- SIDEBAR - ĐẦY ĐỦ CÁC MỤC -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h3>Danh mục chức năng</h3>
@@ -315,17 +379,17 @@ $result = $conn->query($sql);
                 <!-- Action Bar -->
                 <div class="action-bar">
                     <div class="search-box">
-                        <input type="text" id="productSearch" placeholder="🔍 Tìm kiếm sản phẩm..." onkeyup="filterProducts()">
+                        <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()">
                         <i class="fas fa-search"></i>
                     </div>
                     <a href="add_product.php" class="btn-primary">
-                        <i class="fas fa-plus"></i> Thêm sản phẩm mới
+                        <i class="fas fa-plus"></i> Thêm sản phẩm
                     </a>
                 </div>
 
                 <!-- Products Table -->
                 <div class="table-wrapper">
-                    <table class="product-table" id="productTable">
+                    <table class="product-table" id="myTable">
                         <thead>
                             <tr>
                                 <th>Hình ảnh</th>
@@ -338,17 +402,11 @@ $result = $conn->query($sql);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if ($result->num_rows > 0): ?>
+                            <?php if ($result && $result->num_rows > 0): ?>
                                 <?php while($row = $result->fetch_assoc()): ?>
                                 <tr>
                                     <td>
-                                        <?php if ($row['image_url'] && file_exists('../uploads/' . $row['image_url'])): ?>
-                                            <img src="../uploads/<?php echo $row['image_url']; ?>" class="product-img">
-                                        <?php else: ?>
-                                            <div class="no-image">
-                                                <i class="fas fa-image"></i>
-                                            </div>
-                                        <?php endif; ?>
+                                        <img src="../uploads/<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" class="product-img">
                                     </td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($row['TenSP']); ?></strong>
@@ -364,14 +422,12 @@ $result = $conn->query($sql);
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="action-group">
-                                            <button class="action-btn btn-edit" title="Sửa" onclick="editProduct(<?php echo $row['SanPham_id']; ?>)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="action-btn btn-delete" title="Xóa" onclick="deleteProduct(<?php echo $row['SanPham_id']; ?>)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                                        <button class="btn-edit" title="Sửa" onclick="window.location.href='edit_product.php?id=<?php echo $row['SanPham_id']; ?>'">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-delete" title="Xóa" onclick="deleteProduct(<?php echo $row['SanPham_id']; ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
@@ -379,8 +435,7 @@ $result = $conn->query($sql);
                                 <tr>
                                     <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
                                         <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
-                                        Chưa có sản phẩm nào. 
-                                        <a href="add_product.php" style="color: #667eea; text-decoration: none;">Thêm sản phẩm đầu tiên</a>
+                                        Chưa có sản phẩm nào.
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -411,17 +466,13 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript GIỐNG FILE BẠN GỬI -->
     <script>
-        let deleteId = null;
-
-        // ============================================
-        // FILTER PRODUCTS
-        // ============================================
+        // Hàm lọc tìm kiếm nhanh (GIỮ NGUYÊN)
         function filterProducts() {
             let input = document.getElementById("productSearch");
             let filter = input.value.toUpperCase();
-            let table = document.getElementById("productTable");
+            let table = document.getElementById("myTable");
             let tr = table.getElementsByTagName("tr");
 
             for (let i = 1; i < tr.length; i++) {
@@ -433,9 +484,9 @@ $result = $conn->query($sql);
             }
         }
 
-        // ============================================
-        // DELETE PRODUCT
-        // ============================================
+        // Hàm xóa sản phẩm (GIỮ NGUYÊN)
+        let deleteId = null;
+
         function deleteProduct(id) {
             deleteId = id;
             document.getElementById('deleteModal').classList.add('show');
@@ -448,32 +499,20 @@ $result = $conn->query($sql);
             deleteId = null;
         }
 
-        // Xác nhận xóa
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (deleteId) {
                 window.location.href = 'delete_product.php?id=' + deleteId;
             }
         });
 
-        // ============================================
-        // EDIT PRODUCT
-        // ============================================
-        function editProduct(id) {
-            window.location.href = 'edit_product.php?id=' + id;
-        }
-
-        // ============================================
-        // LOGOUT
-        // ============================================
+        // Hàm logout (GIỮ NGUYÊN)
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
                 window.location.href = 'logout.php';
             }
         }
 
-        // ============================================
-        // CLICK OUTSIDE MODAL
-        // ============================================
+        // Click outside modal
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.classList.remove('show');
