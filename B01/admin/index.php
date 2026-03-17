@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'Vui lòng nhập tên đăng nhập và mật khẩu!';
     } else {
-        $sql = "SELECT * FROM users WHERE Username = ? AND role IN ('admin', 'staff')";
+        $sql = "SELECT * FROM users WHERE Username = ? AND role IN ('1')";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -39,10 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Tài khoản đã bị khóa!';
                 }
             } else {
-                $error = 'Mật khẩu không đúng!';
+                $error = 'Sai thông tin đăng nhập';
             }
         } else {
-            $error = 'Tên đăng nhập không tồn tại!';
+            $error = 'Sai thông tin đăng nhập';
         }
     }
 }

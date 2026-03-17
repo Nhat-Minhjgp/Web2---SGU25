@@ -15,7 +15,7 @@ $action = $data['action'] ?? '';
 
 switch ($action) {
     case 'add':
-        // Thêm người dùng mới
+        // Thêm admin mới
         $result = addUser($conn, [
             'username' => $data['username'],
             'password' => $data['password'],
