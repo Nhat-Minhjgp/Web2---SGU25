@@ -10,6 +10,8 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 
 $error = '';
 
+// ... phần kết nối giữ nguyên ...
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -17,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'Vui lòng nhập tên đăng nhập và mật khẩu!';
     } else {
-        $sql = "SELECT * FROM users WHERE Username = ? AND role IN ('1')";
+        // Tìm user theo Username, không lọc Role vội để dễ báo lỗi
+        $sql = "SELECT * FROM users WHERE Username = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -25,24 +28,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
         
         if ($user) {
+            // Kiểm tra mật khẩu (Sử dụng hàm mã hóa của PHP)
             if (password_verify($password, $user['password'])) {
-                if ($user['status'] === 'active') {
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_id'] = $user['User_id'];
-                    $_SESSION['admin_name'] = $user['Ho_ten'];
-                    $_SESSION['admin_username'] = $user['Username'];
-                    $_SESSION['admin_role'] = $user['role'];
+                
+                // Kiểm tra Quyền (Role = 1 hoặc role = 'admin')
+                if ($user['role'] == '1' || $user['role'] == 'admin') {
                     
-                    header('Location: dashboard.php');
-                    exit();
+                    // Kiểm tra Trạng thái (status = 'active' hoặc status = 1)
+                    if ($user['status'] == 'active' || $user['status'] == '1') {
+                        $_SESSION['admin_logged_in'] = true;
+                        $_SESSION['admin_id'] = $user['User_id'];
+                        $_SESSION['admin_name'] = $user['Ho_ten'];
+                        
+                        header('Location: dashboard.php');
+                        exit();
+                    } else {
+                        $error = 'Tài khoản đã bị khóa!';
+                    }
                 } else {
-                    $error = 'Tài khoản đã bị khóa!';
+                    $error = 'Bạn không có quyền truy cập Admin!';
                 }
             } else {
-                $error = 'Sai thông tin đăng nhập';
+                $error = 'Sai mật khẩu!';
             }
         } else {
-            $error = 'Sai thông tin đăng nhập';
+            $error = 'Tên đăng nhập không tồn tại!';
         }
     }
 }
