@@ -19,6 +19,13 @@ INSERT INTO `danhmuc` (`Danhmuc_id`,`Ten_danhmuc`) VALUES
 
 
 
+-- Cập nhật slug cho danh mục hiện có
+UPDATE `thuonghieu` SET `slug` = 'li-ning' WHERE `Danhmuc_id` = 1;
+UPDATE `thuonghieu` SET `slug` = 'yonex' WHERE `Danhmuc_id` = 2;
+UPDATE `thuonghieu` SET `slug` = 'victor' WHERE `Danhmuc_id` = 3;
+
+
+
 -- Dữ liệu cho bảng sản phẩm với TrangThai là 1 (đang bán)
 INSERT INTO `sanpham` (`TenSP`, `Danhmuc_id`, `Ma_thuonghieu`, `GiaNhapTB`, `GiaBan`, `SoLuongTon`, `TrangThai`, `PhanTramLoiNhuan`, `image_url`, `NCC_id`, `MoTa`) VALUES
 ('Yonex Astrox 100ZZ', 4, 2, 3200000, 4150000, 10, 1, 0.15, '/img/sanpham/Vot-cau-long-Yonex-Astrox-100ZZ.png', 4, 'đắt vãi ò'),
