@@ -83,445 +83,149 @@ $users_json = json_encode($users);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý người dùng</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- Cấu hình màu sắc giống design cũ -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                    },
+                    backgroundImage: {
+                        'gradient-custom': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* Container chính */
-        .users-container {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        /* Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .page-header h2 {
-            color: #333;
-            font-size: 24px;
-        }
-
-        .page-header h2 i {
-            color: #667eea;
-            margin-right: 10px;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-
-        /* Filter Bar */
-        .filter-bar {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .filter-bar input,
-        .filter-bar select {
-            padding: 10px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .filter-bar input:focus,
-        .filter-bar select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
-            color: #333;
-        }
-
-        tr:hover {
-            background: #f8f9ff;
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .badge-active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-blocked {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .badge-admin {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .badge-staff {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .badge-customer {
-            background: #6c757d;
-            color: white;
-        }
-
-        /* Action Buttons */
-        .action-group {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            width: 35px;
-            height: 35px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            color: white;
-            font-size: 14px;
-        }
-
-        .btn-view { background: #17a2b8; }
-        .btn-edit { background: #ffc107; color: #333; }
-        .btn-reset { background: #fd7e14; }
-        .btn-lock { background: #dc3545; }
-        .btn-unlock { background: #28a745; }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s;
-        }
-
+        /* Chỉ giữ lại animation cho modal, không giữ lại style layout */
         @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px 12px 0 0;
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out forwards;
         }
-
-        .modal-header h3 {
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        /* Ẩn thanh cuộn nhưng vẫn cuộn được */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 25px;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group input[readonly] {
-            background: #f5f5f5;
-            cursor: not-allowed;
-        }
-
-        /* Message */
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Info Grid */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 12px;
-        }
-
-        .info-label {
-            font-weight: 500;
-            color: #666;
-        }
-
-        .info-value {
-            color: #333;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-sans text-gray-800">
+
     <!-- HEADER -->
-    <header class="header">
-        <h1 class="header-title">NVBPlay Admin Panel</h1>
-        <div class="header-right">
-            <div class="user-info">
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr($_SESSION['admin_name'] ?? 'A', 0, 1)); ?>
+    <header class="bg-white shadow-md sticky top-0 z-50 h-[70px] flex items-center w-full">
+        <div class="w-full px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">
+                NVBPlay Admin Panel
+            </h1>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold shadow-lg">
+                        <?php echo strtoupper(substr($_SESSION['admin_name'] ?? 'A', 0, 1)); ?>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>
+                            <span class="ml-2 text-xs bg-gradient-custom text-white px-2 py-0.5 rounded-full">Admin</span>
+                        </p>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($_SESSION['admin_username'] ?? ''); ?></p>
+                    </div>
                 </div>
-                <div>
-                    <p class="user-name">
-                        <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>
-                        <span class="role-badge role-admin">Admin</span>
-                    </p>
-                    <p class="user-role"><?php echo htmlspecialchars($_SESSION['admin_username'] ?? ''); ?></p>
-                </div>
+                <a href="logout.php" class="flex items-center gap-2 text-red-500 hover:text-red-700 transition font-medium">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
             </div>
-            <a href="logout.php" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </a>
         </div>
     </header>
 
-    <div class="main-container">
+    <!-- CONTAINER CHÍNH -->
+    <div class="flex w-full min-h-[calc(100vh-70px)]">
+        
         <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>Danh mục chức năng</h3>
+        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
             </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="menu-btn">
-                    <i class="fas fa-home"></i> Dashboard
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-home w-5 text-center"></i> Dashboard
                 </a>
-                <a href="users.php" class="menu-btn active">
-                    <i class="fas fa-users"></i> Quản lý người dùng
+                <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
                 </a>
-                <a href="categories.php" class="menu-btn">
-                    <i class="fas fa-tags"></i> Quản lý danh mục
+                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-tags w-5 text-center"></i> Quản lý danh mục
                 </a>
-                <a href="products.php" class="menu-btn">
-                    <i class="fas fa-box"></i> Quản lý sản phẩm
+                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>
-                <a href="import.php" class="menu-btn">
-                    <i class="fas fa-arrow-down"></i> Quản lý nhập hàng
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
                 </a>
-                <a href="price.php" class="menu-btn">
-                    <i class="fas fa-tag"></i> Quản lý giá bán
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
                 </a>
-                <a href="orders.php" class="menu-btn">
-                    <i class="fas fa-receipt"></i> Quản lý đơn hàng
+                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
                 </a>
-                <a href="inventory.php" class="menu-btn">
-                    <i class="fas fa-warehouse"></i> Tồn kho & Báo cáo
+                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
                 </a>
             </nav>
         </aside>
 
         <!-- MAIN CONTENT -->
-        <main class="main-content">
-            <div class="users-container">
+        <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
+            <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
                 <!-- Page Header -->
-                <div class="page-header">
-                    <h2><i class="fas fa-users"></i> Quản lý người dùng</h2>
-                    <button onclick="openModal('addModal')" class="btn btn-primary">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                        <i class="fas fa-users text-primary"></i> Quản lý người dùng
+                    </h2>
+                    <button onclick="openModal('addModal')" class="bg-gradient-custom hover:opacity-90 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-user-plus"></i> Thêm tài khoản
                     </button>
                 </div>
 
-                <!-- Hiển thị thông báo -->
+                <!-- Messages -->
                 <?php if (isset($message)): ?>
-                    <div class="message success">
+                    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3 animate-slide-in">
                         <i class="fas fa-check-circle"></i>
-                        <?php echo $message; ?>
+                        <span><?php echo $message; ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($error)): ?>
-                    <div class="message error">
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3 animate-slide-in">
                         <i class="fas fa-exclamation-circle"></i>
-                        <?php echo $error; ?>
+                        <span><?php echo $error; ?></span>
                     </div>
                 <?php endif; ?>
 
                 <!-- Filter Bar -->
-                <div class="filter-bar">
-                    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, email...">
-                    <select id="roleFilter">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, email..." 
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    <select id="roleFilter" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                         <option value="">Tất cả vai trò</option>
                         <option value="admin">Admin</option>
                         <option value="staff">Nhân viên</option>
                         <option value="customer">Khách hàng</option>
                     </select>
-                    <select id="statusFilter">
+                    <select id="statusFilter" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                         <option value="">Tất cả trạng thái</option>
                         <option value="active">Đang hoạt động</option>
                         <option value="blocked">Đã khóa</option>
@@ -529,70 +233,70 @@ $users_json = json_encode($users);
                 </div>
 
                 <!-- Users Table -->
-                <div class="table-wrapper">
-                    <table id="usersTable">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                    <table id="usersTable" class="w-full text-left border-collapse">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Họ tên</th>
-                                <th>Email</th>
-                                <th>Vai trò</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày tạo</th>
-                                <th>Thao tác</th>
+                            <tr class="bg-gradient-custom text-white">
+                                <th class="p-4 font-medium text-sm">ID</th>
+                                <th class="p-4 font-medium text-sm">Username</th>
+                                <th class="p-4 font-medium text-sm">Họ tên</th>
+                                <th class="p-4 font-medium text-sm">Email</th>
+                                <th class="p-4 font-medium text-sm">Vai trò</th>
+                                <th class="p-4 font-medium text-sm">Trạng thái</th>
+                                <th class="p-4 font-medium text-sm">Ngày tạo</th>
+                                <th class="p-4 font-medium text-sm text-center">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-100">
                             <?php foreach ($users as $user): ?>
-                            <tr>
-                                <td><?php echo $user['User_id']; ?></td>
-                                <td><?php echo htmlspecialchars($user['Username']); ?></td>
-                                <td><?php echo htmlspecialchars($user['Ho_ten'] ?? ''); ?></td>
-                                <td><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
-                                <td>
+                            <tr class="hover:bg-blue-50/50 transition duration-150">
+                                <td class="p-4 text-gray-600"><?php echo $user['User_id']; ?></td>
+                                <td class="p-4 font-medium text-gray-800"><?php echo htmlspecialchars($user['Username']); ?></td>
+                                <td class="p-4 text-gray-600"><?php echo htmlspecialchars($user['Ho_ten'] ?? ''); ?></td>
+                                <td class="p-4 text-gray-600"><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
+                                <td class="p-4">
                                     <?php 
                                     $roleClass = '';
                                     $roleName = '';
                                     if ($user['role'] === 'admin') {
-                                        $roleClass = 'badge-admin';
+                                        $roleClass = 'bg-gradient-custom text-white';
                                         $roleName = 'Admin';
                                     } elseif ($user['role'] === 'staff') {
-                                        $roleClass = 'badge-staff';
+                                        $roleClass = 'bg-cyan-500 text-white';
                                         $roleName = 'Nhân viên';
                                     } else {
-                                        $roleClass = 'badge-customer';
+                                        $roleClass = 'bg-gray-500 text-white';
                                         $roleName = 'Khách hàng';
                                     }
                                     ?>
-                                    <span class="badge <?php echo $roleClass; ?>"><?php echo $roleName; ?></span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium <?php echo $roleClass; ?>"><?php echo $roleName; ?></span>
                                 </td>
-                                <td>
+                                <td class="p-4">
                                     <?php if ($user['status'] === 'active'): ?>
-                                        <span class="badge badge-active">Đang hoạt động</span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">Đang hoạt động</span>
                                     <?php else: ?>
-                                        <span class="badge badge-blocked">Đã khóa</span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200">Đã khóa</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo date('d/m/Y', strtotime($user['created_at'])); ?></td>
-                                <td>
-                                    <div class="action-group">
-                                        <button onclick="viewUser(<?php echo $user['User_id']; ?>)" class="action-btn btn-view" title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
+                                <td class="p-4 text-gray-600 text-sm"><?php echo date('d/m/Y', strtotime($user['created_at'])); ?></td>
+                                <td class="p-4">
+                                    <div class="flex items-center justify-center gap-2 flex-wrap">
+                                        <button onclick="viewUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-cyan-500 hover:bg-cyan-600 text-white flex items-center justify-center transition shadow-sm" title="Xem chi tiết">
+                                            <i class="fas fa-eye text-xs"></i>
                                         </button>
-                                        <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="action-btn btn-edit" title="Chỉnh sửa">
-                                            <i class="fas fa-edit"></i>
+                                        <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition shadow-sm" title="Chỉnh sửa">
+                                            <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <button onclick="resetPassword(<?php echo $user['User_id']; ?>)" class="action-btn btn-reset" title="Đặt lại mật khẩu">
-                                            <i class="fas fa-key"></i>
+                                        <button onclick="resetPassword(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition shadow-sm" title="Đặt lại mật khẩu">
+                                            <i class="fas fa-key text-xs"></i>
                                         </button>
                                         <?php if ($user['status'] === 'active'): ?>
-                                            <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="action-btn btn-lock" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
-                                                <i class="fas fa-ban"></i>
+                                            <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
+                                                <i class="fas fa-ban text-xs"></i>
                                             </a>
                                         <?php else: ?>
-                                            <a href="?action=unlock&id=<?php echo $user['User_id']; ?>" class="action-btn btn-unlock" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')">
-                                                <i class="fas fa-check-circle"></i>
+                                            <a href="?action=unlock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')">
+                                                <i class="fas fa-check-circle text-xs"></i>
                                             </a>
                                         <?php endif; ?>
                                     </div>
@@ -607,143 +311,133 @@ $users_json = json_encode($users);
     </div>
 
     <!-- MODAL THÊM NGƯỜI DÙNG -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> Thêm tài khoản mới</h3>
-                <button onclick="closeModal('addModal')" class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+    <div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-user-plus"></i> Thêm tài khoản mới</h3>
+                <button onclick="closeModal('addModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <form method="POST">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Tên đăng nhập <span style="color: red;">*</span></label>
-                        <input type="text" name="username" required>
+            <form method="POST" class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tên đăng nhập <span class="text-red-500">*</span></label>
+                        <input type="text" name="username" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Mật khẩu <span style="color: red;">*</span></label>
-                        <input type="password" name="password" required>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Mật khẩu <span class="text-red-500">*</span></label>
+                        <input type="password" name="password" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Họ tên</label>
-                        <input type="text" name="fullname">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Họ tên</label>
+                        <input type="text" name="fullname" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Số điện thoại</label>
-                        <input type="text" name="phone">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                        <input type="text" name="phone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Vai trò</label>
-                        <select name="role">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
+                        <select name="role" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                             <option value="customer">Khách hàng</option>
                             <option value="staff">Nhân viên</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" onclick="closeModal('addModal')" class="btn btn-secondary">Hủy</button>
-                    <button type="submit" name="add_user" class="btn btn-primary">Lưu tài khoản</button>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('addModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
+                    <button type="submit" name="add_user" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Lưu tài khoản</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL XEM CHI TIẾT -->
-    <div id="viewModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-info-circle"></i> Chi tiết tài khoản</h3>
-                <button onclick="closeModal('viewModal')" class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+    <div id="viewModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-info-circle"></i> Chi tiết tài khoản</h3>
+                <button onclick="closeModal('viewModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" id="viewContent">
+            <div class="p-6 overflow-y-auto" id="viewContent">
                 <!-- Nội dung sẽ load bằng JavaScript -->
             </div>
-            <div class="modal-footer">
-                <button onclick="closeModal('viewModal')" class="btn btn-secondary">Đóng</button>
+            <div class="p-5 border-t border-gray-100 flex justify-end bg-gray-50 rounded-b-xl">
+                <button onclick="closeModal('viewModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Đóng</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL CHỈNH SỬA -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> Chỉnh sửa tài khoản</h3>
-                <button onclick="closeModal('editModal')" class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+    <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-edit"></i> Chỉnh sửa tài khoản</h3>
+                <button onclick="closeModal('editModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <form method="POST">
-                <div class="modal-body">
-                    <input type="hidden" name="user_id" id="editUserId">
-                    <div class="form-group">
-                        <label>Tên đăng nhập</label>
-                        <input type="text" id="editUsername" readonly>
+            <form method="POST" class="flex-1 overflow-y-auto p-6">
+                <input type="hidden" name="user_id" id="editUserId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tên đăng nhập</label>
+                        <input type="text" id="editUsername" readonly class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
                     </div>
-                    <div class="form-group">
-                        <label>Họ tên</label>
-                        <input type="text" name="fullname" id="editFullname">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Họ tên</label>
+                        <input type="text" name="fullname" id="editFullname" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" id="editEmail">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" id="editEmail" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Số điện thoại</label>
-                        <input type="text" name="phone" id="editPhone">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                        <input type="text" name="phone" id="editPhone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>
-                    <div class="form-group">
-                        <label>Vai trò</label>
-                        <select name="role" id="editRole">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
+                        <select name="role" id="editRole" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                             <option value="customer">Khách hàng</option>
                             <option value="staff">Nhân viên</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Trạng thái</label>
-                        <select name="status" id="editStatus">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Trạng thái</label>
+                        <select name="status" id="editStatus" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                             <option value="active">Đang hoạt động</option>
                             <option value="blocked">Đã khóa</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Hủy</button>
-                    <button type="submit" name="update_user" class="btn btn-primary">Cập nhật</button>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('editModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
+                    <button type="submit" name="update_user" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Cập nhật</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL ĐẶT LẠI MẬT KHẨU -->
-    <div id="resetModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-key"></i> Đặt lại mật khẩu</h3>
-                <button onclick="closeModal('resetModal')" class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+    <div id="resetModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
+            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-key"></i> Đặt lại mật khẩu</h3>
+                <button onclick="closeModal('resetModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <form method="POST">
-                <div class="modal-body">
-                    <input type="hidden" name="user_id" id="resetUserId">
-                    <div class="form-group">
-                        <label>Mật khẩu mới</label>
-                        <input type="password" name="new_password" required>
-                    </div>
+            <form method="POST" class="p-6">
+                <input type="hidden" name="user_id" id="resetUserId">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mật khẩu mới</label>
+                    <input type="password" name="new_password" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" onclick="closeModal('resetModal')" class="btn btn-secondary">Hủy</button>
-                    <button type="submit" name="reset_password" class="btn btn-warning">Đặt lại</button>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('resetModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
+                    <button type="submit" name="reset_password" class="px-5 py-2.5 rounded-lg bg-yellow-400 text-gray-800 hover:bg-yellow-500 transition font-medium shadow-lg">Đặt lại</button>
                 </div>
             </form>
         </div>
@@ -751,95 +445,64 @@ $users_json = json_encode($users);
 
     <!-- SCRIPT -->
     <script>
-        // ============================================
-        // DỮ LIỆU USERS TỪ PHP
-        // ============================================
         const users = <?php echo $users_json; ?>;
-        console.log('Dữ liệu users:', users); // Kiểm tra xem có dữ liệu không
 
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
         function openModal(modalId) {
-            document.getElementById(modalId).classList.add('show');
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
             document.body.style.overflow = 'auto';
         }
 
-        // ============================================
-        // VIEW USER DETAIL - SỬA LỖI KHÔNG HIỆN
-        // ============================================
         function viewUser(userId) {
-            console.log('Đang xem user có ID:', userId);
-            
-            // Tìm user trong mảng users
             const user = users.find(u => u.User_id == userId);
             
             if (user) {
-                console.log('Tìm thấy user:', user);
-                
-                // Xác định trạng thái
                 const statusText = user.status === 'active' ? 'Đang hoạt động' : 'Đã khóa';
-                const statusColor = user.status === 'active' ? '#28a745' : '#dc3545';
+                const statusColor = user.status === 'active' ? 'text-green-600' : 'text-red-600';
                 
-                // Xác định vai trò
                 let roleText = '';
                 if (user.role === 'admin') roleText = 'Admin';
                 else if (user.role === 'staff') roleText = 'Nhân viên';
                 else roleText = 'Khách hàng';
                 
-                // Tạo nội dung HTML
                 const html = `
-                    <div class="info-grid">
-                        <div class="info-label">ID:</div>
-                        <div class="info-value">${user.User_id}</div>
-                        
-                        <div class="info-label">Username:</div>
-                        <div class="info-value">${user.Username}</div>
-                        
-                        <div class="info-label">Họ tên:</div>
-                        <div class="info-value">${user.Ho_ten || 'Chưa cập nhật'}</div>
-                        
-                        <div class="info-label">Email:</div>
-                        <div class="info-value">${user.email || 'Chưa cập nhật'}</div>
-                        
-                        <div class="info-label">Số điện thoại:</div>
-                        <div class="info-value">${user.SDT || 'Chưa cập nhật'}</div>
-                        
-                        <div class="info-label">Vai trò:</div>
-                        <div class="info-value">${roleText}</div>
-                        
-                        <div class="info-label">Trạng thái:</div>
-                        <div class="info-value" style="color: ${statusColor};">${statusText}</div>
-                        
-                        <div class="info-label">Ngày tạo:</div>
-                        <div class="info-value">${new Date(user.created_at).toLocaleDateString('vi-VN')}</div>
+                    <div class="grid grid-cols-[100px_1fr] gap-3 text-sm">
+                        <div class="font-semibold text-gray-600">ID:</div>
+                        <div class="text-gray-800">${user.User_id}</div>
+                        <div class="font-semibold text-gray-600">Username:</div>
+                        <div class="text-gray-800">${user.Username}</div>
+                        <div class="font-semibold text-gray-600">Họ tên:</div>
+                        <div class="text-gray-800">${user.Ho_ten || 'Chưa cập nhật'}</div>
+                        <div class="font-semibold text-gray-600">Email:</div>
+                        <div class="text-gray-800">${user.email || 'Chưa cập nhật'}</div>
+                        <div class="font-semibold text-gray-600">Số điện thoại:</div>
+                        <div class="text-gray-800">${user.SDT || 'Chưa cập nhật'}</div>
+                        <div class="font-semibold text-gray-600">Vai trò:</div>
+                        <div class="text-gray-800">${roleText}</div>
+                        <div class="font-semibold text-gray-600">Trạng thái:</div>
+                        <div class="${statusColor} font-medium">${statusText}</div>
+                        <div class="font-semibold text-gray-600">Ngày tạo:</div>
+                        <div class="text-gray-800">${new Date(user.created_at).toLocaleDateString('vi-VN')}</div>
                     </div>
                 `;
                 
-                // Đưa vào modal
                 document.getElementById('viewContent').innerHTML = html;
-                
-                // Mở modal
                 openModal('viewModal');
             } else {
-                console.log('Không tìm thấy user có ID:', userId);
                 alert('Không tìm thấy thông tin người dùng!');
             }
         }
 
-        // ============================================
-        // EDIT USER
-        // ============================================
         function editUser(userId) {
-            console.log('Đang sửa user:', userId);
-            
             const user = users.find(u => u.User_id == userId);
-            
             if (user) {
                 document.getElementById('editUserId').value = user.User_id;
                 document.getElementById('editUsername').value = user.Username;
@@ -848,24 +511,17 @@ $users_json = json_encode($users);
                 document.getElementById('editPhone').value = user.SDT || '';
                 document.getElementById('editRole').value = user.role;
                 document.getElementById('editStatus').value = user.status;
-                
                 openModal('editModal');
             } else {
                 alert('Không tìm thấy người dùng!');
             }
         }
 
-        // ============================================
-        // RESET PASSWORD
-        // ============================================
         function resetPassword(userId) {
             document.getElementById('resetUserId').value = userId;
             openModal('resetModal');
         }
 
-        // ============================================
-        // FILTER TABLE
-        // ============================================
         document.getElementById('searchInput').addEventListener('keyup', filterTable);
         document.getElementById('roleFilter').addEventListener('change', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
@@ -874,7 +530,6 @@ $users_json = json_encode($users);
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const roleValue = document.getElementById('roleFilter').value;
             const statusValue = document.getElementById('statusFilter').value;
-
             const rows = document.querySelectorAll('#usersTable tbody tr');
 
             rows.forEach(row => {
@@ -884,42 +539,21 @@ $users_json = json_encode($users);
                 const role = row.cells[4].textContent.trim().toLowerCase();
                 const status = row.cells[5].textContent.trim();
 
-                let matchSearch = searchValue === '' || 
-                    username.includes(searchValue) || 
-                    fullname.includes(searchValue) || 
-                    email.includes(searchValue);
-
+                let matchSearch = searchValue === '' || username.includes(searchValue) || fullname.includes(searchValue) || email.includes(searchValue);
                 let matchRole = roleValue === '' || role.includes(roleValue);
-                
                 let matchStatus = statusValue === '' || 
                     (statusValue === 'active' && status === 'Đang hoạt động') ||
                     (statusValue === 'blocked' && status === 'Đã khóa');
 
-                if (matchSearch && matchRole && matchStatus) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
             });
         }
 
-        // ============================================
-        // CLICK OUTSIDE MODAL
-        // ============================================
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('show');
-                document.body.style.overflow = 'auto';
+            if (event.target.id && event.target.id.endsWith('Modal') && event.target.classList.contains('flex')) {
+                closeModal(event.target.id);
             }
         }
-
-        // ============================================
-        // KIỂM TRA KHI TRANG LOAD
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Trang đã load xong');
-            console.log('Số lượng users:', users.length);
-        });
     </script>
 </body>
 </html>
