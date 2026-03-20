@@ -20,10 +20,15 @@ INSERT INTO `danhmuc` (`Danhmuc_id`,`Ten_danhmuc`) VALUES
 
 
 -- Cập nhật slug cho danh mục hiện có
-UPDATE `thuonghieu` SET `slug` = 'li-ning' WHERE `Danhmuc_id` = 1;
-UPDATE `thuonghieu` SET `slug` = 'yonex' WHERE `Danhmuc_id` = 2;
-UPDATE `thuonghieu` SET `slug` = 'victor' WHERE `Danhmuc_id` = 3;
+UPDATE `thuonghieu` SET `slug` = 'li-ning' WHERE `Ma_thuonghieu` = 1;
+UPDATE `thuonghieu` SET `slug` = 'yonex' WHERE `Ma_thuonghieu` = 2;
+UPDATE `thuonghieu` SET `slug` = 'victor' WHERE `Ma_thuonghieu` = 3;
 
+
+-- Cập nhật slug cho danh mục hiện có
+UPDATE `danhmuc` SET `slug` = 'vot-cau-long' WHERE `Danhmuc_id` = 4;
+UPDATE `danhmuc` SET `slug` = 'phu-kien' WHERE `Danhmuc_id` = 5;
+UPDATE `danhmuc` SET `slug` = 'vot-pickleball' WHERE `Danhmuc_id` = 6;
 
 
 -- Dữ liệu cho bảng sản phẩm với TrangThai là 1 (đang bán)

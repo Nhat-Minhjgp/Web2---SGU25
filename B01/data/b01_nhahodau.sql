@@ -408,10 +408,7 @@ ALTER TABLE `tracuutonkho`
   -- Thêm cột slug cho danh mục
 ALTER TABLE `danhmuc` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_danhmuc`;
 
--- Cập nhật slug cho danh mục hiện có
-UPDATE `danhmuc` SET `slug` = 'vot-cau-long' WHERE `Danhmuc_id` = 4;
-UPDATE `danhmuc` SET `slug` = 'phu-kien' WHERE `Danhmuc_id` = 5;
-UPDATE `danhmuc` SET `slug` = 'vot-pickleball' WHERE `Danhmuc_id` = 6;
+
 
 -- Thêm cột slug cho thương hiệu
 ALTER TABLE `thuonghieu` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_thuonghieu`;
