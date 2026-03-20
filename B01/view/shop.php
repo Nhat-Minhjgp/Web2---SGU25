@@ -604,15 +604,17 @@ body.filter-open { overflow: hidden; }
                             <div class="flex-1">
                                 <label class="text-xs text-gray-500 mb-1 block">Từ</label>
                                 <input type="text" id="price-min" 
-                                    class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-right text-sm focus:border-red-500 focus:outline-none transition"
-                                    value="<?php echo number_format($min_price, 0, ',', '.'); ?>" placeholder="0₫">
+                                    class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-right text-sm focus:border-red-500 focus:outline-none transition price-input"
+                                    value="<?php echo number_format($min_price, 0, ',', '.'); ?>" placeholder="0₫"
+                                    min="0">
                             </div>
                             <span class="text-gray-400 pt-5">-</span>
                             <div class="flex-1">
                                 <label class="text-xs text-gray-500 mb-1 block">Đến</label>
                                 <input type="text" id="price-max" 
-                                    class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-right text-sm focus:border-red-500 focus:outline-none transition"
-                                    value="<?php echo number_format($max_price, 0, ',', '.'); ?>" placeholder="50.000.000₫">
+                                    class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-right text-sm focus:border-red-500 focus:outline-none transition price-input"
+                                    value="<?php echo number_format($max_price, 0, ',', '.'); ?>" placeholder="50.000.000₫"
+                                    min="0" max="50000000">
                             </div>
                         </div>
                         <button type="button" id="apply-filter" 
@@ -847,6 +849,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Clone desktop content to mobile (giữ nguyên ID và name)
         if (desktopFilterContent && mobileFilterContent) {
             mobileFilterContent.innerHTML = desktopFilterContent.innerHTML;
+            
+            // Re-attach price input validation for mobile
+            const mobilePriceInputs = mobileFilterContent.querySelectorAll('.price-input');
+            mobilePriceInputs.forEach(input => {
+                attachPriceInputValidation(input);
+            });
         }
         
         mobileDrawer.classList.remove('closed');
@@ -867,6 +875,56 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mobileOpenBtn) mobileOpenBtn.addEventListener('click', openMobileFilter);
     if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', closeMobileFilter);
     if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileFilter);
+    
+    // === ✅ VALIDATION: CHẶN NHẬP SỐ ÂM VÀO PRICE INPUT ===
+    function attachPriceInputValidation(input) {
+        // Chỉ cho phép nhập số
+        input.addEventListener('keydown', function(e) {
+            // Cho phép: backspace, delete, tab, escape, enter, và các phím mũi tên
+            if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+                // Cho phép Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            // Chặn các phím không phải số
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Chặn ký tự đặc biệt khi paste
+        input.addEventListener('paste', function(e) {
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            if (!/^\d*$/.test(paste)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Đảm bảo giá trị không âm khi blur
+        input.addEventListener('blur', function() {
+            let value = this.value.replace(/\./g, '');
+            if (value === '' || isNaN(value)) {
+                value = '0';
+            }
+            let numValue = parseInt(value);
+            if (numValue < 0) {
+                numValue = 0;
+            }
+            if (numValue > 50000000) {
+                numValue = 50000000;
+            }
+            this.value = numValue.toLocaleString('vi-VN');
+        });
+    }
+    
+    // Attach validation for desktop price inputs
+    const desktopPriceInputs = document.querySelectorAll('.price-input');
+    desktopPriceInputs.forEach(input => {
+        attachPriceInputValidation(input);
+    });
     
     // === APPLY FILTER FUNCTION (DÙNG CHUNG CHO CẢ DESKTOP VÀ MOBILE) ===
     function applyFilter() {
@@ -900,10 +958,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const minVal = parseInt(minPrice.value.replace(/\./g, ''));
             const maxVal = parseInt(maxPrice.value.replace(/\./g, ''));
             console.log('Price range:', minVal, '-', maxVal);
-            if (minVal > 0) {
+            // ✅ VALIDATION: Đảm bảo min >= 0
+            if (minVal >= 0 && minVal <= 50000000) {
                 params.set('min_price', minVal);
             }
-            if (maxVal < 50000000) {
+            // ✅ VALIDATION: Đảm bảo max <= 50000000 và max >= min
+            if (maxVal >= 0 && maxVal <= 50000000) {
                 params.set('max_price', maxVal);
             }
         }
@@ -993,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('❌ Apply button NOT found');
     }
     
-    //  Mobile apply button 
+    //  Mobile apply button
     const applyMobileBtn = document.getElementById('apply-mobile-filter');
     if (applyMobileBtn) {
         applyMobileBtn.addEventListener('click', function (e) {
@@ -1042,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Enter key for search
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 applyFilter();
