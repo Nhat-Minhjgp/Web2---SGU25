@@ -49,10 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Bạn không có quyền truy cập Admin!';
                 }
             } else {
-                $error = 'Sai thông tin đăng nhập!';
+                $error = 'Sai mật khẩu!';
             }
         } else {
-            $error = 'Sai thông tin đăng nhập!';
+            $error = 'Tên đăng nhập không tồn tại!';
         }
     }
 }
