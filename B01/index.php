@@ -1349,10 +1349,10 @@
         </div>
     </div>
 
-    <!-- JavaScript for mobile menu toggle và search -->
+    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Mobile menu toggle
+            // ========== MOBILE MENU TOGGLE ==========
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
@@ -1371,23 +1371,103 @@
                 });
             }
 
-            // Category dropdown toggles
+            // ========== CATEGORY DROPDOWN TOGGLES (QUAN TRỌNG) ==========
             const categoryToggles = document.querySelectorAll('.category-toggle');
             categoryToggles.forEach(toggle => {
-                toggle.addEventListener('click', function () {
+                toggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
                     const category = this.getAttribute('data-category');
                     const submenu = document.getElementById(`submenu-${category}`);
-                    const icon = this.querySelector('.fa-chevron-down');
+                    const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
+                    
                     if (submenu) {
+                        // Toggle hiển thị submenu
                         submenu.classList.toggle('hidden');
-                        if (icon) icon.classList.toggle('rotate-180');
+                        
+                        // Xoay icon
+                        if (icon) {
+                            if (submenu.classList.contains('hidden')) {
+                                icon.classList.remove('fa-chevron-up');
+                                icon.classList.add('fa-chevron-down');
+                            } else {
+                                icon.classList.remove('fa-chevron-down');
+                                icon.classList.add('fa-chevron-up');
+                            }
+                            icon.classList.toggle('rotate-180');
+                        }
+                        
+                        // Toggle active state cho button
                         this.classList.toggle('bg-red-50');
                         this.classList.toggle('text-red-600');
                     }
                 });
             });
 
-            // Search functionality
+            // Đóng submenu khi click ra ngoài
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.category-toggle') && !e.target.closest('.category-submenu')) {
+                    document.querySelectorAll('.category-submenu').forEach(submenu => {
+                        submenu.classList.add('hidden');
+                        const parentBtn = submenu.closest('.mb-2')?.querySelector('.category-toggle');
+                        if (parentBtn) {
+                            const icon = parentBtn.querySelector('.fa-chevron-down, .fa-chevron-up');
+                            if (icon) {
+                                icon.classList.remove('fa-chevron-up', 'rotate-180');
+                                icon.classList.add('fa-chevron-down');
+                            }
+                            parentBtn.classList.remove('bg-red-50', 'text-red-600');
+                        }
+                    });
+                }
+            });
+
+            // ========== DESKTOP MEGA MENU ==========
+            const menuTrigger = document.getElementById('mega-menu-trigger');
+            const menuDropdown = document.getElementById('mega-menu-dropdown');
+            const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+            const menuContents = document.querySelectorAll('.menu-content');
+
+            if (menuTrigger) {
+                menuTrigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menuDropdown.classList.toggle('hidden');
+                });
+            }
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const menuId = this.getAttribute('data-menu');
+                    
+                    menuItems.forEach(el => {
+                        el.classList.remove('active', 'bg-red-50');
+                        const titleEl = el.querySelector('.font-bold');
+                        if (titleEl) titleEl.classList.remove('text-red-600');
+                    });
+                    
+                    this.classList.add('active', 'bg-red-50');
+                    const activeTitle = this.querySelector('.font-bold');
+                    if (activeTitle) activeTitle.classList.add('text-red-600');
+                    
+                    menuContents.forEach(content => content.classList.add('hidden'));
+                    const activeContent = document.getElementById(`content-${menuId}`);
+                    if (activeContent) activeContent.classList.remove('hidden');
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!menuDropdown?.contains(e.target) && !menuTrigger?.contains(e.target)) {
+                    menuDropdown?.classList.add('hidden');
+                }
+            });
+
+            if (menuDropdown) {
+                menuDropdown.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
+
+            // ========== SEARCH FUNCTIONALITY ==========
             const searchToggle = document.getElementById('searchToggle');
             const searchToggleMobile = document.getElementById('searchToggleMobile');
             const closeSearchBtn = document.getElementById('closeSearchBtn');
@@ -1441,7 +1521,6 @@
                             </a>
                         `;
                     }
-
                     suggestionsContainer.classList.add('active');
                 } else {
                     suggestionsList.innerHTML = `
