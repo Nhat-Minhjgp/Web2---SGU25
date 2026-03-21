@@ -219,4 +219,8 @@ function adminLogin($conn, $username, $password) {
     }
     return false;
 }
+$sql = "INSERT INTO users (Username, password, Ho_ten, email, SDT, role, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
+// role = 1 cho admin, 0 cho customer
+$stmt->bind_param("sssssss", ...);
 ?>
