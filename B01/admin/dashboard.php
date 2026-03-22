@@ -112,10 +112,7 @@ $admin_username = $_SESSION['admin_username'] ?? '';
                     <i class="fas fa-users w-5 text-gray-500"></i>
                     <span>Quản lý người dùng</span>
                 </a>
-                <a href="categories.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-tags w-5 text-gray-500"></i>
-                    <span>Quản lý danh mục</span>
-                </a>
+                                
                 <a href="product.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-box w-5 text-gray-500"></i>
                     <span>Quản lý sản phẩm</span>
