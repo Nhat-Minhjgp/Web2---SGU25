@@ -105,9 +105,7 @@ $result = $conn->query($sql);
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
                 </a>
-                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tags w-5 text-center"></i> Quản lý danh mục
-                </a>
+                
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
                     <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>

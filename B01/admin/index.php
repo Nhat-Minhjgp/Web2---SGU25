@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $user['password'])) {
                 
                 // Kiểm tra Quyền (role = 'admin')
-                if ($user['role'] == 'admin') {
+                if ($user['role'] == '1') {
                     
                     // Kiểm tra Trạng thái
                     if ($user['status'] == 'active') {
