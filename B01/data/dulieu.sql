@@ -46,3 +46,6 @@ INSERT INTO `sanpham` (`TenSP`, `Danhmuc_id`, `Ma_thuonghieu`, `GiaNhapTB`, `Gia
 ('Vợt Pickleball Joola Perseus', 6, 2, 5200000, 6500000, 4, 1, 0.15, '/img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 6, 'đắt vãi ò'),
 ('Vợt Pickleball JOOLA Ben Johns', 6, 1, 2100000, 2900000, 10, 1, 0.15, '/img/sanpham/joola-ben-johns-hyperion.png', 6, 'đắt vãi ò'),
 ('Vợt Pickleball Soxter Impact', 6, 3, 3800000, 4950000, 6, 1, 0.15, '/img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 6, 'đắt vãi ò');
+--dữ liệu admin--
+INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
+(4, 'admin', '$2y$10$beBJ9EMI.sZADHH9YXIEaObDrHHhawjbhkKlv0G5SYiV5p7VQectW', 1, 'admin@nvbplay.vn', NULL, 1, 'active', '2026-03-22 00:07:30');

@@ -105,9 +105,7 @@ $result = $conn->query($sql);
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
                 </a>
-                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tags w-5 text-center"></i> Quản lý danh mục
-                </a>
+                
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
                     <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>
@@ -168,7 +166,7 @@ $result = $conn->query($sql);
                                 <?php while($row = $result->fetch_assoc()): ?>
                                 <tr class="hover:bg-blue-50/50 transition duration-150">
                                     <td class="p-4">
-                                        <img src="../uploads/<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
+                                        <img src="../<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
                                              alt="<?php echo htmlspecialchars($row['TenSP']); ?>" 
                                              class="w-12 h-12 object-cover rounded-lg border border-gray-200 shadow-sm bg-gray-50">
                                     </td>

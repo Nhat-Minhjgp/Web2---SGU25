@@ -1,31 +1,43 @@
 <?php
 session_start();
-
-// --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
 
-// Khởi tạo biến tránh warning
 $errors = [];
 $success = '';
-$form_data = [
-    'username' => '',
-    'ho_ten' => '',
-    'email' => '',
-    'sdt' => ''
-];
+$form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
 
-// --- XỬ LÝ FORM SUBMIT ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Lấy dữ liệu & sanitize
-    $form_data['username'] = trim(htmlspecialchars($_POST['username'] ?? ''));
-    $form_data['ho_ten'] = trim(htmlspecialchars($_POST['ho_ten'] ?? ''));
+    // === 1. SERVER-SIDE SANITIZATION ===
+    $form_data['username'] = trim(preg_replace('/[^a-zA-Z0-9]/', '', $_POST['username'] ?? ''));
+    $form_data['ho_ten'] = trim(htmlspecialchars($_POST['ho_ten'] ?? '', ENT_QUOTES, 'UTF-8'));
     $form_data['email'] = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
     $form_data['sdt'] = trim(preg_replace('/[^0-9]/', '', $_POST['sdt'] ?? ''));
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $terms = isset($_POST['terms']);
 
-    // Validation
+    // === 2. SERVER-SIDE VALIDATION ===
+    $sqlInjectionPatterns = [
+        '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b|\bTRUNCATE\b|\bEXEC\b)/i',
+        '/(--|\/\*|\*\/|#)/',
+        '/(\bOR\b|\bAND\b)\s*([\'"]|\d+=\d+)/i',
+        '/;/',
+        '/\bxp_\w+/i',
+        '/(\bWAITFOR\b|\bBENCHMARK\b|\bSLEEP\b)/i'
+    ];
+
+    foreach ($sqlInjectionPatterns as $pattern) {
+        if (
+            preg_match($pattern, $_POST['username'] ?? '') ||
+            preg_match($pattern, $_POST['ho_ten'] ?? '') ||
+            preg_match($pattern, $_POST['email'] ?? '')
+        ) {
+            $errors[] = "Phát hiện ký tự không an toàn. Vui lòng nhập lại.";
+            break;
+        }
+    }
+
+    // Validation cơ bản
     if (empty($form_data['username']))
         $errors[] = "Tên đăng nhập không được để trống";
     elseif (strlen($form_data['username']) < 3)
@@ -43,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($form_data['sdt']))
         $errors[] = "Số điện thoại không được để trống";
-    elseif (!preg_match('/^[0-9]{10}$/', $form_data['sdt']))
-        $errors[] = "Số điện thoại phải có 10 số";
+    elseif (!preg_match('/^0[0-9]{9}$/', $form_data['sdt']))
+        $errors[] = "Số điện thoại phải bắt đầu bằng số 0 và có 10 số";
 
     if (empty($password))
         $errors[] = "Mật khẩu không được để trống";
@@ -52,14 +64,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Mật khẩu phải có ít nhất 6 ký tự";
 
     if ($password !== $confirm_password)
-        $errors[] = "Mật khẩu xác nhận không khớp";
+        $errors[] = "Mật khẩu không khớp";
+
     if (!$terms)
         $errors[] = "Bạn phải đồng ý với điều khoản sử dụng";
 
-    // Xử lý database nếu không có lỗi
+    // === 3. DATABASE OPERATIONS (Prepared Statements) ===
     if (empty($errors)) {
         try {
-            // Kiểm tra Username trùng (Prepared Statement - Chống SQL Injection)
+            // Kiểm tra Username trùng
             $stmt = $conn->prepare("SELECT User_id FROM users WHERE Username = ?");
             $stmt->bind_param("s", $form_data['username']);
             $stmt->execute();
@@ -100,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 if ($stmt->execute()) {
-                    $success = "Đăng ký thành công! Chuyển hướng đến trang đăng nhập...";
+                    $success = "Đăng ký thành công! Chuyển hướng...";
                     $form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
                     header("Refresh: 2; URL=./login.php");
                     exit();
@@ -110,7 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
             }
         } catch (Exception $e) {
-            $errors[] = "Lỗi hệ thống: " . $e->getMessage();
+            // Không hiển thị lỗi chi tiết cho user (security)
+            error_log("Register Error: " . $e->getMessage());
+            $errors[] = "Lỗi hệ thống. Vui lòng thử lại sau.";
         }
     }
 }
@@ -186,30 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #16a34a;
         }
 
-        /* Password Strength Indicator */
-        .password-strength {
-            height: 4px;
-            border-radius: 2px;
-            margin-top: 5px;
-            transition: all 0.3s;
-        }
+     
 
-        .strength-weak {
-            background-color: #dc2626;
-        }
 
-        .strength-medium {
-            background-color: #f59e0b;
-        }
-
-        .strength-strong {
-            background-color: #16a34a;
-        }
-
-        .strength-text {
-            font-size: 11px;
-            margin-top: 3px;
-        }
 
         /* Input validation styles */
         .input-valid {
@@ -225,6 +219,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 11px;
             margin-top: 2px;
             display: none;
+        }
+
+        /* SQL Injection Warning */
+        .sql-injection-warning {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .sql-injection-warning i {
+            margin-right: 8px;
         }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
@@ -296,30 +305,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 </div>
                                                 <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
                                                     class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
-                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
+                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Chăm sóc sức khoẻ</p>
                                                     </div>
                                                 </a>
                                                 <a href="https://nvbplay.vn/product-category/dich-vu"
                                                     class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
-                                                            alt="Dịch vụ" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
+                                                            alt="Dịch vụ" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Dịch vụ</p>
                                                     </div>
                                                 </a>
                                                 <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
                                                     data-menu="news">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
-                                                            alt="Tin Tức" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
+                                                            alt="Tin Tức" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Tin Tức</p>
                                                         <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm
@@ -428,13 +434,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <img decoding="async"
                                         src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/img/Login-Place.png"
                                         alt="Banner Register" title="My account" class="w-full h-full object-cover"
-                                        style="min-height: 500px;">
+                                        style="min-height: 600px;">
                                 </div>
 
                                 <!-- Register Form -->
-                                <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-6 bg-white">
+                                <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-4 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng ký tài khoản</h1>
+
+                                        <!-- SQL Injection Warning -->
+                                        <div id="sqlInjectionWarning" class="sql-injection-warning">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <strong>Cảnh báo bảo mật:</strong> <span id="sqlInjectionMessage">Phát hiện
+                                                ký tự không an toàn</span>
+                                        </div>
 
                                         <!-- Thông báo lỗi -->
                                         <?php if (!empty($errors)): ?>
@@ -491,8 +504,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <input type="tel" id="sdt" name="sdt" placeholder="Số điện thoại *"
                                                     class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                     value="<?php echo htmlspecialchars($form_data['sdt']); ?>" required>
-                                                <div class="error-text" id="sdt-error">Số điện thoại phải có 10-11 số
-                                                </div>
+                                                <div class="error-text" id="sdt-error">Số điện thoại phải bắt đầu bằng 0
+                                                    và có 10 số</div>
                                             </div>
 
                                             <!-- Mật khẩu -->
@@ -638,7 +651,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- JavaScript Form Validation (MỚI) -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('registerForm');
@@ -650,258 +662,319 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const confirmPassword = document.getElementById('confirm_password');
                 const terms = document.getElementById('terms');
                 const submitBtn = document.getElementById('submitBtn');
+                const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
+                const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
 
-                // Validation functions
+                // === SQL INJECTION DETECTION PATTERNS (đã tinh chỉnh) ===
+                const sqlInjectionPatterns = [
+                    /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i,
+                    /(--|\/\*|\*\/|#)/,
+                    /\bOR\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|\bAND\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+/i,
+                    /\bxp_\w+|sp_\w+/i,
+                    /\b(WAITFOR|BENCHMARK|SLEEP)\b/i,
+                    /%00|%27|%22/i
+                ];
+
+                function checkSQLInjection(value, fieldName) {
+                    // Chỉ check nếu value có ký tự đặc biệt (tránh false positive với số/letter thường)
+                    if (!/[;'"\\<>%]/.test(value)) return false;
+
+                    for (let pattern of sqlInjectionPatterns) {
+                        if (pattern.test(value)) {
+                            showSQLInjectionWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                function showSQLInjectionWarning(message) {
+                    if (sqlInjectionWarning) {
+                        sqlInjectionWarning.style.display = 'block';
+                        if (sqlInjectionMessage) sqlInjectionMessage.textContent = message;
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
+                }
+
+                function hideSQLInjectionWarning() {
+                    if (sqlInjectionWarning) {
+                        sqlInjectionWarning.style.display = 'none';
+                        if (submitBtn && !submitBtn.disabled) {
+                            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
+                }
+
+                // === VALIDATION FUNCTIONS ===
                 function validateUsername() {
+                    if (!username) return true;
                     const value = username.value.trim();
                     const error = document.getElementById('username-error');
+
+                    if (value.length === 0) {
+                        username.classList.add('input-invalid');
+                        username.classList.remove('input-valid');
+                        if (error) { error.textContent = 'Tên đăng nhập không được để trống'; error.style.display = 'block'; }
+                        return false;
+                    }
                     if (value.length < 3) {
                         username.classList.add('input-invalid');
                         username.classList.remove('input-valid');
-                        error.style.display = 'block';
+                        if (error) { error.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự'; error.style.display = 'block'; }
                         return false;
                     }
                     if (!/^[a-zA-Z0-9]+$/.test(value)) {
                         username.classList.add('input-invalid');
                         username.classList.remove('input-valid');
-                        error.textContent = 'Chỉ chứa chữ, số';
-                        error.style.display = 'block';
+                        if (error) { error.textContent = 'Chỉ chứa chữ, số'; error.style.display = 'block'; }
                         return false;
                     }
                     username.classList.add('input-valid');
                     username.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validateHoTen() {
+                    if (!hoTen) return true;
                     const value = hoTen.value.trim();
                     const error = document.getElementById('ho_ten-error');
+
                     if (value.length === 0) {
                         hoTen.classList.add('input-invalid');
                         hoTen.classList.remove('input-valid');
-                        error.style.display = 'block';
+                        if (error) { error.style.display = 'block'; }
                         return false;
                     }
                     hoTen.classList.add('input-valid');
                     hoTen.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validateEmail() {
+                    if (!email) return true;
                     const value = email.value.trim();
                     const error = document.getElementById('email-error');
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
                     if (!emailRegex.test(value)) {
                         email.classList.add('input-invalid');
                         email.classList.remove('input-valid');
-                        error.style.display = 'block';
+                        if (error) { error.style.display = 'block'; }
                         return false;
                     }
                     email.classList.add('input-valid');
                     email.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validateSdt() {
-                    const value = sdt.value.trim().replace(/[^0-9]/g, '');
+                    if (!sdt) return true;
+                    // Lấy giá trị và chỉ giữ số
+                    const rawValue = sdt.value.trim();
+                    const value = rawValue.replace(/[^0-9]/g, '');
                     const error = document.getElementById('sdt-error');
-                    if (value.length < 10 || value.length > 11) {
+
+                    // Check SQL injection trên raw value (trước khi sanitize)
+                    if (checkSQLInjection(rawValue, 'số điện thoại')) {
                         sdt.classList.add('input-invalid');
                         sdt.classList.remove('input-valid');
-                        error.style.display = 'block';
                         return false;
                     }
+
+                    // Update input value với số đã sanitize (UX tốt hơn)
+                    if (rawValue !== value) {
+                        sdt.value = value;
+                    }
+
+                    // Validate: 10 số, bắt đầu bằng 0
+                    if (value.length !== 10) {
+                        sdt.classList.add('input-invalid');
+                        sdt.classList.remove('input-valid');
+                        if (error) {
+                            error.textContent = value.length < 10 ? 'Số điện thoại phải có đủ 10 số' : 'Số điện thoại không được quá 10 số';
+                            error.style.display = 'block';
+                        }
+                        return false;
+                    }
+
+                    if (value.charAt(0) !== '0') {
+                        sdt.classList.add('input-invalid');
+                        sdt.classList.remove('input-valid');
+                        if (error) {
+                            error.textContent = 'Số điện thoại phải bắt đầu bằng số 0';
+                            error.style.display = 'block';
+                        }
+                        return false;
+                    }
+
                     sdt.classList.add('input-valid');
                     sdt.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validatePassword() {
+                    if (!password) return true;
                     const value = password.value;
                     const error = document.getElementById('password-error');
                     const strengthBar = document.getElementById('password-strength-bar');
                     const strengthText = document.getElementById('password-strength-text');
 
                     if (value.length === 0) {
-                        strengthBar.className = 'password-strength';
-                        strengthText.textContent = '';
+                        if (strengthBar) strengthBar.className = 'password-strength';
+                        if (strengthText) strengthText.textContent = '';
                         return false;
                     }
 
                     if (value.length < 6) {
                         password.classList.add('input-invalid');
                         password.classList.remove('input-valid');
-                        error.style.display = 'block';
-                        strengthBar.className = 'password-strength strength-weak';
-                        strengthText.textContent = 'Yếu';
-                        strengthText.className = 'strength-text text-red-600';
+                        if (error) error.style.display = 'block';
                         return false;
                     }
 
                     password.classList.add('input-valid');
                     password.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
 
-                    // Password strength
-                    let strength = 'weak';
-                    if (value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value)) {
-                        strength = 'strong';
-                        strengthBar.className = 'password-strength strength-strong';
-                        strengthText.textContent = 'Mạnh';
-                        strengthText.className = 'strength-text text-green-600';
-                    } else if (value.length >= 6) {
-                        strength = 'medium';
-                        strengthBar.className = 'password-strength strength-medium';
-                        strengthText.textContent = 'Trung bình';
-                        strengthText.className = 'strength-text text-yellow-600';
-                    }
+                 
 
+                    hideSQLInjectionWarning();
                     validateConfirmPassword();
                     return true;
                 }
 
                 function validateConfirmPassword() {
+                    if (!confirmPassword || !password) return true;
                     const value = confirmPassword.value;
                     const error = document.getElementById('confirm_password-error');
+
                     if (value !== password.value || value === '') {
                         confirmPassword.classList.add('input-invalid');
                         confirmPassword.classList.remove('input-valid');
-                        if (value !== '') error.style.display = 'block';
+                        if (error && value !== '') error.style.display = 'block';
                         return false;
                     }
                     confirmPassword.classList.add('input-valid');
                     confirmPassword.classList.remove('input-invalid');
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
                     return true;
                 }
 
                 function validateTerms() {
+                    if (!terms) return true;
                     const error = document.getElementById('terms-error');
                     if (!terms.checked) {
-                        error.style.display = 'block';
+                        if (error) error.style.display = 'block';
                         return false;
                     }
-                    error.style.display = 'none';
+                    if (error) error.style.display = 'none';
                     return true;
                 }
 
                 function checkFormValidity() {
-                    const isValid = validateUsername() && validateHoTen() && validateEmail() &&
-                        validateSdt() && validatePassword() && validateConfirmPassword() && validateTerms();
-                    submitBtn.disabled = !isValid;
-                    submitBtn.classList.toggle('opacity-50', !isValid);
-                    submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                    const isValid =
+                        validateUsername() &&
+                        validateHoTen() &&
+                        validateEmail() &&
+                        validateSdt() &&
+                        validatePassword() &&
+                        validateConfirmPassword() &&
+                        validateTerms();
+
+                    if (submitBtn) {
+                        submitBtn.disabled = !isValid;
+                        submitBtn.classList.toggle('opacity-50', !isValid);
+                        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                    }
                     return isValid;
                 }
 
-                // Event listeners
-                username.addEventListener('blur', validateUsername);
-                hoTen.addEventListener('blur', validateHoTen);
-                email.addEventListener('blur', validateEmail);
-                sdt.addEventListener('blur', validateSdt);
-                password.addEventListener('input', validatePassword);
-                confirmPassword.addEventListener('input', validateConfirmPassword);
-                terms.addEventListener('change', validateTerms);
+                // === EVENT LISTENERS ===
+                if (username) {
+                    username.addEventListener('blur', validateUsername);
+                    username.addEventListener('input', function () {
+                        // Chỉ check SQL injection nếu có ký tự đặc biệt
+                        if (/[;'"\\<>%]/.test(this.value)) {
+                            checkSQLInjection(this.value, 'tên đăng nhập');
+                        }
+                        checkFormValidity();
+                    });
+                }
 
-                // Form submit
-                form.addEventListener('submit', function (e) {
-                    if (!checkFormValidity()) {
-                        e.preventDefault();
-                        // Scroll to first error
-                        const firstError = form.querySelector('.input-invalid');
-                        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
+                if (hoTen) {
+                    hoTen.addEventListener('blur', validateHoTen);
+                    hoTen.addEventListener('input', checkFormValidity);
+                }
 
-                // Initial check
-                checkFormValidity();
-            });
-        </script>
+                if (email) {
+                    email.addEventListener('blur', validateEmail);
+                    email.addEventListener('input', checkFormValidity);
+                }
 
-        <!-- JavaScript Menu (GIỮ NGUYÊN 100% từ file gốc) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-                if (menuToggle) {
-                    menuToggle.addEventListener('click', function () {
-                        mobileMenu.classList.remove('-translate-x-full');
-                        document.body.style.overflow = 'hidden';
+                if (sdt) {
+                    sdt.addEventListener('blur', validateSdt);
+                    sdt.addEventListener('input', function () {
+                        // Auto-format: chỉ giữ số
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        checkFormValidity();
                     });
                 }
-                if (closeMenu) {
-                    closeMenu.addEventListener('click', function () {
-                        mobileMenu.classList.add('-translate-x-full');
-                        document.body.style.overflow = '';
-                    });
-                }
-                const categoryButton = document.querySelector('.relative button');
-                if (categoryButton) {
-                    categoryButton.addEventListener('click', function () {
-                        const subMenu = this.nextElementSibling;
-                        subMenu.classList.toggle('hidden');
-                        this.querySelector('i').classList.toggle('fa-chevron-down');
-                        this.querySelector('i').classList.toggle('fa-chevron-up');
-                    });
-                }
-            });
-        </script>
 
-        <!-- JavaScript Desktop Menu (GIỮ NGUYÊN 100% từ file gốc) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const menuTrigger = document.getElementById('mega-menu-trigger');
-                const menuDropdown = document.getElementById('mega-menu-dropdown');
-                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-                const menuContents = document.querySelectorAll('.menu-content');
-                if (menuTrigger) {
-                    menuTrigger.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        menuDropdown.classList.toggle('hidden');
+                if (password) {
+                    password.addEventListener('input', function () {
+                        validatePassword();
+                        checkFormValidity();
                     });
                 }
-                menuItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const menuId = this.getAttribute('data-menu');
-                        menuItems.forEach(el => {
-                            el.classList.remove('active', 'bg-red-50');
-                            const titleEl = el.querySelector('.font-bold');
-                            if (titleEl) titleEl.classList.remove('text-red-600');
-                        });
-                        this.classList.add('active', 'bg-red-50');
-                        const activeTitle = this.querySelector('.font-bold');
-                        if (activeTitle) activeTitle.classList.add('text-red-600');
-                        menuContents.forEach(content => { content.classList.add('hidden'); });
-                        const activeContent = document.getElementById(`content-${menuId}`);
-                        if (activeContent) { activeContent.classList.remove('hidden'); }
-                    });
-                });
-                document.addEventListener('click', function (e) {
-                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                        menuDropdown.classList.add('hidden');
-                    }
-                });
-                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-                if (menuToggle) { menuToggle.addEventListener('click', function () { mobileMenu.classList.remove('-translate-x-full'); }); }
-                if (closeMenu) { closeMenu.addEventListener('click', function () { mobileMenu.classList.add('-translate-x-full'); }); }
-                const categoryButton = document.querySelector('.relative button');
-                if (categoryButton) {
-                    categoryButton.addEventListener('click', function () {
-                        const subMenu = this.nextElementSibling;
-                        subMenu.classList.toggle('hidden');
-                        this.querySelector('i').classList.toggle('fa-chevron-down');
-                        this.querySelector('i').classList.toggle('fa-chevron-up');
+
+                if (confirmPassword) {
+                    confirmPassword.addEventListener('input', function () {
+                        validateConfirmPassword();
+                        checkFormValidity();
                     });
                 }
+
+                if (terms) {
+                    terms.addEventListener('change', function () {
+                        validateTerms();
+                        checkFormValidity();
+                    });
+                }
+
+                // Form submit với final check
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        // Final SQL injection check
+                        const inputs = [username, hoTen, email, sdt, password].filter(i => i);
+                        for (let input of inputs) {
+                            if (input && checkSQLInjection(input.value, input.name)) {
+                                e.preventDefault();
+                                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                return false;
+                            }
+                        }
+
+                        if (!checkFormValidity()) {
+                            e.preventDefault();
+                            const firstError = form.querySelector('.input-invalid');
+                            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                }
+
+               
+                setTimeout(checkFormValidity, 100);
             });
         </script>
 </body>

@@ -1,36 +1,61 @@
 <?php
 session_start();
-
 // --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
 
 // Khởi tạo biến tránh warning
 $errors = [];
 $success = '';
-$form_data = [
-    'username' => '',
-    'password' => ''
+$form_data = ['username' => '', 'password' => ''];
+
+// === SERVER-SIDE SQL INJECTION PATTERNS ===
+$sqlInjectionPatterns = [
+    '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b|\bEXEC\b|\bTRUNCATE\b)/i',
+    '/(--|\/\*|\*\/|#|;)/',
+    '/(\bOR\b|\bAND\b)\s*([\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+|[\'"]+[\'"]*)/i',
+    '/\b(WAITFOR|BENCHMARK|SLEEP|xp_|sp_)\b/i',
+    '/[\'"]\s*OR\s*[\'"]?1[\'"]?\s*=\s*[\'"]?1/i',
+    '/%00|%27|%22|%3B/i'  // URL-encoded dangerous chars
 ];
+
+function checkSQLInjectionServer($value)
+{
+    global $sqlInjectionPatterns;
+    foreach ($sqlInjectionPatterns as $pattern) {
+        if (preg_match($pattern, $value)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // --- XỬ LÝ FORM SUBMIT ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Lấy dữ liệu & sanitize
-    $form_data['username'] = trim(htmlspecialchars($_POST['username'] ?? ''));
+    $raw_username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
 
-    // Validation
-    if (empty($form_data['username'])) {
+    // === SERVER-SIDE SQL INJECTION CHECK ===
+    if (checkSQLInjectionServer($raw_username) || checkSQLInjectionServer($password)) {
+        $errors[] = "Phát hiện ký tự không an toàn. Vui lòng nhập lại.";
+    } else {
+        // Sanitize sau khi đã check SQL injection
+        $form_data['username'] = trim(preg_replace('/[^a-zA-Z0-9]/', '', $raw_username));
+    }
+
+    // Validation cơ bản
+    if (empty($form_data['username']) && empty($errors)) {
         $errors[] = "Tên đăng nhập không được để trống";
     }
-    if (empty($password)) {
+    if (empty($password) && empty($errors)) {
         $errors[] = "Mật khẩu không được để trống";
     }
 
     // Xử lý database nếu không có lỗi
     if (empty($errors)) {
         try {
-            // Kiểm tra username tồn tại (Prepared Statement - Chống SQL Injection)
+            // ✅ PREPARED STATEMENT - Lớp bảo vệ chính chống SQL Injection
             $stmt = $conn->prepare("SELECT User_id, Username, password, Ho_ten, email, SDT, role, status FROM users WHERE Username = ?");
             $stmt->bind_param("s", $form_data['username']);
             $stmt->execute();
@@ -44,6 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Kiểm tra status
                     if ($user['status'] !== 'active') {
                         $errors[] = "Tài khoản của bạn đã bị khóa";
+                    }
+                    // ✅ CHẶN ROLE 1 (Staff/Admin) không vào user area
+                    elseif ($user['role'] == 1) {
+                        $errors[] = "Tài khoản Staff/Admin không được đăng nhập vào trang user.";
                     } else {
                         // Đăng nhập thành công - Tạo session
                         $_SESSION['user_id'] = $user['User_id'];
@@ -52,9 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['role'] = $user['role'];
 
-                        // Remember me (optional)
+                        // Remember me
                         if ($remember) {
-                            setcookie('remember_user', $form_data['username'], time() + (86400 * 30), '/');
+                            setcookie('remember_user', $form_data['username'], [
+                                'expires' => time() + (86400 * 30),
+                                'path' => '/',
+                                'httponly' => true,
+                                'samesite' => 'Lax'
+                            ]);
                         }
 
                         $success = "Đăng nhập thành công! Chuyển hướng...";
@@ -69,14 +103,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $stmt->close();
         } catch (Exception $e) {
-            $errors[] = "Lỗi hệ thống: " . $e->getMessage();
+            // Không hiển thị lỗi chi tiết cho user
+            error_log("Login Error: " . $e->getMessage());
+            $errors[] = "Lỗi hệ thống. Vui lòng thử lại sau.";
         }
     }
 }
 
 // Tự động điền username nếu có remember cookie
 if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
-    $form_data['username'] = $_COOKIE['remember_user'];
+    $form_data['username'] = htmlspecialchars($_COOKIE['remember_user']);
 }
 ?>
 <!DOCTYPE html>
@@ -385,17 +421,20 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                 <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-6 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng nhập</h1>
+                                      
+
 
                                         <!-- Thông báo lỗi -->
                                         <?php if (!empty($errors)): ?>
                                             <div class="alert-error p-3 rounded mb-4 text-sm">
-                                                <ul class="list-disc list-inside">
-                                                    <?php foreach ($errors as $error): ?>
-                                                        <li>
-                                                            <?php echo htmlspecialchars($error); ?>
-                                                        </li>
-                                                    <?php endforeach; ?>
+                                                <ul class="list-disc list-inside"><?php foreach ($errors as $error): ?>
+                                                        <li><?php echo htmlspecialchars($error); ?></li><?php endforeach; ?>
                                                 </ul>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ($success): ?>
+                                            <div class="alert-success p-3 rounded mb-4 text-sm"><i
+                                                    class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?>
                                             </div>
                                         <?php endif; ?>
 
@@ -706,6 +745,147 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 }
             });
         </script>
+
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginForm');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const togglePassword = document.getElementById('togglePassword');
+        const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
+        const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
+
+        // === CLIENT-SIDE SQL INJECTION PATTERNS ===
+        const sqlPatterns = [
+        /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|EXECUTE)\b/i,
+        /(--|\/\*|\*\/|#|;)/,
+        /['"]\s*(OR|AND)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i,
+        /\b(WAITFOR|BENCHMARK|SLEEP|xp_|sp_)\b/i,
+        /%00|%27|%22|%3B/i
+        ];
+
+        function checkSQLInjection(value, fieldName) {
+        for (let pattern of sqlPatterns) {
+        if (pattern.test(value)) {
+        showSQLWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
+        return true;
+        }
+        }
+        return false;
+        }
+
+        function showSQLWarning(msg) {
+        sqlWarning.style.display = 'block';
+        sqlWarningMsg.textContent = msg;
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        function hideSQLWarning() {
+        sqlWarning.style.display = 'none';
+        if (validateUsername() && validatePassword()) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        }
+
+        // Toggle password visibility
+        if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+        const type = password.type === 'password' ? 'text' : 'password';
+        password.type = type;
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+        });
+        }
+
+        function validateUsername() {
+        const value = username.value.trim();
+        const error = document.getElementById('username-error');
+
+        if (checkSQLInjection(value, 'tên đăng nhập')) {
+        username.classList.add('input-invalid');
+        username.classList.remove('input-valid');
+        return false;
+        }
+
+        if (value.length === 0) {
+        username.classList.add('input-invalid');
+        username.classList.remove('input-valid');
+        error.style.display = 'block';
+        return false;
+        }
+        username.classList.add('input-valid');
+        username.classList.remove('input-invalid');
+        error.style.display = 'none';
+        hideSQLWarning();
+        return true;
+        }
+
+        function validatePassword() {
+        const value = password.value;
+        const error = document.getElementById('password-error');
+
+        if (checkSQLInjection(value, 'mật khẩu')) {
+        password.classList.add('input-invalid');
+        password.classList.remove('input-valid');
+        return false;
+        }
+
+        if (value.length === 0) {
+        password.classList.add('input-invalid');
+        password.classList.remove('input-valid');
+        error.style.display = 'block';
+        return false;
+        }
+        password.classList.add('input-valid');
+        password.classList.remove('input-invalid');
+        error.style.display = 'none';
+        hideSQLWarning();
+        return true;
+        }
+
+        function checkFormValidity() {
+        const isValid = validateUsername() && validatePassword();
+        submitBtn.disabled = !isValid;
+        submitBtn.classList.toggle('opacity-50', !isValid);
+        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+        return isValid;
+        }
+
+        // Event listeners
+        username.addEventListener('blur', validateUsername);
+        username.addEventListener('input', function() {
+        if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'tên đăng nhập');
+            checkFormValidity();
+            });
+
+            password.addEventListener('blur', validatePassword);
+            password.addEventListener('input', function() {
+            if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'mật khẩu');
+                checkFormValidity();
+                });
+
+                // Form submit - final check
+                form.addEventListener('submit', function(e) {
+                if (checkSQLInjection(username.value, 'tên đăng nhập') || checkSQLInjection(password.value, 'mật khẩu'))
+                {
+                e.preventDefault();
+                return false;
+                }
+                if (!checkFormValidity()) {
+                e.preventDefault();
+                const firstError = form.querySelector('.input-invalid');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                });
+
+                // Initial check
+                checkFormValidity();
+                });
+                </script>
 </body>
 
 </html>
