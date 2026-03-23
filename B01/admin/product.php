@@ -166,7 +166,7 @@ $result = $conn->query($sql);
                                 <?php while($row = $result->fetch_assoc()): ?>
                                 <tr class="hover:bg-blue-50/50 transition duration-150">
                                     <td class="p-4">
-                                        <img src="../uploads/<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
+                                        <img src="../<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
                                              alt="<?php echo htmlspecialchars($row['TenSP']); ?>" 
                                              class="w-12 h-12 object-cover rounded-lg border border-gray-200 shadow-sm bg-gray-50">
                                     </td>
