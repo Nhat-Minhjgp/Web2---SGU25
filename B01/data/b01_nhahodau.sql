@@ -197,7 +197,7 @@ CREATE TABLE `users` (
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
   `role` boolean DEFAULT 0, 
-  `status` varchar(20) DEFAULT NULL,
+  `status` boolean DEFAULT 1,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
