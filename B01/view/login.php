@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Verify password
                 if (password_verify($password, $user['password'])) {
                     // Kiểm tra status
-                    if ($user['status'] !== 'active') {
+                    if ($user['status'] !== '1') {
                         $errors[] = "Tài khoản của bạn đã bị khóa";
                     }
                     // ✅ CHẶN ROLE 1 (Staff/Admin) không vào user area

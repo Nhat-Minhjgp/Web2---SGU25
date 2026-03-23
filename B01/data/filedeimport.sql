@@ -27,6 +27,12 @@ SET time_zone = "+00:00";
 -- Table structure for table `chitiethoadon`
 --
 
+
+CREATE DATABASE IF NOT EXISTS b01_nhahodau
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_general_ci;
+
+USE b01_nhahodau;
 CREATE TABLE `chitiethoadon` (
   `ChiTietDonHang_id` int(11) NOT NULL,
   `DonHang_id` int(11) DEFAULT NULL,
@@ -235,7 +241,7 @@ INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuong
 (11, 'Vợt Pickleball Joola Perseus', 6, 6, 2, 'đắt vãi ò', '/img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000, 6500000.00, 0.15, 1, '2026-03-20 22:16:21', 4),
 (12, 'Vợt Pickleball JOOLA Ben Johns', 6, 6, 1, 'đắt vãi ò', '/img/sanpham/joola-ben-johns-hyperion.png', 2100000, 2900000.00, 0.15, 1, '2026-03-20 22:16:21', 10),
 (13, 'Vợt Pickleball Soxter Impact', 6, 6, 3, 'đắt vãi ò', '/img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000, 4950000.00, 0.15, 1, '2026-03-20 22:16:21', 6),
-(14, 'Hoàng chou', 5, 6, 3, 'sjdflsflsjlfksd', 'uploads/products/PROD-20260323134545-69c135f98a177.jpg', NULL, NULL, 20.00, 1, '2026-03-23 19:45:45', 0);
+(14, 'Hoàng chou', 5, 6, 3, 'sjdflsflsjlfksd', '/img/products/PROD-20260323134545-69c135f98a177.jpg', NULL, NULL, 20.00, 1, '2026-03-23 19:45:45', 0);
 
 -- --------------------------------------------------------
 
@@ -300,7 +306,7 @@ CREATE TABLE `users` (
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
   `role` tinyint(1) DEFAULT 0,
-  `status` varchar(20) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT 1,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -309,9 +315,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
-(1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, 'active', '2026-03-20 22:30:01'),
-(3, 'Tisdoo', '$2y$10$KVCLdId9zeX.m9V6n.KSBuIAhB3dHadrgsIs.o7q3sdNr54kMgZUq', 'hoàng ấn', 'bodow@gmail.com', '0598898588', 0, 'active', '2026-03-23 10:47:04'),
-(4, 'beiu', '$2y$10$amSCnKvV/3fwmiwpx8GO9ui9YfkXdt3W4qZCXi/BQEpwaSEF50Lhy', 'hoàng ấn', 'bodowq@gmail.com', '0598898588', 0, 'active', '2026-03-23 10:49:34');
+(1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
+(3, 'Tisdoo', '$2y$10$KVCLdId9zeX.m9V6n.KSBuIAhB3dHadrgsIs.o7q3sdNr54kMgZUq', 'hoàng ấn', 'bodow@gmail.com', '0598898588', 0, '1', '2026-03-23 10:47:04'),
+(4, 'beiu', '$2y$10$amSCnKvV/3fwmiwpx8GO9ui9YfkXdt3W4qZCXi/BQEpwaSEF50Lhy', 'hoàng ấn', 'bodowq@gmail.com', '0598898588', 0, '1', '2026-03-23 10:49:34');
 
 --
 -- Indexes for dumped tables

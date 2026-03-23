@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (empty($errors)) {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $role = 0;
-                $status = 'active';
+                $status = '1';
 
                 $stmt = $conn->prepare("INSERT INTO users (Username, password, Ho_ten, email, SDT, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
                 $stmt->bind_param(
