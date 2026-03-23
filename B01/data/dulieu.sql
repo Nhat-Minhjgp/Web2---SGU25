@@ -48,4 +48,4 @@ INSERT INTO `sanpham` (`TenSP`, `Danhmuc_id`, `Ma_thuonghieu`, `GiaNhapTB`, `Gia
 ('Vợt Pickleball Soxter Impact', 6, 3, 3800000, 4950000, 6, 1, 0.15, '/img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 6, 'đắt vãi ò');
 --dữ liệu admin--
 INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
-(4, 'admin', '$2y$10$beBJ9EMI.sZADHH9YXIEaObDrHHhawjbhkKlv0G5SYiV5p7VQectW', 'Quản trị viên', 'admin@nvbplay.vn', NULL, 1, 'active', '2026-03-22 00:07:30');
+(4, 'admin', '$2y$10$beBJ9EMI.sZADHH9YXIEaObDrHHhawjbhkKlv0G5SYiV5p7VQectW', 1, 'admin@nvbplay.vn', NULL, 1, 'active', '2026-03-22 00:07:30');
