@@ -201,30 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #16a34a;
         }
 
-        /* Password Strength Indicator */
-        .password-strength {
-            height: 4px;
-            border-radius: 2px;
-            margin-top: 5px;
-            transition: all 0.3s;
-        }
+     
 
-        .strength-weak {
-            background-color: #dc2626;
-        }
 
-        .strength-medium {
-            background-color: #f59e0b;
-        }
-
-        .strength-strong {
-            background-color: #16a34a;
-        }
-
-        .strength-text {
-            font-size: 11px;
-            margin-top: 3px;
-        }
 
         /* Input validation styles */
         .input-valid {
@@ -455,11 +434,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <img decoding="async"
                                         src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/img/Login-Place.png"
                                         alt="Banner Register" title="My account" class="w-full h-full object-cover"
-                                        style="min-height: 500px;">
+                                        style="min-height: 600px;">
                                 </div>
 
                                 <!-- Register Form -->
-                                <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-6 bg-white">
+                                <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-4 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng ký tài khoản</h1>
 
@@ -861,8 +840,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         password.classList.add('input-invalid');
                         password.classList.remove('input-valid');
                         if (error) error.style.display = 'block';
-                        if (strengthBar) strengthBar.className = 'password-strength strength-weak';
-                        if (strengthText) { strengthText.textContent = 'Yếu'; strengthText.className = 'strength-text text-red-600'; }
                         return false;
                     }
 
@@ -870,18 +847,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     password.classList.remove('input-invalid');
                     if (error) error.style.display = 'none';
 
-                    // Password strength indicator
-                    if (strengthBar && strengthText) {
-                        if (value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value)) {
-                            strengthBar.className = 'password-strength strength-strong';
-                            strengthText.textContent = 'Mạnh';
-                            strengthText.className = 'strength-text text-green-600';
-                        } else {
-                            strengthBar.className = 'password-strength strength-medium';
-                            strengthText.textContent = 'Trung bình';
-                            strengthText.className = 'strength-text text-yellow-600';
-                        }
-                    }
+                 
 
                     hideSQLInjectionWarning();
                     validateConfirmPassword();
