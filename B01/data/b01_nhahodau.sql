@@ -1,16 +1,24 @@
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-CREATE DATABASE IF NOT EXISTS b01_nhahodau
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_general_ci;
 
-USE b01_nhahodau;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `b01_nhahodau`
+--
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `chitiethoadon`
 --
+
 CREATE TABLE `chitiethoadon` (
   `ChiTietDonHang_id` int(11) NOT NULL,
   `DonHang_id` int(11) DEFAULT NULL,
@@ -24,6 +32,7 @@ CREATE TABLE `chitiethoadon` (
 --
 -- Table structure for table `chitietphieunhap`
 --
+
 CREATE TABLE `chitietphieunhap` (
   `ChiTiet_id` int(11) NOT NULL,
   `PhieuNhap_id` int(11) DEFAULT NULL,
@@ -38,6 +47,7 @@ CREATE TABLE `chitietphieunhap` (
 --
 -- Table structure for table `chitietphieuxuat`
 --
+
 CREATE TABLE `chitietphieuxuat` (
   `ChiTiet_id` int(11) NOT NULL,
   `PhieuXuat_id` int(11) DEFAULT NULL,
@@ -51,16 +61,28 @@ CREATE TABLE `chitietphieuxuat` (
 --
 -- Table structure for table `danhmuc`
 --
+
 CREATE TABLE `danhmuc` (
   `Danhmuc_id` int(11) NOT NULL,
-  `Ten_danhmuc` varchar(100) NOT NULL
+  `Ten_danhmuc` varchar(100) NOT NULL,
+  `slug` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- -------------------------------------------------------
+--
+-- Dumping data for table `danhmuc`
+--
+
+INSERT INTO `danhmuc` (`Danhmuc_id`, `Ten_danhmuc`, `slug`) VALUES
+(4, 'Vợt cầu lông', 'vot-cau-long'),
+(5, 'Phụ kiện', 'phu-kien'),
+(6, 'Vợt Pickleball', 'vot-pickleball');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `diachigh`
 --
+
 CREATE TABLE `diachigh` (
   `add_id` int(11) NOT NULL,
   `User_id` int(11) DEFAULT NULL,
@@ -73,9 +95,12 @@ CREATE TABLE `diachigh` (
   `Mac_dinh` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `donhang`
 --
+
 CREATE TABLE `donhang` (
   `DonHang_id` int(11) NOT NULL,
   `User_id` int(11) DEFAULT NULL,
@@ -87,9 +112,12 @@ CREATE TABLE `donhang` (
   `linkTraCuu` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `giohang`
 --
+
 CREATE TABLE `giohang` (
   `GioHang_id` int(11) NOT NULL,
   `User_id` int(11) DEFAULT NULL,
@@ -101,27 +129,37 @@ CREATE TABLE `giohang` (
 --
 -- Table structure for table `nhacungcap`
 --
+
 CREATE TABLE `nhacungcap` (
   `NCC_id` int(11) NOT NULL,
   `Ten_NCC` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `nhacungcap`
+--
+
+
+--
 -- Table structure for table `phieunhap`
 --
+
 CREATE TABLE `phieunhap` (
   `NhapHang_id` int(11) NOT NULL,
-  `NCC_id` int(11) DEFAULT NULL,
   `NguoiNhap` varchar(100) DEFAULT NULL,
   `NgayNhap` date DEFAULT NULL,
   `SoLuong` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `phieunhap`
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `phieuxuat`
 --
+
 CREATE TABLE `phieuxuat` (
   `PhieuXuat_id` int(11) NOT NULL,
   `DonHang_id` int(11) DEFAULT NULL,
@@ -134,6 +172,7 @@ CREATE TABLE `phieuxuat` (
 --
 -- Table structure for table `sanpham`
 --
+
 CREATE TABLE `sanpham` (
   `SanPham_id` int(11) NOT NULL,
   `TenSP` varchar(200) NOT NULL,
@@ -145,14 +184,20 @@ CREATE TABLE `sanpham` (
   `GiaNhapTB` decimal(15,0) DEFAULT NULL,
   `GiaBan` decimal(15,2) DEFAULT NULL,
   `PhanTramLoiNhuan` decimal(5,2) DEFAULT NULL,
-  `TrangThai` tinyint(1) DEFAULT 1,  -- Sửa ở đây: chuyển từ varchar sang tinyint(1)
+  `TrangThai` tinyint(1) DEFAULT 1,
   `TaoNgay` datetime DEFAULT current_timestamp(),
   `SoLuongTon` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `sanpham`
+--
+
+
+--
 -- Table structure for table `sp_tronggiohang`
 --
+
 CREATE TABLE `sp_tronggiohang` (
   `SP_GioHang_id` int(11) NOT NULL,
   `GioHang_id` int(11) DEFAULT NULL,
@@ -165,16 +210,28 @@ CREATE TABLE `sp_tronggiohang` (
 --
 -- Table structure for table `thuonghieu`
 --
+
 CREATE TABLE `thuonghieu` (
   `Ma_thuonghieu` int(11) NOT NULL,
-  `Ten_thuonghieu` varchar(100) NOT NULL
+  `Ten_thuonghieu` varchar(100) NOT NULL,
+  `slug` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `thuonghieu`
+--
+
+INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`) VALUES
+(1, 'Li-Ning', 'li-ning'),
+(2, 'Yonex', 'yonex'),
+(3, 'Victor', 'victor');
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `tracuutonkho`
 --
+
 CREATE TABLE `tracuutonkho` (
   `TraCuu_id` int(11) NOT NULL,
   `SP_id` int(11) DEFAULT NULL,
@@ -189,6 +246,7 @@ CREATE TABLE `tracuutonkho` (
 --
 -- Table structure for table `users`
 --
+
 CREATE TABLE `users` (
   `User_id` int(11) NOT NULL,
   `Username` varchar(50) NOT NULL,
@@ -196,10 +254,23 @@ CREATE TABLE `users` (
   `Ho_ten` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `SDT` varchar(15) DEFAULT NULL,
-  `role` boolean DEFAULT 0, 
-  `status` boolean DEFAULT 1,
+  `role` tinyint(1) DEFAULT 0,
+  `status` varchar(20) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
+(1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, 'active', '2026-03-20 22:30:01'),
+(3, 'Tisdoo', '$2y$10$KVCLdId9zeX.m9V6n.KSBuIAhB3dHadrgsIs.o7q3sdNr54kMgZUq', 'hoàng ấn', 'bodow@gmail.com', '0598898588', 0, 'active', '2026-03-23 10:47:04'),
+(4, 'beiu', '$2y$10$amSCnKvV/3fwmiwpx8GO9ui9YfkXdt3W4qZCXi/BQEpwaSEF50Lhy', 'hoàng ấn', 'bodowq@gmail.com', '0598898588', 0, 'active', '2026-03-23 10:49:34');
+
+--
+-- Indexes for dumped tables
+--
 
 --
 -- Indexes for table `chitiethoadon`
@@ -263,8 +334,7 @@ ALTER TABLE `nhacungcap`
 -- Indexes for table `phieunhap`
 --
 ALTER TABLE `phieunhap`
-  ADD PRIMARY KEY (`NhapHang_id`),
-  ADD KEY `NCC_id` (`NCC_id`);
+  ADD PRIMARY KEY (`NhapHang_id`);
 
 --
 -- Indexes for table `phieuxuat`
@@ -314,105 +384,166 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `chitiethoadon`
+--
 ALTER TABLE `chitiethoadon`
   MODIFY `ChiTietDonHang_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `chitietphieunhap`
+--
 ALTER TABLE `chitietphieunhap`
-  MODIFY `ChiTiet_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ChiTiet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
+--
+-- AUTO_INCREMENT for table `chitietphieuxuat`
+--
 ALTER TABLE `chitietphieuxuat`
   MODIFY `ChiTiet_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `danhmuc`
+--
 ALTER TABLE `danhmuc`
-  MODIFY `Danhmuc_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Danhmuc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
+--
+-- AUTO_INCREMENT for table `diachigh`
+--
 ALTER TABLE `diachigh`
   MODIFY `add_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `donhang`
+--
 ALTER TABLE `donhang`
   MODIFY `DonHang_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `giohang`
+--
 ALTER TABLE `giohang`
   MODIFY `GioHang_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `nhacungcap`
+--
 ALTER TABLE `nhacungcap`
-  MODIFY `NCC_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `NCC_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
+--
+-- AUTO_INCREMENT for table `phieunhap`
+--
 ALTER TABLE `phieunhap`
-  MODIFY `NhapHang_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `NhapHang_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
+--
+-- AUTO_INCREMENT for table `phieuxuat`
+--
 ALTER TABLE `phieuxuat`
   MODIFY `PhieuXuat_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `sanpham`
+--
 ALTER TABLE `sanpham`
-  MODIFY `SanPham_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `SanPham_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
+--
+-- AUTO_INCREMENT for table `sp_tronggiohang`
+--
 ALTER TABLE `sp_tronggiohang`
   MODIFY `SP_GioHang_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `thuonghieu`
+--
 ALTER TABLE `thuonghieu`
-  MODIFY `Ma_thuonghieu` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Ma_thuonghieu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
+--
+-- AUTO_INCREMENT for table `tracuutonkho`
+--
 ALTER TABLE `tracuutonkho`
   MODIFY `TraCuu_id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT for table `users`
+--
 ALTER TABLE `users`
-  MODIFY `User_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `User_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `chitiethoadon`
 --
 ALTER TABLE `chitiethoadon`
   ADD CONSTRAINT `chitiethoadon_ibfk_1` FOREIGN KEY (`DonHang_id`) REFERENCES `donhang` (`DonHang_id`),
   ADD CONSTRAINT `chitiethoadon_ibfk_2` FOREIGN KEY (`SanPham_id`) REFERENCES `sanpham` (`SanPham_id`);
 
+--
+-- Constraints for table `chitietphieunhap`
+--
 ALTER TABLE `chitietphieunhap`
   ADD CONSTRAINT `chitietphieunhap_ibfk_1` FOREIGN KEY (`PhieuNhap_id`) REFERENCES `phieunhap` (`NhapHang_id`),
   ADD CONSTRAINT `chitietphieunhap_ibfk_2` FOREIGN KEY (`SanPham_id`) REFERENCES `sanpham` (`SanPham_id`);
 
+--
+-- Constraints for table `chitietphieuxuat`
+--
 ALTER TABLE `chitietphieuxuat`
   ADD CONSTRAINT `chitietphieuxuat_ibfk_1` FOREIGN KEY (`PhieuXuat_id`) REFERENCES `phieuxuat` (`PhieuXuat_id`),
   ADD CONSTRAINT `chitietphieuxuat_ibfk_2` FOREIGN KEY (`SP_id`) REFERENCES `sanpham` (`SanPham_id`);
 
+--
+-- Constraints for table `diachigh`
+--
 ALTER TABLE `diachigh`
   ADD CONSTRAINT `diachigh_ibfk_1` FOREIGN KEY (`User_id`) REFERENCES `users` (`User_id`);
 
+--
+-- Constraints for table `donhang`
+--
 ALTER TABLE `donhang`
   ADD CONSTRAINT `donhang_ibfk_1` FOREIGN KEY (`User_id`) REFERENCES `users` (`User_id`),
   ADD CONSTRAINT `donhang_ibfk_2` FOREIGN KEY (`DiaChi_id`) REFERENCES `diachigh` (`add_id`);
 
+--
+-- Constraints for table `giohang`
+--
 ALTER TABLE `giohang`
   ADD CONSTRAINT `giohang_ibfk_1` FOREIGN KEY (`User_id`) REFERENCES `users` (`User_id`);
 
-ALTER TABLE `phieunhap`
-  ADD CONSTRAINT `phieunhap_ibfk_1` FOREIGN KEY (`NCC_id`) REFERENCES `nhacungcap` (`NCC_id`);
-
+--
+-- Constraints for table `phieuxuat`
+--
 ALTER TABLE `phieuxuat`
   ADD CONSTRAINT `phieuxuat_ibfk_1` FOREIGN KEY (`DonHang_id`) REFERENCES `donhang` (`DonHang_id`),
   ADD CONSTRAINT `phieuxuat_ibfk_2` FOREIGN KEY (`NguoiXuat_id`) REFERENCES `users` (`User_id`);
 
+--
+-- Constraints for table `sanpham`
+--
 ALTER TABLE `sanpham`
   ADD CONSTRAINT `sanpham_ibfk_1` FOREIGN KEY (`Danhmuc_id`) REFERENCES `danhmuc` (`Danhmuc_id`),
   ADD CONSTRAINT `sanpham_ibfk_2` FOREIGN KEY (`NCC_id`) REFERENCES `nhacungcap` (`NCC_id`),
   ADD CONSTRAINT `sanpham_ibfk_3` FOREIGN KEY (`Ma_thuonghieu`) REFERENCES `thuonghieu` (`Ma_thuonghieu`);
 
+--
+-- Constraints for table `sp_tronggiohang`
+--
 ALTER TABLE `sp_tronggiohang`
   ADD CONSTRAINT `sp_tronggiohang_ibfk_1` FOREIGN KEY (`GioHang_id`) REFERENCES `giohang` (`GioHang_id`),
   ADD CONSTRAINT `sp_tronggiohang_ibfk_2` FOREIGN KEY (`SanPham_id`) REFERENCES `sanpham` (`SanPham_id`);
 
+--
+-- Constraints for table `tracuutonkho`
+--
 ALTER TABLE `tracuutonkho`
   ADD CONSTRAINT `tracuutonkho_ibfk_1` FOREIGN KEY (`SP_id`) REFERENCES `sanpham` (`SanPham_id`);
-
-
-
-  -- Thêm cột slug cho danh mục
-ALTER TABLE `danhmuc` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_danhmuc`;
-
-
-
--- Thêm cột slug cho thương hiệu
-ALTER TABLE `thuonghieu` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_thuonghieu`;
----chữa cháy do thêm dư ncc id trong phpieunhap--
-ALTER TABLE `phieunhap` MODIFY `NCC_id` int(11) DEFAULT NULL;
-
 COMMIT;

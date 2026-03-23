@@ -9,14 +9,20 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 $admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_username = $_SESSION['admin_username'] ?? '';
 
-// Lấy danh sách phiếu nhập
-$sql = "SELECT pn.*, ncc.Ten_NCC, 
+// ✅ ĐÃ SỬA: Bỏ JOIN nhacungcap và cột NCC_id
+$sql = "SELECT pn.*, 
         (SELECT COUNT(*) FROM chitietphieunhap WHERE PhieuNhap_id = pn.NhapHang_id) as so_mat_hang,
-        (SELECT SUM(SoLuong * Gia_Nhap) FROM chitietphieunhap WHERE PhieuNhap_id = pn.NhapHang_id) as tong_gia_tri
+        COALESCE((SELECT SUM(SoLuong * Gia_Nhap) FROM chitietphieunhap WHERE PhieuNhap_id = pn.NhapHang_id), 0) as tong_gia_tri
         FROM phieunhap pn
-        LEFT JOIN nhacungcap ncc ON pn.NCC_id = ncc.NCC_id
         ORDER BY pn.NgayNhap DESC, pn.NhapHang_id DESC";
+
 $result = $conn->query($sql);
+
+// ✅ KIỂM TRA LỖI QUERY
+if (!$result) {
+    error_log("IMPORT_LIST_QUERY_ERROR: " . $conn->error);
+    $error_message = "Lỗi truy vấn: " . htmlspecialchars($conn->error);
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -39,7 +45,7 @@ $result = $conn->query($sql);
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- HEADER (giống product.php) -->
+    <!-- HEADER -->
     <header class="bg-white shadow-md sticky top-0 z-50 h-[70px] flex items-center w-full">
         <div class="w-full px-6 flex justify-between items-center">
             <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
@@ -83,13 +89,21 @@ $result = $conn->query($sql);
                     </a>
                 </div>
 
+                <!-- Hiển thị lỗi nếu có -->
+                <?php if (isset($error_message)): ?>
+                <div class="mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200 flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo $error_message; ?>
+                </div>
+                <?php endif; ?>
+
                 <!-- Table -->
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-gradient-custom text-white">
                                 <th class="p-4 font-medium">Mã phiếu</th>
-                                <th class="p-4 font-medium">Nhà cung cấp</th>
+                                <!-- ✅ ĐÃ XÓA: Cột Nhà cung cấp -->
                                 <th class="p-4 font-medium">Người nhập</th>
                                 <th class="p-4 font-medium">Ngày nhập</th>
                                 <th class="p-4 font-medium">Số mặt hàng</th>
@@ -98,23 +112,25 @@ $result = $conn->query($sql);
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <?php if ($result && $result->num_rows > 0): ?>
-                                <?php while($row = $result->fetch_assoc()): ?>
+                            <?php if (isset($result) && $result && $result->num_rows > 0): ?>
+                                <?php while($row = $result->fetch_assoc()): 
+                                    $ngayNhap = $row['NgayNhap'] ? date('d/m/Y', strtotime($row['NgayNhap'])) : 'N/A';
+                                    $tongGiaTri = floatval($row['tong_gia_tri'] ?? 0);
+                                ?>
                                 <tr class="hover:bg-blue-50/50 transition">
                                     <td class="p-4 font-medium">#PN<?php echo str_pad($row['NhapHang_id'], 6, '0', STR_PAD_LEFT); ?></td>
-                                    <td class="p-4 text-gray-700"><?php echo htmlspecialchars($row['Ten_NCC'] ?? 'N/A'); ?></td>
+                                    <!-- ✅ ĐÃ XÓA: Ô hiển thị NCC -->
                                     <td class="p-4 text-gray-700"><?php echo htmlspecialchars($row['NguoiNhap'] ?? 'N/A'); ?></td>
-                                    <td class="p-4 text-gray-700"><?php echo date('d/m/Y', strtotime($row['NgayNhap'])); ?></td>
-                                    <td class="p-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-50 text-blue-700"><?php echo $row['so_mat_hang']; ?> sản phẩm</span></td>
-                                    <td class="p-4 font-medium text-gray-800"><?php echo number_format($row['tong_gia_tri'] ?? 0, 0, ',', '.'); ?>đ</td>
+                                    <td class="p-4 text-gray-700"><?php echo $ngayNhap; ?></td>
+                                    <td class="p-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-50 text-blue-700"><?php echo intval($row['so_mat_hang']); ?> sản phẩm</span></td>
+                                    <td class="p-4 font-medium text-gray-800"><?php echo number_format($tongGiaTri, 0, ',', '.'); ?>đ</td>
                                     <td class="p-4 text-center">
                                         <a href="view_import.php?id=<?php echo $row['NhapHang_id']; ?>" class="text-blue-500 hover:text-blue-700 mx-1" title="Xem"><i class="fas fa-eye"></i></a>
-                                        <a href="edit_import.php?id=<?php echo $row['NhapHang_id']; ?>" class="text-yellow-500 hover:text-yellow-700 mx-1" title="Sửa"><i class="fas fa-edit"></i></a>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr><td colspan="7" class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3"></i><p>Chưa có phiếu nhập nào.</p></td></tr>
+                            <?php elseif (!isset($error_message)): ?>
+                                <tr><td colspan="6" class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3"></i><p>Chưa có phiếu nhập nào.</p></td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
