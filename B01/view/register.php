@@ -1,31 +1,43 @@
 <?php
 session_start();
-
-// --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
 
-// Khởi tạo biến tránh warning
 $errors = [];
 $success = '';
-$form_data = [
-    'username' => '',
-    'ho_ten' => '',
-    'email' => '',
-    'sdt' => ''
-];
+$form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
 
-// --- XỬ LÝ FORM SUBMIT ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Lấy dữ liệu & sanitize
-    $form_data['username'] = trim(htmlspecialchars($_POST['username'] ?? ''));
-    $form_data['ho_ten'] = trim(htmlspecialchars($_POST['ho_ten'] ?? ''));
+    // === 1. SERVER-SIDE SANITIZATION ===
+    $form_data['username'] = trim(preg_replace('/[^a-zA-Z0-9]/', '', $_POST['username'] ?? ''));
+    $form_data['ho_ten'] = trim(htmlspecialchars($_POST['ho_ten'] ?? '', ENT_QUOTES, 'UTF-8'));
     $form_data['email'] = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
     $form_data['sdt'] = trim(preg_replace('/[^0-9]/', '', $_POST['sdt'] ?? ''));
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $terms = isset($_POST['terms']);
 
-    // Validation
+    // === 2. SERVER-SIDE VALIDATION ===
+    $sqlInjectionPatterns = [
+        '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b)/i',
+        '/(--|\/\*|\*\/|#)/',
+        '/(\bOR\b|\bAND\b)\s*([\'"]|\d+=\d+)/i',
+        '/;/',
+        '/\bxp_\w+/i',
+        '/(\bWAITFOR\b|\bBENCHMARK\b|\bSLEEP\b)/i'
+    ];
+
+    foreach ($sqlInjectionPatterns as $pattern) {
+        if (
+            preg_match($pattern, $_POST['username'] ?? '') ||
+            preg_match($pattern, $_POST['ho_ten'] ?? '') ||
+            preg_match($pattern, $_POST['email'] ?? '')
+        ) {
+            $errors[] = "Phát hiện ký tự không an toàn. Vui lòng nhập lại.";
+            break;
+        }
+    }
+
+    // Validation cơ bản
     if (empty($form_data['username']))
         $errors[] = "Tên đăng nhập không được để trống";
     elseif (strlen($form_data['username']) < 3)
@@ -43,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($form_data['sdt']))
         $errors[] = "Số điện thoại không được để trống";
-    elseif (!preg_match('/^[0-9]{10}$/', $form_data['sdt']))
-        $errors[] = "Số điện thoại phải có 10 số";
+    elseif (!preg_match('/^0[0-9]{9}$/', $form_data['sdt']))
+        $errors[] = "Số điện thoại phải bắt đầu bằng số 0 và có 10 số";
 
     if (empty($password))
         $errors[] = "Mật khẩu không được để trống";
@@ -53,13 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($password !== $confirm_password)
         $errors[] = "Mật khẩu xác nhận không khớp";
+
     if (!$terms)
         $errors[] = "Bạn phải đồng ý với điều khoản sử dụng";
 
-    // Xử lý database nếu không có lỗi
+    // === 3. DATABASE OPERATIONS (Prepared Statements) ===
     if (empty($errors)) {
         try {
-            // Kiểm tra Username trùng (Prepared Statement - Chống SQL Injection)
+            // Kiểm tra Username trùng
             $stmt = $conn->prepare("SELECT User_id FROM users WHERE Username = ?");
             $stmt->bind_param("s", $form_data['username']);
             $stmt->execute();
@@ -100,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 if ($stmt->execute()) {
-                    $success = "Đăng ký thành công! Chuyển hướng đến trang đăng nhập...";
+                    $success = "Đăng ký thành công! Chuyển hướng...";
                     $form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
                     header("Refresh: 2; URL=./login.php");
                     exit();
@@ -110,7 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
             }
         } catch (Exception $e) {
-            $errors[] = "Lỗi hệ thống: " . $e->getMessage();
+            // Không hiển thị lỗi chi tiết cho user (security)
+            error_log("Register Error: " . $e->getMessage());
+            $errors[] = "Lỗi hệ thống. Vui lòng thử lại sau.";
         }
     }
 }
@@ -226,6 +241,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 2px;
             display: none;
         }
+
+        /* SQL Injection Warning */
+        .sql-injection-warning {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .sql-injection-warning i {
+            margin-right: 8px;
+        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -296,30 +326,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 </div>
                                                 <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
                                                     class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
-                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
+                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Chăm sóc sức khoẻ</p>
                                                     </div>
                                                 </a>
                                                 <a href="https://nvbplay.vn/product-category/dich-vu"
                                                     class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
-                                                            alt="Dịch vụ" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
+                                                            alt="Dịch vụ" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Dịch vụ</p>
                                                     </div>
                                                 </a>
                                                 <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
                                                     data-menu="news">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
-                                                            alt="Tin Tức" class="w-full h-full">
-                                                    </div>
+                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
+                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
+                                                            alt="Tin Tức" class="w-full h-full"></div>
                                                     <div>
                                                         <p class="font-bold">Tin Tức</p>
                                                         <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm
@@ -436,6 +463,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng ký tài khoản</h1>
 
+                                        <!-- SQL Injection Warning -->
+                                        <div id="sqlInjectionWarning" class="sql-injection-warning">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <strong>Cảnh báo bảo mật:</strong> <span id="sqlInjectionMessage">Phát hiện
+                                                ký tự không an toàn</span>
+                                        </div>
+
                                         <!-- Thông báo lỗi -->
                                         <?php if (!empty($errors)): ?>
                                             <div class="alert-error p-3 rounded mb-4 text-sm">
@@ -491,8 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <input type="tel" id="sdt" name="sdt" placeholder="Số điện thoại *"
                                                     class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                     value="<?php echo htmlspecialchars($form_data['sdt']); ?>" required>
-                                                <div class="error-text" id="sdt-error">Số điện thoại phải có 10-11 số
-                                                </div>
+                                              <div class="error-text" id="sdt-error">Số điện thoại phải bắt đầu bằng 0 và có 10 số</div>
                                             </div>
 
                                             <!-- Mật khẩu -->
@@ -638,7 +671,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- JavaScript Form Validation (MỚI) -->
+        <!-- JavaScript Form Validation + SQL Injection Protection -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('registerForm');
@@ -650,11 +683,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const confirmPassword = document.getElementById('confirm_password');
                 const terms = document.getElementById('terms');
                 const submitBtn = document.getElementById('submitBtn');
+                const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
+                const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
+
+                // === SQL INJECTION DETECTION PATTERNS ===
+                const sqlInjectionPatterns = [
+                    // SQL keywords
+                    /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE)\b/i,
+                    // SQL comments
+                    /(--|\/\*|\*\/|#)/,
+                    // Union-based injection
+                    /\bUNION\b.*\bSELECT\b/i,
+                    // Quote-based injection
+                    /('|")\s*(OR|AND)\s*('|"|\d)/i,
+                    // Semicolon (statement terminator)
+                    /;/,
+                    // Extended stored procedures
+                    /\bxp_\w+/i,
+                    // Time-based injection
+                    /\b(WAITFOR|BENCHMARK|SLEEP)\b/i,
+                    // Dangerous characters
+                    /[<>]/,
+                    // Null byte
+                    /%00/,
+                    // Encoded quotes
+                    /(%27|%22)/i
+                ];
+
+                // Function to check for SQL injection
+                function checkSQLInjection(value, fieldName) {
+                    for (let pattern of sqlInjectionPatterns) {
+                        if (pattern.test(value)) {
+                            showSQLInjectionWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                // Show SQL injection warning
+                function showSQLInjectionWarning(message) {
+                    sqlInjectionWarning.style.display = 'block';
+                    sqlInjectionMessage.textContent = message;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                // Hide SQL injection warning
+                function hideSQLInjectionWarning() {
+                    sqlInjectionWarning.style.display = 'none';
+                }
 
                 // Validation functions
                 function validateUsername() {
                     const value = username.value.trim();
                     const error = document.getElementById('username-error');
+
+                    // Check SQL injection first
+                    if (checkSQLInjection(value, 'tên đăng nhập')) {
+                        username.classList.add('input-invalid');
+                        username.classList.remove('input-valid');
+                        return false;
+                    }
+
                     if (value.length < 3) {
                         username.classList.add('input-invalid');
                         username.classList.remove('input-valid');
@@ -671,12 +762,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     username.classList.add('input-valid');
                     username.classList.remove('input-invalid');
                     error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validateHoTen() {
                     const value = hoTen.value.trim();
                     const error = document.getElementById('ho_ten-error');
+
+                    // Check SQL injection first
+                    if (checkSQLInjection(value, 'họ tên')) {
+                        hoTen.classList.add('input-invalid');
+                        hoTen.classList.remove('input-valid');
+                        return false;
+                    }
+
                     if (value.length === 0) {
                         hoTen.classList.add('input-invalid');
                         hoTen.classList.remove('input-valid');
@@ -686,6 +786,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     hoTen.classList.add('input-valid');
                     hoTen.classList.remove('input-invalid');
                     error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
@@ -693,6 +794,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const value = email.value.trim();
                     const error = document.getElementById('email-error');
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    // Check SQL injection first
+                    if (checkSQLInjection(value, 'email')) {
+                        email.classList.add('input-invalid');
+                        email.classList.remove('input-valid');
+                        return false;
+                    }
+
                     if (!emailRegex.test(value)) {
                         email.classList.add('input-invalid');
                         email.classList.remove('input-valid');
@@ -702,21 +811,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     email.classList.add('input-valid');
                     email.classList.remove('input-invalid');
                     error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
                 function validateSdt() {
                     const value = sdt.value.trim().replace(/[^0-9]/g, '');
                     const error = document.getElementById('sdt-error');
-                    if (value.length < 10 || value.length > 11) {
+
+                    // Check SQL injection first
+                    if (checkSQLInjection(value, 'số điện thoại')) {
                         sdt.classList.add('input-invalid');
                         sdt.classList.remove('input-valid');
+                        return false;
+                    }
+
+                    // Kiểm tra độ dài và bắt đầu bằng 0
+                    if (value.length !== 10) {
+                        sdt.classList.add('input-invalid');
+                        sdt.classList.remove('input-valid');
+                        error.textContent = 'Số điện thoại phải có đúng 10 số';
                         error.style.display = 'block';
                         return false;
                     }
+
+                    if (value.charAt(0) !== '0') {
+                        sdt.classList.add('input-invalid');
+                        sdt.classList.remove('input-valid');
+                        error.textContent = 'Số điện thoại phải bắt đầu bằng số 0';
+                        error.style.display = 'block';
+                        return false;
+                    }
+
                     sdt.classList.add('input-valid');
                     sdt.classList.remove('input-invalid');
                     error.style.display = 'none';
+                    hideSQLInjectionWarning();
                     return true;
                 }
 
@@ -725,6 +855,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const error = document.getElementById('password-error');
                     const strengthBar = document.getElementById('password-strength-bar');
                     const strengthText = document.getElementById('password-strength-text');
+
+                    // Check SQL injection first
+                    if (checkSQLInjection(value, 'mật khẩu')) {
+                        password.classList.add('input-invalid');
+                        password.classList.remove('input-valid');
+                        return false;
+                    }
 
                     if (value.length === 0) {
                         strengthBar.className = 'password-strength';
@@ -747,19 +884,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     error.style.display = 'none';
 
                     // Password strength
-                    let strength = 'weak';
                     if (value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value)) {
-                        strength = 'strong';
                         strengthBar.className = 'password-strength strength-strong';
                         strengthText.textContent = 'Mạnh';
                         strengthText.className = 'strength-text text-green-600';
                     } else if (value.length >= 6) {
-                        strength = 'medium';
                         strengthBar.className = 'password-strength strength-medium';
                         strengthText.textContent = 'Trung bình';
                         strengthText.className = 'strength-text text-yellow-600';
                     }
 
+                    hideSQLInjectionWarning();
                     validateConfirmPassword();
                     return true;
                 }
@@ -798,20 +933,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     return isValid;
                 }
 
-                // Event listeners
+                // Event listeners with real-time SQL injection check
                 username.addEventListener('blur', validateUsername);
+                username.addEventListener('input', function () {
+                    checkSQLInjection(this.value, 'tên đăng nhập');
+                    checkFormValidity();
+                });
+
                 hoTen.addEventListener('blur', validateHoTen);
+                hoTen.addEventListener('input', function () {
+                    checkSQLInjection(this.value, 'họ tên');
+                    checkFormValidity();
+                });
+
                 email.addEventListener('blur', validateEmail);
+                email.addEventListener('input', function () {
+                    checkSQLInjection(this.value, 'email');
+                    checkFormValidity();
+                });
+
                 sdt.addEventListener('blur', validateSdt);
-                password.addEventListener('input', validatePassword);
+                sdt.addEventListener('input', function () {
+                    checkSQLInjection(this.value, 'số điện thoại');
+                    checkFormValidity();
+                });
+
+                password.addEventListener('input', function () {
+                    checkSQLInjection(this.value, 'mật khẩu');
+                    validatePassword();
+                    checkFormValidity();
+                });
+
                 confirmPassword.addEventListener('input', validateConfirmPassword);
                 terms.addEventListener('change', validateTerms);
 
                 // Form submit
                 form.addEventListener('submit', function (e) {
+                    // Final SQL injection check before submit
+                    const allInputs = [username, hoTen, email, sdt, password];
+                    for (let input of allInputs) {
+                        if (checkSQLInjection(input.value, input.name)) {
+                            e.preventDefault();
+                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return false;
+                        }
+                    }
+
                     if (!checkFormValidity()) {
                         e.preventDefault();
-                        // Scroll to first error
                         const firstError = form.querySelector('.input-invalid');
                         if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
