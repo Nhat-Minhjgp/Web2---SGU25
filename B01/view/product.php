@@ -3,6 +3,28 @@
 session_start();
 require_once '../control/connect.php';
 
+// === KIỂM TRA ĐĂNG NHẬP (Giống index.php) ===
+$is_logged_in = isset($_SESSION['user_id']);
+$user_info = null;
+
+if ($is_logged_in) {
+    // Chặn role=1 (Staff/Admin) không được vào khu vực user
+    if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
+        session_destroy();
+        setcookie('remember_user', '', time() - 3600, '/');
+        header("Location: login.php?error=staff_not_allowed");
+        exit();
+    }
+
+    $user_info = [
+        'user_id' => $_SESSION['user_id'] ?? '',
+        'username' => $_SESSION['username'] ?? '',
+        'ho_ten' => $_SESSION['ho_ten'] ?? '',
+        'email' => $_SESSION['email'] ?? '',
+        'role' => $_SESSION['role'] ?? 0
+    ];
+}
+
 // Lấy ID sản phẩm từ URL
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -31,7 +53,7 @@ if (!$product) {
     exit();
 }
 
-//  Lấy hình ảnh từ image_url trong bảng sanpham 
+// Lấy hình ảnh từ image_url trong bảng sanpham 
 $product_images = [
     ['DuongDan' => $product['image_url']]
 ];
@@ -108,6 +130,79 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        /* === USER DROPDOWN STYLES === */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            min-width: 220px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .user-menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .user-menu-item i {
+            width: 18px;
+            color: #6b7280;
+        }
+
+        .user-menu-divider {
+            border-top: 1px solid #f3f4f6;
+            margin: 4px 0;
+        }
+
+        .user-menu-item.logout {
+            color: #dc2626;
+        }
+
+        .user-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        .role-badge-staff {
+            background: #dc2626;
+        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -131,82 +226,155 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Main Header -->
-            <div id="masthead" class="py-2 md:py-3 border-b">
-                <div class="container mx-auto px-4 flex items-center justify-between">
-                    <!-- Mobile Menu Toggle -->
-                    <div class="md:hidden">
-                        <button class="menu-toggle p-2">
-                            <i class="fas fa-bars text-2xl"></i>
-                        </button>
-                    </div>
 
-                    <!-- Desktop Left Menu -->
-                    <div class="hidden md:flex items-center flex-1 ml-6">
-                        <ul class="flex items-center space-x-4">
-                            <li class="relative" id="mega-menu-container">
-                                <button id="mega-menu-trigger"
-                                    class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                                    <i class="fas fa-bars mr-2"></i>
-                                    <span>Danh mục</span>
-                                </button>
-                                <div id="mega-menu-dropdown"
-                                    class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
-                                </div>
-                            </li>
-                            <li>
-                                <a href="shop.php"
-                                    class="flex items-center text-gray-700 hover:text-red-600 font-medium">
-                                    <img src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
-                                    <span>CỬA HÀNG</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Logo -->
-                    <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-                        <a href="../index.php" title="NVBPlay" rel="home">
-                            <img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay"
-                                class="h-12 md:h-14 w-auto transform scale-75">
-                        </a>
-                    </div>
-
-                    <!-- Desktop Right Elements -->
-                    <div class="hidden md:flex items-center space-x-4">
-                        <a href="#" class="flex items-center text-gray-700 hover:text-red-600">
-                            <i class="fas fa-map-marker-alt mr-1"></i>
-                            <span class="shipping-address text-sm">
-                                <span class="text">Chọn địa chỉ</span>
-                            </span>
-                        </a>
-                        <div class="h-5 w-px bg-gray-300"></div>
-                        <div class="search-header relative">
-                            <button class="search-toggle p-2">
-                                <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
+                <!-- Main Header -->
+                <div id="masthead" class="py-2 md:py-3 border-b">
+                    <div class="container mx-auto px-4 flex items-center justify-between">
+                        <!-- Mobile Menu Toggle -->
+                        <div class="md:hidden">
+                            <button class="menu-toggle p-2">
+                                <i class="fas fa-bars text-2xl"></i>
                             </button>
                         </div>
-                        <a href="my-account.php" class="p-2">
-                            <i class="far fa-user text-gray-700 hover:text-red-600 text-xl"></i>
-                        </a>
-                        <a href="cart.php" class="relative p-2">
-                            <i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i>
-                            <span
-                                class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
-                        </a>
-                    </div>
 
-                    <!-- Mobile Right Elements -->
-                    <div class="md:hidden flex items-center space-x-3">
-                        <button class="search-toggle p-1">
-                            <i class="fas fa-search text-xl"></i>
-                        </button>
-                        <a href="cart.php" class="relative p-1">
-                            <i class="fas fa-shopping-basket text-xl"></i>
-                            <span
-                                class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
-                        </a>
+                        <!-- Desktop Left Menu -->
+                        <div class="hidden md:flex items-center flex-1 ml-6">
+                            <ul class="flex items-center space-x-4">
+                                <li class="relative" id="mega-menu-container">
+                                    <button id="mega-menu-trigger"
+                                        class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+                                        <i class="fas fa-bars mr-2"></i>
+                                        <span>Danh mục</span>
+                                    </button>
+                                    <div id="mega-menu-dropdown"
+                                        class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="shop.php"
+                                        class="flex items-center text-gray-700 hover:text-red-600 font-medium">
+                                        <img src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
+                                        <span>CỬA HÀNG</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Logo - Centered -->
+                        <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
+                            <a href="../index.php" title="NVBPlay" rel="home">
+                                <img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay"
+                                    class="h-12 md:h-14 w-auto transform scale-75">
+                            </a>
+                        </div>
+
+                        <!-- Desktop Right Elements -->
+                        <div class="hidden md:flex items-center space-x-4">
+                            <!-- Address Book (chỉ hiển thị khi đã đăng nhập) -->
+                            <?php if ($is_logged_in): ?>
+                                <div class="address-book">
+                                    <a href="my-account/address-book.php"
+                                        class="flex items-center text-gray-700 hover:text-red-600">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        <span class="shipping-address text-sm">
+                                            <span class="text">Chọn địa chỉ</span>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="h-5 w-px bg-gray-300"></div>
+                            <?php endif; ?>
+
+                            <!-- Search button -->
+                            <div class="search-header relative">
+                                <button class="search-toggle p-2">
+                                    <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Account Dropdown (THAY ĐỔI THEO TRẠNG THÁI ĐĂNG NHẬP) -->
+                            <div class="user-dropdown">
+                                <?php if ($is_logged_in): ?>
+                                    <!-- Đã đăng nhập -->
+                                    <button id="userToggle"
+                                        class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition">
+                                        <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                                        <span
+                                            class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($user_info['username']); ?></span>
+                                        <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                    </button>
+                                    <!-- User Dropdown Menu -->
+                                    <div id="userMenu" class="user-menu">
+                                        <!-- User Info -->
+                                        <div class="px-4 py-3 border-b border-gray-100">
+                                            <div class="flex items-center space-x-3">
+                                                <img src="../img/icons/account.svg" class="w-10 h-10" alt="Account">
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-800">
+                                                        <?php echo htmlspecialchars($user_info['ho_ten']); ?>
+                                                        <?php if ($user_info['role'] == 1): ?>
+                                                            <span
+                                                                class="ml-2 px-2 py-1 text-xs rounded-full text-white role-badge-staff">Staff</span>
+                                                        <?php endif; ?>
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">
+                                                        <?php echo htmlspecialchars($user_info['email']); ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Menu Items -->
+                                        <a href="my-account.php" class="user-menu-item">
+                                            <i class="fas fa-user"></i><span>Tài khoản của tôi</span>
+                                        </a>
+                                        <a href="my-account/orders.php" class="user-menu-item">
+                                            <i class="fas fa-shopping-bag"></i><span>Đơn hàng</span>
+                                        </a>
+                                        <a href="my-account/address-book.php" class="user-menu-item">
+                                            <i class="fas fa-map-marker-alt"></i><span>Sổ địa chỉ</span>
+                                        </a>
+                                        <div class="user-menu-divider"></div>
+                                        <a href="../control/logout.php" class="user-menu-item logout">
+                                            <i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span>
+                                        </a>
+                                    </div>
+                                <?php else: ?>
+                                    <!-- Chưa đăng nhập -->
+                                    <a href="login.php" class="flex items-center text-gray-700 hover:text-red-600">
+                                        <i class="far fa-user text-xl"></i>
+                                        <span class="text-sm ml-1">Đăng nhập</span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Cart -->
+                            <a href="cart.php" class="relative p-2">
+                                <i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i>
+                                <span
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                            </a>
+                        </div>
+
+                        <!-- Mobile Right Elements -->
+                        <div class="md:hidden flex items-center space-x-3">
+                            <button class="search-toggle p-1">
+                                <i class="fas fa-search text-xl"></i>
+                            </button>
+                            <!-- Account mobile -->
+                            <?php if ($is_logged_in): ?>
+                                <a href="my-account.php" class="p-1">
+                                    <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                                </a>
+                            <?php else: ?>
+                                <a href="login.php" class="p-1">
+                                    <i class="far fa-user text-xl"></i>
+                                </a>
+                            <?php endif; ?>
+                            <a href="cart.php" class="relative p-1">
+                                <i class="fas fa-shopping-basket text-xl"></i>
+                                <span
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -244,8 +412,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 
                         <!-- Right: Product Info -->
                         <div class="flex flex-col">
-
-
                             <!-- Title -->
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-4 mb-4">
                                 <?php echo htmlspecialchars($product['TenSP']); ?>
@@ -267,6 +433,16 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </div>
                                 <?php endif; ?>
                             </div>
+
+                            <!-- Product Description -->
+                            <?php if (!empty($product['MoTa'])): ?>
+                                <div class="text-gray-600 mb-6 mt-6 rounded-lg">
+                                    <h4 class="font-bold text-gray-900 mb-2">Mô tả sản phẩm:</h4>
+                                    <div class="text-sm leading-relaxed prose prose-sm max-w-none">
+                                        <?php echo htmlspecialchars($product['MoTa']); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
                             <!-- Short Description -->
                             <div class="text-gray-600 mb-6 mt-6 space-y-4">
@@ -329,10 +505,17 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 
                                 <!-- Buttons -->
                                 <div class="grid grid-cols-2 gap-4">
-                                    <button type="button" onclick="addToCart()"
-                                        class="w-full bg-white border-2 border-red-600 text-red-600 font-bold py-3 rounded-xl hover:bg-red-50 transition">
-                                        Thêm vào giỏ
-                                    </button>
+                                    <form method="POST" action="cart.php">
+                                        <input type="hidden" name="product_id"
+                                            value="<?php echo $product['SanPham_id']; ?>">
+                                        <input type="hidden" name="add_to_cart" value="1">
+
+
+                                        <button type="submit"
+                                            class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold">
+                                            <i class="fas fa-shopping-cart mr-2"></i>Thêm vào giỏ
+                                        </button>
+                                    </form>
                                     <button type="submit" name="buy_now" value="1"
                                         class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition shadow-lg shadow-red-200">
                                         Mua ngay
@@ -378,10 +561,9 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         <?php endif; ?>
                                         <a href="product.php?id=<?php echo $related['SanPham_id']; ?>"
                                             class="hover:text-red-600">
-                                            <img src="../<?php echo htmlspecialchars($related['image_url']); ?>" 
-                                            class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105
+                                            <img src="../<?php echo htmlspecialchars($related['image_url']); ?>" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105
                                             transition-transform">
-                                            </a>
+                                        </a>
                                     </div>
                                     <h4 class="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-1">
                                         <a href="product.php?id=<?php echo $related['SanPham_id']; ?>"
@@ -393,7 +575,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         <div class="text-red-600 font-bold"><?php echo formatPrice($related['GiaBan']); ?></div>
                                         <?php if ($related_discount > 0): ?>
                                             <div class="text-gray-400 text-xs line-through">
-                                                <?php echo formatPrice($related['GiaNhapTB']); ?></div>
+                                                <?php echo formatPrice($related['GiaNhapTB']); ?>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -489,29 +672,41 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 </button>
             </div>
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                <a href="my-account.php" class="flex items-center text-gray-700">
-                    <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                        <i class="far fa-user text-xl text-gray-600"></i>
+                <?php if ($is_logged_in): ?>
+                    <div class="flex items-center text-gray-700">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                            <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                        </div>
+                        <div>
+                            <div class="font-medium"><?php echo htmlspecialchars($user_info['username']); ?></div>
+                            <span class="text-sm text-gray-500"><?php echo htmlspecialchars($user_info['email']); ?></span>
+                        </div>
                     </div>
-                    <div>
-                        <div class="font-medium">Tài khoản</div>
-                        <span class="text-sm text-gray-500">Đăng nhập / Đăng ký</span>
-                    </div>
-                </a>
+                    <a href="../control/logout.php" class="text-red-600 text-sm font-medium">Đăng xuất</a>
+                <?php else: ?>
+                    <a href="login.php" class="flex items-center text-gray-700">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                            <i class="far fa-user text-xl text-gray-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Tài khoản</div>
+                            <span class="text-sm text-gray-500">Đăng nhập / Đăng ký</span>
+                        </div>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
         // Change product image
         function changeImage(src, btn) {
             document.getElementById('main-product-image').src = src;
-
             document.querySelectorAll('.thumbnail-btn').forEach(b => {
                 b.classList.remove('border-red-600');
                 b.classList.add('border-gray-200');
             });
-
             btn.classList.remove('border-gray-200');
             btn.classList.add('border-red-600');
         }
@@ -534,7 +729,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             }
         }
 
-        // Add to cart
+        // Add to cart via AJAX
         function addToCart() {
             const form = document.querySelector('form');
             const formData = new FormData(form);
@@ -574,6 +769,21 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
                     document.body.style.overflow = '';
+                });
+            }
+
+            // === USER DROPDOWN TOGGLE ===
+            const userToggle = document.getElementById('userToggle');
+            const userMenu = document.getElementById('userMenu');
+            if (userToggle && userMenu) {
+                userToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('active');
+                });
+                document.addEventListener('click', function (e) {
+                    if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.remove('active');
+                    }
                 });
             }
         });
