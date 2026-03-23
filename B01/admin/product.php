@@ -112,9 +112,6 @@ $result = $conn->query($sql);
                 <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
                 </a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
-                </a>
                 <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
                 </a>

@@ -89,15 +89,38 @@ tailwind.config = {
 
 <div class="flex w-full min-h-[calc(100vh-70px)]">
     <!-- SIDEBAR (giữ nguyên) -->
-    <aside class="w-64 bg-white shadow-lg hidden lg:block border-r">
-        <div class="p-6 border-b"><h3 class="text-gray-500 text-xs font-bold uppercase">Chức năng</h3></div>
-        <nav class="p-4 space-y-2">
-            <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50"><i class="fas fa-home w-5"></i> Dashboard</a>
-            <a href="product.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg"><i class="fas fa-box w-5"></i> Sản phẩm</a>
-            <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50"><i class="fas fa-arrow-down w-5"></i> Nhập hàng</a>
-            <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50"><i class="fas fa-receipt w-5"></i> Đơn hàng</a>
-        </nav>
-    </aside>
+    <aside class="w-64 bg-white shadow-lg min-h-screen">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Danh mục chức năng</h3>
+            </div>
+            <nav class="p-2">
+                <a href="dashboard.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 active">
+                    <i class="fas fa-home w-5 text-gray-500"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="users.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-users w-5 text-gray-500"></i>
+                    <span>Quản lý người dùng</span>
+                </a>
+                                
+                <a href="product.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-box w-5 text-gray-500"></i>
+                    <span>Quản lý sản phẩm</span>
+                </a>
+                <a href="import.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-arrow-down w-5 text-gray-500"></i>
+                    <span>Quản lý nhập hàng</span>
+                </a>
+                <a href="orders.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-receipt w-5 text-gray-500"></i>
+                    <span>Quản lý đơn hàng</span>
+                </a>
+                <a href="inventory.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-warehouse w-5 text-gray-500"></i>
+                    <span>Tồn kho & Báo cáo</span>
+                </a>
+            </nav>
+        </aside>
 
     <!-- MAIN -->
     <main class="flex-1 p-6 lg:p-8 bg-gray-50">
