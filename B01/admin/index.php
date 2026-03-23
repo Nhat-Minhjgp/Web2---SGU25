@@ -84,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
         }
     </style>
+     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gradient-custom font-sans">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-4 animate-fadeIn">
