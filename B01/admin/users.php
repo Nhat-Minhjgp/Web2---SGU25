@@ -256,12 +256,10 @@ $users_json = json_encode($users);
                                     <?php 
                                     $roleClass = '';
                                     $roleName = '';
-                                    if ($user['role'] === 'admin') {
+                                    if ($user['role'] === 1) {
                                         $roleClass = 'bg-gradient-custom text-white';
                                         $roleName = 'Admin';
-                                    } elseif ($user['role'] === 'staff') {
-                                        $roleClass = 'bg-cyan-500 text-white';
-                                        $roleName = 'Nhân viên';
+                                    
                                     } else {
                                         $roleClass = 'bg-gray-500 text-white';
                                         $roleName = 'Khách hàng';
@@ -285,10 +283,8 @@ $users_json = json_encode($users);
                                         <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition shadow-sm" title="Chỉnh sửa">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <button onclick="resetPassword(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition shadow-sm" title="Đặt lại mật khẩu">
-                                            <i class="fas fa-key text-xs"></i>
-                                        </button>
-                                        <?php if ($user['status'] === 'active'): ?>
+                                        
+                                        <?php if ($user['status'] === 1): ?>
                                             <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
                                                 <i class="fas fa-ban text-xs"></i>
                                             </a>
