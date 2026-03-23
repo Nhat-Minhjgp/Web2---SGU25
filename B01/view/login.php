@@ -67,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Verify password
                 if (password_verify($password, $user['password'])) {
                     // Kiểm tra status
-                    if ($user['status'] !== '1') {
+                    if ($user['status'] !== 1) {
                         $errors[] = "Tài khoản của bạn đã bị khóa";
                     }
-                    // ✅ CHẶN ROLE 1 (Staff/Admin) không vào user area
+                    //  CHẶN ROLE 1 (Staff/Admin) không vào user area
                     elseif ($user['role'] == 1) {
                         $errors[] = "Tài khoản Staff/Admin không được đăng nhập vào trang user.";
                     } else {
@@ -96,10 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit();
                     }
                 } else {
-                    $errors[] = "Mật khẩu không đúng";
+                    $errors[] = "Tên đăng nhập hoặc mật khẩu không đúng";
                 }
             } else {
-                $errors[] = "Tên đăng nhập không tồn tại";
+                $errors[] = "Tên đăng nhập hoặc mật khẩu không đúng";
             }
             $stmt->close();
         } catch (Exception $e) {
