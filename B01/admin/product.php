@@ -77,7 +77,7 @@ $result = $conn->query($sql);
                             <?php if ($admin_role === 'admin'): ?>
                                 <span class="ml-2 text-xs bg-gradient-custom text-white px-2 py-0.5 rounded-full">Admin</span>
                             <?php else: ?>
-                                <span class="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">Staff</span>
+                                <span class="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">Admin</span>
                             <?php endif; ?>
                         </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
