@@ -133,6 +133,7 @@
                 max-height: 400px;
                 overflow-y: auto;
             }
+
             #searchSuggestions.active {
                 display: block;
             }
@@ -149,94 +150,136 @@
                 }
             }
 
-            .suggestion-item {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 16px;
-                border-bottom: 1px solid #f3f4f6;
-                transition: background 0.2s;
-                cursor: pointer;
-                text-decoration: none;
-                color: inherit;
-            }
+           /* Cập nhật CSS cho suggestion item */
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
 
-            .suggestion-item:last-child {
-                border-bottom: none;
-            }
+.suggestion-item:last-child {
+    border-bottom: none;
+}
 
-            .suggestion-item:hover {
-                background: #f9fafb;
-            }
+.suggestion-item:hover {
+    background: #f9fafb;
+}
 
-            .suggestion-item img {
-                width: 50px;
-                height: 50px;
-                object-fit: cover;
-                border-radius: 8px;
-                background: #f3f4f6;
-            }
+.suggestion-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f3f4f6;
+    flex-shrink: 0;
+}
 
-            .suggestion-info {
-                flex: 1;
-                min-width: 0;
-            }
+.suggestion-info {
+    flex: 1;
+    min-width: 0;
+}
 
-            .suggestion-info h4 {
-                font-size: 15px;
-                font-weight: 500;
-                color: #1f2937;
-                margin: 0 0 4px 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+.suggestion-info h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+    margin: 0 0 6px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
 
-            .suggestion-info .price {
-                font-size: 14px;
-                font-weight: 600;
-                color: #dc2626;
-            }
+.price-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
 
-            .suggestion-info .category {
-                font-size: 12px;
-                color: #6b7280;
-                margin-top: 2px;
-            }
+.price-wrapper .price {
+    font-size: 15px;
+    font-weight: 600;
+    color: #dc2626;
+}
 
-            .suggestion-info .stock {
-                font-size: 12px;
-                color: #10b981;
-                margin-top: 2px;
-            }
+.price-wrapper .old-price {
+    font-size: 13px;
+    color: #9ca3af;
+    text-decoration: line-through;
+}
 
-            .suggestion-info .stock.out {
-                color: #ef4444;
-            }
+.price-wrapper .discount-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 
-            .no-results {
-                padding: 24px;
-                text-align: center;
-                color: #6b7280;
-                font-size: 14px;
-            }
+.meta-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
 
-            .view-all-link {
-                display: block;
-                padding: 14px;
-                text-align: center;
-                background: #f9fafb;
-                color: #dc2626;
-                font-size: 14px;
-                font-weight: 500;
-                text-decoration: none;
-                border-top: 1px solid #f3f4f6;
-                transition: background 0.2s;
-            }
+.meta-info .brand {
+    color: #9ca3af;
+}
 
-            .view-all-link:hover {
-                background: #f3f4f6;
-            }
+.stock-status {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stock-status.in-stock {
+    color: #10b981;
+}
+
+.stock-status.out-of-stock {
+    color: #ef4444;
+}
+
+.view-all-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: #f9fafb;
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border-top: 1px solid #f3f4f6;
+    transition: background 0.2s;
+}
+
+.view-all-link:hover {
+    background: #f3f4f6;
+}
+
+.no-results {
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.no-results p {
+    margin: 0;
+}
 
             /* === USER DROPDOWN STYLES === */
             .user-dropdown {
@@ -1644,131 +1687,151 @@
                 }
 
 
-               // ========== SEARCH FUNCTIONALITY (CẬP NHẬT) ==========
-const searchToggle = document.getElementById('searchToggle');
-const searchToggleMobile = document.getElementById('searchToggleMobile');
-const closeSearchBtn = document.getElementById('closeSearchBtn');
-const searchOverlay = document.getElementById('searchOverlay');
-const searchInput = document.getElementById('searchInput');
-const suggestionsContainer = document.getElementById('searchSuggestions');
-const suggestionsList = document.getElementById('suggestionsList');
+                // ========== SEARCH FUNCTIONALITY (CẬP NHẬT) ==========
+                const searchToggle = document.getElementById('searchToggle');
+                const searchToggleMobile = document.getElementById('searchToggleMobile');
+                const closeSearchBtn = document.getElementById('closeSearchBtn');
+                const searchOverlay = document.getElementById('searchOverlay');
+                const searchInput = document.getElementById('searchInput');
+                const suggestionsContainer = document.getElementById('searchSuggestions');
+                const suggestionsList = document.getElementById('suggestionsList');
 
-// Debounce function để giảm số lần gọi API
-function debounce(func, delay) {
-    let timeoutId;
-    return function(...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
-}
+                // Debounce function để giảm số lần gọi API
+                function debounce(func, delay) {
+                    let timeoutId;
+                    return function(...args) {
+                        clearTimeout(timeoutId);
+                        timeoutId = setTimeout(() => func.apply(this, args), delay);
+                    };
+                }
 
-// Hàm tìm kiếm sản phẩm từ database
-async function fetchSearchResults(query) {
-    if (!query || query.length < 2) {
-        suggestionsContainer.classList.remove('active');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`./control/search-handler.php?q=${encodeURIComponent(query)}&limit=5`);
-        const result = await response.json();
-        
-        if (result.success && result.data.length > 0) {
-            const limitedResults = result.data.slice(0, 5);
-            suggestionsList.innerHTML = limitedResults.map(product => `
+                // Hàm fetch sản phẩm từ database
+                async function fetchSearchSuggestions(query) {
+                    if (!query || query.length < 1) {
+                        suggestionsContainer.classList.remove('active');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
+                        const result = await response.json();
+
+                        if (result.success && result.data.length > 0) {
+                            // Hiển thị tối đa 8 sản phẩm
+                            const limitedResults = result.data.slice(0, 8);
+
+                            suggestionsList.innerHTML = limitedResults.map(product => `
                 <a href="${product.url}" class="suggestion-item">
-                    <img src="${product.image}" alt="${product.name}" loading="lazy"
+                    <img src="./${product.image}" alt="${product.name}" loading="lazy"
                          onerror="this.src='./img/sanpham/placeholder.png'">
                     <div class="suggestion-info">
                         <h4>${product.name}</h4>
-                        <div class="price">${product.price}</div>
-                        <div class="category">${product.category}${product.brand ? ' - ' + product.brand : ''}</div>
-                        ${product.inStock ? 
-                            '<div class="stock"><i class="fas fa-check-circle mr-1"></i>Còn hàng</div>' : 
-                            '<div class="stock out"><i class="fas fa-times-circle mr-1"></i>Hết hàng</div>'
-                        }
+                        <div class="price-wrapper">
+                            <span class="price">${product.price}</span>
+                            ${product.old_price ? `<span class="old-price">${product.old_price}</span>` : ''}
+                            ${product.discount > 0 ? `<span class="discount-badge">-${product.discount}%</span>` : ''}
+                        </div>
+                        <div class="meta-info">
+                            <span class="category">${product.category}</span>
+                            ${product.brand ? `<span class="brand">• ${product.brand}</span>` : ''}
+                        </div>
+                        <div class="stock-status ${product.inStock ? 'in-stock' : 'out-of-stock'}">
+                            ${product.inStock ? 
+                                `<i class="fas fa-check-circle"></i> Còn hàng (${product.stock_quantity})` : 
+                                '<i class="fas fa-times-circle"></i> Hết hàng'
+                            }
+                        </div>
                     </div>
                 </a>
             `).join('');
-            
-            if (result.total > 5) {
-                suggestionsList.innerHTML += `
-                    <a href="./view/shop.php?s=${encodeURIComponent(query)}" class="view-all-link">
-                        Xem tất cả ${result.total} kết quả
+
+                            // Thêm link "Xem tất cả" nếu có nhiều hơn 8 sản phẩm
+                            if (result.count > 8) {
+                                suggestionsList.innerHTML += `
+                    <a href="./view/shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
+                        <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
                     </a>
                 `;
-            }
-            suggestionsContainer.classList.add('active');
-        } else {
-            suggestionsList.innerHTML = `
+                            }
+
+                            suggestionsContainer.classList.add('active');
+                        } else {
+                            suggestionsList.innerHTML = `
                 <div class="no-results">
-                    <i class="fas fa-search mb-2 text-gray-400 text-xl"></i>
-                    <p>Không tìm thấy sản phẩm phù hợp</p>
+                    <i class="fas fa-search mb-2 text-gray-400 text-2xl"></i>
+                    <p class="text-gray-600 font-medium">Không tìm thấy sản phẩm</p>
                     <p class="text-xs text-gray-400 mt-1">Thử tìm với từ khóa khác</p>
                 </div>
             `;
-            suggestionsContainer.classList.add('active');
-        }
-    } catch (error) {
-        console.error('Lỗi tìm kiếm:', error);
-        suggestionsList.innerHTML = `
+                            suggestionsContainer.classList.add('active');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi tìm kiếm:', error);
+                        suggestionsList.innerHTML = `
             <div class="no-results">
-                <p>Đã có lỗi xảy ra khi tìm kiếm</p>
+                <i class="fas fa-exclamation-triangle mb-2 text-orange-400 text-2xl"></i>
+                <p class="text-gray-600">Đã có lỗi xảy ra</p>
             </div>
         `;
-        suggestionsContainer.classList.add('active');
-    }
-}
+                        suggestionsContainer.classList.add('active');
+                    }
+                }
 
-// Sử dụng debounce để tránh gọi API quá nhiều
-const debouncedSearch = debounce(fetchSearchResults, 300);
+                // Sử dụng debounce để tránh gọi API quá nhiều khi gõ
+                const debouncedSearch = debounce(fetchSearchSuggestions, 300);
 
-function enableSearch() {
-    document.body.classList.add('search-active');
-    setTimeout(() => searchInput.focus(), 100);
-}
+                // Mở search
+                function enableSearch() {
+                    document.body.classList.add('search-active');
+                    setTimeout(() => searchInput.focus(), 100);
+                }
 
-function disableSearch() {
-    document.body.classList.remove('search-active');
-    suggestionsContainer.classList.remove('active');
-    if (searchInput) searchInput.value = '';
-}
+                // Đóng search
+                function disableSearch() {
+                    document.body.classList.remove('search-active');
+                    suggestionsContainer.classList.remove('active');
+                    if (searchInput) searchInput.value = '';
+                }
 
-if (searchToggle) searchToggle.addEventListener('click', enableSearch);
-if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
-if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
-if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
+                // Event listeners
+                if (searchToggle) searchToggle.addEventListener('click', enableSearch);
+                if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
+                if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
+                if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
-        disableSearch();
-    }
-});
+                // ESC key để đóng
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
+                        disableSearch();
+                    }
+                });
 
-if (searchInput) {
-    searchInput.addEventListener('input', function(e) {
-        debouncedSearch(e.target.value.trim());
-    });
-    
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `./view/shop.php?search=${encodeURIComponent(query)}`;
-            }
-        }
-    });
-}
+                // Input event - gọi API khi gõ
+                if (searchInput) {
+                    searchInput.addEventListener('input', function(e) {
+                        debouncedSearch(e.target.value.trim());
+                    });
 
-// Click outside để đóng suggestions
-document.addEventListener('click', function(e) {
-    if (searchInput && suggestionsContainer && 
-        !searchInput.contains(e.target) && 
-        !suggestionsContainer.contains(e.target)) {
-        suggestionsContainer.classList.remove('active');
-    }
-});
+                    // Nhấn Enter để tìm kiếm
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const query = searchInput.value.trim();
+                            if (query) {
+                                window.location.href = `./view/shop.php?search=${encodeURIComponent(query)}`;
+                            }
+                        }
+                    });
+                }
+
+                // Click outside để đóng suggestions
+                document.addEventListener('click', function(e) {
+                    if (searchInput && suggestionsContainer &&
+                        !searchInput.contains(e.target) &&
+                        !suggestionsContainer.contains(e.target)) {
+                        suggestionsContainer.classList.remove('active');
+                    }
+                });
             });
         </script>
     </body>
