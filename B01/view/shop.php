@@ -768,7 +768,7 @@ function getFilterDisplayName($type, $slug)
 
                         <!-- Logo (Center on mobile, left on desktop) -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-                            <a href="../index.php" title="NVBPlay" rel="home">
+                            <a href="./index.php" title="NVBPlay" rel="home">
                                 <img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay"
                                     class="h-12 md:h-14 w-auto transform scale-75">
                             </a>
@@ -778,7 +778,7 @@ function getFilterDisplayName($type, $slug)
                         <div class="hidden md:flex items-center space-x-4">
                             <!-- Address Book -->
                             <div class="address-book">
-                                <a href="./address-book.php" class="flex items-center text-gray-700 hover:text-red-600">
+                                <a href="./my-account/address-book.php" class="flex items-center text-gray-700 hover:text-red-600">
                                     <i class="fas fa-map-marker-alt mr-1"></i>
                                     <span class="shipping-address text-sm">
                                         <span class="text">Chọn địa chỉ</span>

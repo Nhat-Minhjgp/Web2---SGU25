@@ -133,7 +133,6 @@
                 max-height: 400px;
                 overflow-y: auto;
             }
-
             #searchSuggestions.active {
                 display: block;
             }
@@ -772,7 +771,7 @@
                                         class="w-full px-5 pr-14 py-3 text-base border-2 border-gray-200 rounded-full focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20 transition-all bg-gray-50 focus:bg-white"
                                         placeholder="Tên sản phẩm, hãng..."
                                         value=""
-                                        name="s"
+                                        name="search"
                                         autocomplete="off">
                                     <button type="submit"
                                         class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black transition-all rounded-full">
@@ -805,7 +804,7 @@
                         <section class="banner-hero mb-6 md:mb-8">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="md:col-span-2 rounded-lg overflow-hidden shadow-lg h-full">
-                                    <a href="https://nvbplay.vn/product-tag/san-deal-sieu-hoi-giam-gia-len-den-45"
+                                    <a href="./view/shop.php"
                                         class="block h-full">
                                         <img src="https://nvbplay.vn/wp-content/uploads/2026/02/MUA-DEAL-RON-RANG-scaled.png"
                                             alt="MUA DEAL RON RANG" class="w-full h-full object-cover">
@@ -813,14 +812,14 @@
                                 </div>
                                 <div class="flex flex-col space-y-4 h-full">
                                     <div class="rounded-lg overflow-hidden shadow-lg flex-1">
-                                        <a href="https://nvbplay.vn/ctkm-t3-thay-do-tha-ga-khong-lo-ve-gia.html"
+                                        <a href="./view/shop.php"
                                             class="block h-full">
                                             <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ThayDoThaGa-KhongLoVeGia-2x1-1.png"
                                                 alt="ThayDoThaGa" class="w-full h-full object-cover">
                                         </a>
                                     </div>
                                     <div class="rounded-lg overflow-hidden shadow-lg flex-1">
-                                        <a href="https://nvbplay.vn/ron-rang-xuan-sang-san-deal-hoanh-trang.html"
+                                        <a href="./view/shop.php"
                                             class="block h-full">
                                             <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ron-rang-xuan-sang-san-deal-hoanh-trang-1200x600-1-1.png"
                                                 alt="Ron rang xuan sang" class="w-full h-full object-cover">
@@ -1644,158 +1643,132 @@
                     });
                 }
 
-                // ========== SEARCH FUNCTIONALITY ==========
-                const searchToggle = document.getElementById('searchToggle');
-                const searchToggleMobile = document.getElementById('searchToggleMobile');
-                const closeSearchBtn = document.getElementById('closeSearchBtn');
-                const searchOverlay = document.getElementById('searchOverlay');
-                const searchInput = document.getElementById('searchInput');
-                const suggestionsContainer = document.getElementById('searchSuggestions');
-                const suggestionsList = document.getElementById('suggestionsList');
 
-                // Dữ liệu sản phẩm mẫu
-                const sampleProducts = [{
-                        name: 'Vợt Pickleball Joola Perseus Pro V Ben Johns Blaze Red 14mm',
-                        price: '4.590.000₫',
-                        category: 'Vợt Pickleball',
-                        image: 'https://nvbplay.vn/wp-content/uploads/2026/02/perseus-pro-v-ben-johns-blaze-red-14mm-4.jpg',
-                        url: '#',
-                        inStock: true
-                    },
-                    {
-                        name: 'Vợt cầu lông Yonex Nanoflare 1000 Game',
-                        price: '2.590.000₫',
-                        category: 'Vợt cầu lông',
-                        image: 'https://nvbplay.vn/wp-content/uploads/2024/12/vot-yonex-nanoflare-nextage-dark-gray-4u5z-4.webp',
-                        url: '#',
-                        inStock: true
-                    },
-                    {
-                        name: 'Áo thể thao NVBPlay Smash',
-                        price: '168.000₫',
-                        category: 'Áo cầu lông',
-                        image: 'https://nvbplay.vn/wp-content/uploads/2026/02/AO-THE-THAO-NVBPLAY-SMASH-768x768.jpg',
-                        url: '#',
-                        inStock: true
-                    },
-                    {
-                        name: 'Giày cầu lông Yonex 65Z3',
-                        price: '2.890.000₫',
-                        category: 'Giày',
-                        image: 'https://nvbplay.vn/wp-content/uploads/2024/10/174d92cb8ed1a1409c0e5503209eb8a7.jpg',
-                        url: '#',
-                        inStock: true
-                    },
-                    {
-                        name: 'Vợt Pickleball Selkirk Amethyst',
-                        price: '3.990.000₫',
-                        category: 'Vợt Pickleball',
-                        image: './img/pickleball.png',
-                        url: '#',
-                        inStock: false
-                    },
-                    {
-                        name: 'Quần cầu lông Kamito Pro',
-                        price: '299.000₫',
-                        category: 'Quần cầu lông',
-                        image: 'https://nvbplay.vn/wp-content/uploads/2025/01/Quan-cau-long.png',
-                        url: '#',
-                        inStock: true
-                    }
-                ];
+               // ========== SEARCH FUNCTIONALITY (CẬP NHẬT) ==========
+const searchToggle = document.getElementById('searchToggle');
+const searchToggleMobile = document.getElementById('searchToggleMobile');
+const closeSearchBtn = document.getElementById('closeSearchBtn');
+const searchOverlay = document.getElementById('searchOverlay');
+const searchInput = document.getElementById('searchInput');
+const suggestionsContainer = document.getElementById('searchSuggestions');
+const suggestionsList = document.getElementById('suggestionsList');
 
-                function showSuggestions(query) {
-                    if (!query || query.length < 2) {
-                        suggestionsContainer.classList.remove('active');
-                        return;
-                    }
+// Debounce function để giảm số lần gọi API
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
 
-                    const results = sampleProducts.filter(product =>
-                        product.name.toLowerCase().includes(query.toLowerCase()) ||
-                        product.category.toLowerCase().includes(query.toLowerCase())
-                    );
-
-                    if (results.length > 0) {
-                        const limitedResults = results.slice(0, 5);
-                        suggestionsList.innerHTML = limitedResults.map(product => `
-                            <a href="${product.url}" class="suggestion-item">
-                                <img src="${product.image}" alt="${product.name}" loading="lazy">
-                                <div class="suggestion-info">
-                                    <h4>${product.name}</h4>
-                                    <div class="price">${product.price}</div>
-                                    <div class="category">${product.category}</div>
-                                    ${product.inStock ?
-                                '<div class="stock"><i class="fas fa-check-circle mr-1"></i>Còn hàng</div>' :
-                                '<div class="stock out"><i class="fas fa-times-circle mr-1"></i>Hết hàng</div>'
-                            }
-                                </div>
-                            </a>
-                        `).join('');
-
-                        if (results.length > 5) {
-                            suggestionsList.innerHTML += `
-                                <a href="./view/shop.php?s=${encodeURIComponent(query)}" class="view-all-link">
-                                    Xem tất cả ${results.length} kết quả
-                                </a>
-                            `;
+// Hàm tìm kiếm sản phẩm từ database
+async function fetchSearchResults(query) {
+    if (!query || query.length < 2) {
+        suggestionsContainer.classList.remove('active');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`./control/search-handler.php?q=${encodeURIComponent(query)}&limit=5`);
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            const limitedResults = result.data.slice(0, 5);
+            suggestionsList.innerHTML = limitedResults.map(product => `
+                <a href="${product.url}" class="suggestion-item">
+                    <img src="${product.image}" alt="${product.name}" loading="lazy"
+                         onerror="this.src='./img/sanpham/placeholder.png'">
+                    <div class="suggestion-info">
+                        <h4>${product.name}</h4>
+                        <div class="price">${product.price}</div>
+                        <div class="category">${product.category}${product.brand ? ' - ' + product.brand : ''}</div>
+                        ${product.inStock ? 
+                            '<div class="stock"><i class="fas fa-check-circle mr-1"></i>Còn hàng</div>' : 
+                            '<div class="stock out"><i class="fas fa-times-circle mr-1"></i>Hết hàng</div>'
                         }
-                        suggestionsContainer.classList.add('active');
-                    } else {
-                        suggestionsList.innerHTML = `
-                            <div class="no-results">
-                                <i class="fas fa-search mb-2 text-gray-400 text-xl"></i>
-                                <p>Không tìm thấy sản phẩm phù hợp</p>
-                                <p class="text-xs text-gray-400 mt-1">Thử tìm với từ khóa khác</p>
-                            </div>
-                        `;
-                        suggestionsContainer.classList.add('active');
-                    }
-                }
+                    </div>
+                </a>
+            `).join('');
+            
+            if (result.total > 5) {
+                suggestionsList.innerHTML += `
+                    <a href="./view/shop.php?s=${encodeURIComponent(query)}" class="view-all-link">
+                        Xem tất cả ${result.total} kết quả
+                    </a>
+                `;
+            }
+            suggestionsContainer.classList.add('active');
+        } else {
+            suggestionsList.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-search mb-2 text-gray-400 text-xl"></i>
+                    <p>Không tìm thấy sản phẩm phù hợp</p>
+                    <p class="text-xs text-gray-400 mt-1">Thử tìm với từ khóa khác</p>
+                </div>
+            `;
+            suggestionsContainer.classList.add('active');
+        }
+    } catch (error) {
+        console.error('Lỗi tìm kiếm:', error);
+        suggestionsList.innerHTML = `
+            <div class="no-results">
+                <p>Đã có lỗi xảy ra khi tìm kiếm</p>
+            </div>
+        `;
+        suggestionsContainer.classList.add('active');
+    }
+}
 
-                function enableSearch() {
-                    document.body.classList.add('search-active');
-                    setTimeout(() => searchInput.focus(), 100);
-                }
+// Sử dụng debounce để tránh gọi API quá nhiều
+const debouncedSearch = debounce(fetchSearchResults, 300);
 
-                function disableSearch() {
-                    document.body.classList.remove('search-active');
-                    suggestionsContainer.classList.remove('active');
-                    if (searchInput) searchInput.value = '';
-                }
+function enableSearch() {
+    document.body.classList.add('search-active');
+    setTimeout(() => searchInput.focus(), 100);
+}
 
-                if (searchToggle) searchToggle.addEventListener('click', enableSearch);
-                if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
-                if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
-                if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
+function disableSearch() {
+    document.body.classList.remove('search-active');
+    suggestionsContainer.classList.remove('active');
+    if (searchInput) searchInput.value = '';
+}
 
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
-                        disableSearch();
-                    }
-                });
+if (searchToggle) searchToggle.addEventListener('click', enableSearch);
+if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
+if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
+if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
 
-                if (searchInput) {
-                    searchInput.addEventListener('input', function(e) {
-                        showSuggestions(e.target.value.trim());
-                    });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
+        disableSearch();
+    }
+});
 
-                    searchInput.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            const query = searchInput.value.trim();
-                            if (query) {
-                                window.location.href = `./view/shop.php?s=${encodeURIComponent(query)}`;
-                            }
-                        }
-                    });
-                }
+if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+        debouncedSearch(e.target.value.trim());
+    });
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `./view/shop.php?search=${encodeURIComponent(query)}`;
+            }
+        }
+    });
+}
 
-                // Click outside để đóng suggestions
-                document.addEventListener('click', function(e) {
-                    if (searchInput && suggestionsContainer && !searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-                        suggestionsContainer.classList.remove('active');
-                    }
-                });
+// Click outside để đóng suggestions
+document.addEventListener('click', function(e) {
+    if (searchInput && suggestionsContainer && 
+        !searchInput.contains(e.target) && 
+        !suggestionsContainer.contains(e.target)) {
+        suggestionsContainer.classList.remove('active');
+    }
+});
             });
         </script>
     </body>
