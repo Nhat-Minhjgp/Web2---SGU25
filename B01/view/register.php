@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // === 2. SERVER-SIDE VALIDATION ===
     $sqlInjectionPatterns = [
-        '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b)/i',
+        '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b|\bTRUNCATE\b|\bEXEC\b)/i',
         '/(--|\/\*|\*\/|#)/',
         '/(\bOR\b|\bAND\b)\s*([\'"]|\d+=\d+)/i',
         '/;/',
