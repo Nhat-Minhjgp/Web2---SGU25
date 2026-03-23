@@ -412,5 +412,7 @@ ALTER TABLE `danhmuc` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_danhmuc`;
 
 -- Thêm cột slug cho thương hiệu
 ALTER TABLE `thuonghieu` ADD COLUMN `slug` VARCHAR(100) AFTER `Ten_thuonghieu`;
+---chữa cháy do thêm dư ncc id trong phpieunhap--
+ALTER TABLE `phieunhap` MODIFY `NCC_id` int(11) DEFAULT NULL;
 
 COMMIT;
