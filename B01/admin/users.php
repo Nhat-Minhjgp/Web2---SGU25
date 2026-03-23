@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../control/connect.php';
-require_once __DIR__ . '/function.php';
+require_once __DIR__ . '/../control/function.php';
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['admin_logged_in'])) {
