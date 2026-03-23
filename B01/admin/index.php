@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($user['role'] == '1') {
                     
                     // Kiểm tra Trạng thái
-                    if ($user['status'] == 'active') {
+                    if ($user['status'] == '1') {
                         $_SESSION['admin_logged_in'] = true;
                         $_SESSION['admin_id'] = $user['User_id'];
                         $_SESSION['admin_name'] = $user['Ho_ten'];
