@@ -386,15 +386,15 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             <div class="h-5 w-px bg-gray-300"></div>
                             <div class="search-header relative"><button class="search-toggle p-2"><i
                                         class="fas fa-search text-gray-700 hover:text-red-600"></i></button></div>
-                            <a href="https://nvbplay.vn/my-account" class="p-2"><i
+                            <a href=",/login.php" class="p-2"><i
                                     class="far fa-user text-gray-700 hover:text-red-600 text-xl"></i></a>
-                            <a href="https://nvbplay.vn/cart" class="relative p-2"><i
+                            <a href="./cart.php" class="relative p-2"><i
                                     class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i><span
                                     class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span></a>
                         </div>
                         <div class="md:hidden flex items-center space-x-3">
                             <button class="search-toggle p-1"><i class="fas fa-search text-xl"></i></button>
-                            <a href="https://nvbplay.vn/cart" class="relative p-1"><i
+                            <a href="./cart.php" class="relative p-1"><i
                                     class="fas fa-shopping-basket text-xl"></i><span
                                     class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span></a>
                         </div>

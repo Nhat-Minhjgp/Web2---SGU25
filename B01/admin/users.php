@@ -78,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
     $stmt->bind_param("si", $hashed_password, $user_id);
     
     if ($stmt->execute()) {
-        $message = '✅ Đã đặt lại mật khẩu thành <strong>12345</strong> cho tài khoản này!';
+        $message = ' Đã đặt lại mật khẩu thành <strong>12345</strong> cho tài khoản này!';
     } else {
-        $error = '❌ Có lỗi xảy ra khi đặt lại mật khẩu!';
+        $error = ' Có lỗi xảy ra khi đặt lại mật khẩu!';
     }
     $stmt->close();
 }

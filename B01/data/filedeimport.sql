@@ -780,7 +780,7 @@ INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuong
 INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
 (8,10,280000),
 (8,50,275000),
-(8,25,350000),
+(8,100,350000),
 (1,10,3200000),
 (2,15,2500000),
 (3,8,2800000),
@@ -814,6 +814,7 @@ INSERT INTO `phieunhap` ( `NguoiNhap`, `NgayNhap`, `SoLuong`) VALUES
 
 INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
 (1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
+(2, 'sang', '$2a$10$hFgtrSjzowGIvrIU90F86.ZBN87TLRbv1R4V3GLY9G5dKnaIR7qj.', 'Sang Ngu', 'ea@gmail.com', '0909090909', 0, '1', '2026-03-20 22:30:01'),
 (3, 'Tisdoo', '$2y$10$KVCLdId9zeX.m9V6n.KSBuIAhB3dHadrgsIs.o7q3sdNr54kMgZUq', 'hoàng ấn', 'bodow@gmail.com', '0598898588', 0, '1', '2026-03-23 10:47:04'),
 (4, 'beiu', '$2y$10$amSCnKvV/3fwmiwpx8GO9ui9YfkXdt3W4qZCXi/BQEpwaSEF50Lhy', 'hoàng ấn', 'bodowq@gmail.com', '0598898588', 0, '1', '2026-03-23 10:49:34');
 

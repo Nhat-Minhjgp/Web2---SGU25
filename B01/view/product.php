@@ -3,7 +3,7 @@
 session_start();
 require_once '../control/connect.php';
 
-// === KIỂM TRA ĐĂNG NHẬP (Giống index.php) ===
+// === KIỂM TRA ĐĂNG NHẬP  ===
 $is_logged_in = isset($_SESSION['user_id']);
 $user_info = null;
 
@@ -79,6 +79,13 @@ function formatPrice($price)
     return number_format($price, 0, ',', '.') . ' ₫';
 }
 
+
+$is_in_stock = $product['SoLuongTon'] > 0;
+$max_qty = $is_in_stock ? $product['SoLuongTon'] : 0;
+$disabled_attr = $is_in_stock ? '' : 'disabled';
+$btn_class = $is_in_stock
+    ? 'bg-red-600 hover:bg-red-700 cursor-pointer'
+    : 'bg-gray-400 cursor-not-allowed';
 // Tính phần trăm giảm giá
 function calculateDiscount($import_price, $sell_price)
 {
@@ -202,6 +209,24 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 
         .role-badge-staff {
             background: #dc2626;
+        }
+
+        /* === DISABLED BUTTON STYLES === */
+        button:disabled {
+            opacity: 0.7;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        button:disabled:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        input:disabled {
+            background-color: #f3f4f6 !important;
+            color: #9ca3af !important;
+            cursor: not-allowed;
         }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
@@ -492,35 +517,45 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 <!-- Quantity -->
                                 <div class="flex items-center gap-4">
                                     <span class="font-medium text-gray-700">Số lượng:</span>
-                                    <div class="flex items-center border border-gray-300 rounded">
+                                    <div
+                                        class="flex items-center border border-gray-300 rounded <?php echo !$is_in_stock ? 'bg-gray-100' : ''; ?>">
                                         <button type="button" onclick="decreaseQty()"
-                                            class="px-3 py-2 hover:bg-gray-100 text-gray-600">-</button>
+                                            class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
+                                            <?php echo $disabled_attr; ?>>-</button>
                                         <input type="number" name="quantity" id="quantity" value="1" min="1"
-                                            max="<?php echo $product['SoLuongTon']; ?>"
-                                            class="w-16 text-center border-none focus:ring-0 p-0" readonly>
+                                            max="<?php echo $max_qty; ?>"
+                                            class="w-16 text-center border-none focus:ring-0 p-0 <?php echo !$is_in_stock ? 'bg-gray-100 text-gray-500' : ''; ?>"
+                                            readonly <?php echo $disabled_attr; ?>>
                                         <button type="button" onclick="increaseQty()"
-                                            class="px-3 py-2 hover:bg-gray-100 text-gray-600">+</button>
+                                            class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
+                                            <?php echo $disabled_attr; ?>>+</button>
                                     </div>
                                 </div>
 
                                 <!-- Buttons -->
                                 <div class="grid grid-cols-2 gap-4">
-                                    <form method="POST" action="cart.php">
-                                        <input type="hidden" name="product_id"
-                                            value="<?php echo $product['SanPham_id']; ?>">
-                                        <input type="hidden" name="add_to_cart" value="1">
+                                    <!-- Thêm vào giỏ -->
+                                    <button type="submit" name="add_to_cart" value="1"
+                                        class="w-full text-white py-3 rounded-lg font-semibold transition flex items-center justify-center <?php echo $btn_class; ?>"
+                                        <?php echo $disabled_attr; ?> <?php if (!$is_in_stock): ?>title="Sản phẩm hiện đã hết hàng" <?php endif; ?>>
+                                        <i class="fas fa-shopping-cart mr-2"></i>Thêm vào giỏ
+                                    </button>
 
-
-                                        <button type="submit"
-                                            class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold">
-                                            <i class="fas fa-shopping-cart mr-2"></i>Thêm vào giỏ
-                                        </button>
-                                    </form>
+                                    <!-- Mua ngay -->
                                     <button type="submit" name="buy_now" value="1"
-                                        class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition shadow-lg shadow-red-200">
+                                        class="w-full text-white font-bold py-3 rounded-xl transition shadow-lg <?php echo $is_in_stock ? 'shadow-red-200 hover:bg-red-700' : 'shadow-gray-200'; ?> <?php echo $btn_class; ?>"
+                                        <?php echo $disabled_attr; ?> <?php if (!$is_in_stock): ?>title="Sản phẩm hiện đã hết hàng" <?php endif; ?>>
                                         Mua ngay
                                     </button>
                                 </div>
+
+                                <!-- Thông báo khi hết hàng -->
+                                <?php if (!$is_in_stock): ?>
+                                    <p class="text-center text-sm text-red-600 font-medium">
+                                        <i class="fas fa-info-circle mr-1"></i>Sản phẩm tạm thời hết hàng. Vui lòng quay lại
+                                        sau!
+                                    </p>
+                                <?php endif; ?>
                             </form>
 
                             <!-- Additional Info -->
@@ -711,9 +746,11 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             btn.classList.add('border-red-600');
         }
 
-        // Quantity controls
+        // Quantity controls -
         function decreaseQty() {
             const qtyInput = document.getElementById('quantity');
+            if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
+
             let currentValue = parseInt(qtyInput.value);
             if (currentValue > 1) {
                 qtyInput.value = currentValue - 1;
@@ -722,9 +759,11 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 
         function increaseQty() {
             const qtyInput = document.getElementById('quantity');
+            if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
+
             const maxQty = parseInt(qtyInput.max);
             let currentValue = parseInt(qtyInput.value);
-            if (currentValue < maxQty) {
+            if (currentValue < maxQty && maxQty > 0) {
                 qtyInput.value = currentValue + 1;
             }
         }
@@ -787,6 +826,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 });
             }
         });
+
+
     </script>
 </body>
 
