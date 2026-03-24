@@ -879,12 +879,12 @@ if (!isset($conn)) {
     require_once './control/connect.php';
 }
 
-// Lấy 3 danh mục từ database (ID 4, 5, 6 theo SQL dump)
+// Lấy 3 danh mục từ database (ID 1, 2, 3 theo SQL dump)
 $categories_sql = "SELECT d.Danhmuc_id, d.Ten_danhmuc, d.slug,
     (SELECT image_url FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1 AND image_url IS NOT NULL LIMIT 1) as sample_image,
     (SELECT COUNT(*) FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1) as product_count
     FROM danhmuc d
-    WHERE d.Danhmuc_id IN (4, 5, 6)
+    WHERE d.Danhmuc_id IN (1, 2, 3)
     ORDER BY d.Danhmuc_id";
 $categories_result = $conn->query($categories_sql);
 ?>
@@ -945,12 +945,12 @@ $categories_result = $conn->query($categories_sql);
     </div>
     
     <?php
-    // Lấy vợt cầu lông nổi bật từ database (Danhmuc_id = 4)
+    // Lấy vợt cầu lông nổi bật từ database (Danhmuc_id = 1)
     $vot_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
                 FROM sanpham s
                 LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
                 LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
-                WHERE s.Danhmuc_id = 4 AND s.TrangThai = 1
+                WHERE s.Danhmuc_id = 1 AND s.TrangThai = 1
                 ORDER BY s.TaoNgay DESC
                 LIMIT 5";
     
