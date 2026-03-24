@@ -253,6 +253,9 @@ INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`) VALUES
 (1, 'Li-Ning', 'li-ning'),
 (2, 'Yonex', 'yonex'),
 (3, 'Victor', 'victor');
+(4, 'Venson', 'venson');
+(5, 'Mizuno', 'mizuno');
+(6, 'Kumpoo', 'kumpoo');
 
 -- --------------------------------------------------------
 
@@ -791,20 +794,7 @@ INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES
 
 
 INSERT INTO `phieunhap` ( `NguoiNhap`, `NgayNhap`, `SoLuong`) VALUES
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0);
+
 
 INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
 (1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
