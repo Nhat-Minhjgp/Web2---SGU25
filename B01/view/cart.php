@@ -895,15 +895,7 @@ $user_info = [
                                     <i class="fas fa-credit-card mr-2"></i>Tiến hành thanh toán
                                 </a>
                             </div>
-                            <!-- Trust Badges -->
-                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <div class="flex items-center justify-center gap-4 text-xs text-gray-500">
-                                    <div class="flex items-center"><i class="fas fa-shield-alt mr-1"></i>Thanh toán an
-                                        toàn</div>
-                                    <div class="flex items-center"><i class="fas fa-truck mr-1"></i>Giao hàng nhanh
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -1270,7 +1262,7 @@ $user_info = [
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('🚀 DOM loaded – cart.js started');
+            console.log(' DOM loaded – cart.js started');
 
             // === QUANTITY UPDATE ===
             window.updateQty = function (btn, change) {
@@ -1319,7 +1311,7 @@ $user_info = [
                 });
             }
 
-            // === ✅ MOBILE MAIN MENU TOGGLE (FIXED) ===
+            // ===  MOBILE MAIN MENU TOGGLE  ===
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
@@ -1334,17 +1326,17 @@ $user_info = [
                 menuToggle.addEventListener('click', function () {
                     mobileMenu.classList.remove('-translate-x-full');
                     document.body.style.overflow = 'hidden';
-                    console.log('✅ Mobile menu opened');
+                    console.log(' Mobile menu opened');
                 });
             } else {
-                console.error('❌ Menu toggle or mobile menu not found');
+                console.error(' Menu toggle or mobile menu not found');
             }
 
             if (closeMenu && mobileMenu) {
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
                     document.body.style.overflow = '';
-                    console.log('✅ Mobile menu closed');
+                    console.log(' Mobile menu closed');
                 });
             }
 
@@ -1389,7 +1381,7 @@ $user_info = [
                 menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
             }
 
-            console.log('✅ All event listeners registered');
+            console.log('All event listeners registered');
         });
     </script>
 
