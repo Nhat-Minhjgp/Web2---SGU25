@@ -369,7 +369,7 @@ body.filter-open { overflow: hidden; }
 
 <!-- Logo -->
 <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-<a href="./index.php" title="NVBPlay" rel="home"><img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75"></a>
+<a href="../index.php" title="NVBPlay" rel="home"><img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay" class="h-12 md:h-14 w-auto transform scale-75"></a>
 </div>
 
 <!-- Desktop Right Elements -->
