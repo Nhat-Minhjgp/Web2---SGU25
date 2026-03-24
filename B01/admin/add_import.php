@@ -1,29 +1,33 @@
 <?php
 session_start();
 require_once __DIR__ . '/../control/connect.php';
+
+// Kiểm tra đăng nhập
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php'); exit();
+    header('Location: index.php'); 
+    exit();
 }
+
 $admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_username = $_SESSION['admin_username'] ?? '';
-$message = ''; $messageType = '';
+$message = ''; 
+$messageType = '';
 
-// ✅ CHỈ LẤY DANH SÁCH SẢN PHẨM (BỎ DANH SÁCH NCC)
+// Lấy danh sách sản phẩm
 $sanphams = $conn->query("SELECT SanPham_id, TenSP, GiaNhapTB, GiaBan, SoLuongTon, PhanTramLoiNhuan, NCC_id FROM sanpham WHERE TrangThai = 1 ORDER BY TenSP");
 
-// === TỰ ĐỘNG TẠO MÃ PHIẾU NHẬP ===
+// Tự động tạo mã phiếu nhập
 $ngayHienTai = date('Ymd');
 $countQuery = $conn->query("SELECT COUNT(*) as so_luong FROM phieunhap WHERE DATE(NgayNhap) = CURDATE()");
 $countRow = $countQuery->fetch_assoc();
 $soThuTu = str_pad(($countRow['so_luong'] + 1), 3, '0', STR_PAD_LEFT);
 $maPhieuTuDong = 'PN-' . $ngayHienTai . '-' . $soThuTu;
 
-// === TỰ ĐỘNG TẠO MÃ LÔ HÀNG ===
+// Tự động tạo mã lô hàng
 $maLoHangTuDong = 'LOT-' . date('Ymd') . '-' . strtoupper(substr($admin_username ?: $admin_name, 0, 3)) . '-' . $soThuTu;
 
-// Xử lý lưu phiếu nhập
+// XỬ LÝ LƯU PHIẾU NHẬP
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_import'])) {
-    // ✅ ĐÃ BỎ: $ncc_id = intval($_POST['ncc_id'] ?? 0);
     $nguoiNhap = trim($_POST['nguoiNhap'] ?? ($admin_username ?: $admin_name));
     $ngayNhap = $_POST['ngayNhap'] ?? date('Y-m-d');
     $items = $_POST['items'] ?? [];
@@ -34,79 +38,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_import'])) {
     } else {
         $conn->begin_transaction();
         try {
-            // ✅ 1. Tạo phiếu nhập chính (ĐÃ BỎ CỘT NCC_id)
+            // 1. Tạo phiếu nhập chính (Số lượng khởi tạo là 0, Trigger sẽ tự cập nhật sau)
             $stmt = $conn->prepare("INSERT INTO phieunhap (NguoiNhap, NgayNhap, SoLuong) VALUES (?, ?, 0)");
             $stmt->bind_param("ss", $nguoiNhap, $ngayNhap);
             $stmt->execute();
             $phieuNhap_id = $conn->insert_id;
             $stmt->close();
 
-            $tongSoLuong = 0;
-
-            // ✅ 2. Xử lý từng mặt hàng
+            // 2. Xử lý từng mặt hàng
             foreach ($items as $item) {
                 $sanPham_id = intval($item['sanpham_id'] ?? 0);
                 $soLuongNhap = intval($item['so_luong'] ?? 0);
                 $giaNhapMoi = floatval($item['gia_nhap'] ?? 0);
-                $maLoHang = $maLoHangTuDong;
+                $maLoHang = $item['ma_lo_hang'] ?? $maLoHangTuDong;
 
                 if ($soLuongNhap <= 0 || $giaNhapMoi < 0 || !$sanPham_id) continue;
 
-                // === CẬP NHẬT SẢN PHẨM: Tính giá bình quân + giá bán ===
-                $stmt = $conn->prepare("SELECT SoLuongTon, GiaNhapTB, PhanTramLoiNhuan FROM sanpham WHERE SanPham_id = ? AND TrangThai = 1");
-                $stmt->bind_param("i", $sanPham_id);
-                $stmt->execute();
-                $res = $stmt->get_result();
-                $sp = $res->fetch_assoc();
-                $stmt->close();
+                // Lưu ý: KHÔNG CẦN viết lệnh UPDATE bảng `sanpham` ở đây nữa.
+                // Trigger `trg_chitietphieunhap_insert` trong MySQL sẽ tự động:
+                // - Cộng SoLuongTon
+                // - Tính lại GiaNhapTB
+                // - Cập nhật GiaBan
 
-                if ($sp) {
-                    $soLuongTonCu = intval($sp['SoLuongTon']);
-                    $giaNhapCu = floatval($sp['GiaNhapTB'] ?? 0);
-                    $phanTramLoiNhuan = floatval($sp['PhanTramLoiNhuan'] ?? 20);
-                    
-                    // 🎯 CÔNG THỨC BÌNH QUÂN GIA QUYỀN:
-                    $tongSoLuongMoi = $soLuongTonCu + $soLuongNhap;
-                    $giaNhapMoiTB = $tongSoLuongMoi > 0 
-                        ? ($soLuongTonCu * $giaNhapCu + $soLuongNhap * $giaNhapMoi) / $tongSoLuongMoi 
-                        : $giaNhapMoi;
-
-                    // 🎯 CÔNG THỨC TÍNH GIÁ BÁN:
-                    $giaBanMoi = $giaNhapMoiTB * (1 + $phanTramLoiNhuan / 100);
-
-                    // Cập nhật sản phẩm với giá nhập TB mới + giá bán tính tự động
-                    $stmt = $conn->prepare("UPDATE sanpham SET SoLuongTon = ?, GiaNhapTB = ?, GiaBan = ? WHERE SanPham_id = ?");
-                    $stmt->bind_param("iddi", $tongSoLuongMoi, $giaNhapMoiTB, $giaBanMoi, $sanPham_id);
-                    $stmt->execute();
-                    $stmt->close();
-                }
-
-                // ✅ 3. Lưu chi tiết phiếu nhập
+                // 3. Lưu chi tiết phiếu nhập
                 $stmt = $conn->prepare("INSERT INTO chitietphieunhap (PhieuNhap_id, SanPham_id, SoLuong, Gia_Nhap, MaLoHang) VALUES (?, ?, ?, ?, ?)");
                 $stmt->bind_param("iiids", $phieuNhap_id, $sanPham_id, $soLuongNhap, $giaNhapMoi, $maLoHang);
                 $stmt->execute();
                 $stmt->close();
 
-                $tongSoLuong += $soLuongNhap;
-
-                // ✅ 4. Ghi log vào tracuutonkho
-                if ($soLuongNhap > 0) {
-                    $stmt = $conn->prepare("INSERT INTO tracuutonkho (SP_id, TrangThai_NhapXuat, SoLuong, MaThamChieu_NhapXuat, ThoiGianTraCuu) VALUES (?, 'NHAP', ?, ?, NOW())");
-                    $stmt->bind_param("iii", $sanPham_id, $soLuongNhap, $phieuNhap_id);
-                    $stmt->execute();
-                    $stmt->close();
-                }
+                // 4. Ghi log vào tracuutonkho
+                $stmt = $conn->prepare("INSERT INTO tracuutonkho (SP_id, TrangThai_NhapXuat, SoLuong, MaThamChieu_NhapXuat, ThoiGianTraCuu) VALUES (?, 'NHAP', ?, ?, NOW())");
+                $stmt->bind_param("iii", $sanPham_id, $soLuongNhap, $phieuNhap_id);
+                $stmt->execute();
+                $stmt->close();
             }
 
-            // ✅ 5. Cập nhật tổng số lượng cho phiếu nhập
-            $stmt = $conn->prepare("UPDATE phieunhap SET SoLuong = ? WHERE NhapHang_id = ?");
-            $stmt->bind_param("ii", $tongSoLuong, $phieuNhap_id);
-            $stmt->execute();
-            $stmt->close();
-
             $conn->commit();
-            $message = '✅ Nhập hàng thành công! Giá bán đã được cập nhật tự động.';
+            $message = '✅ Nhập hàng thành công! Hệ thống đã tự động cập nhật giá và tồn kho.';
             $messageType = 'success';
+            
+            // Chuyển hướng để tránh việc người dùng F5 (reload) làm submit lại form 2 lần
             header("Location: import.php?success=1");
             exit();
             
@@ -117,6 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_import'])) {
             error_log("Import Error: " . $e->getMessage());
         }
     }
+}
+
+// Bắt thông báo thành công từ URL (sau khi redirect)
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    $message = '✅ Nhập hàng thành công! Hệ thống đã tự động cập nhật giá và tồn kho.';
+    $messageType = 'success';
 }
 ?>
 <!DOCTYPE html>
@@ -145,7 +122,6 @@ tailwind.config = {
 </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
-<!-- HEADER -->
 <header class="bg-white shadow-md sticky top-0 z-50 h-[70px] flex items-center w-full">
     <div class="w-full px-6 flex justify-between items-center">
         <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
@@ -160,13 +136,12 @@ tailwind.config = {
 </header>
 
 <div class="flex w-full min-h-[calc(100vh-70px)]">
-    <!-- SIDEBAR -->
     <aside class="w-64 bg-white shadow-lg min-h-screen">
             <div class="p-4 border-b border-gray-200">
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Danh mục chức năng</h3>
             </div>
             <nav class="p-2">
-                <a href="dashboard.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 active">
+                <a href="dashboard.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 hover:bg-gray-100">
                     <i class="fas fa-home w-5 text-gray-500"></i>
                     <span>Dashboard</span>
                 </a>
@@ -174,14 +149,13 @@ tailwind.config = {
                     <i class="fas fa-users w-5 text-gray-500"></i>
                     <span>Quản lý người dùng</span>
                 </a>
-                                
                 <a href="product.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-box w-5 text-gray-500"></i>
                     <span>Quản lý sản phẩm</span>
                 </a>
-                <a href="import.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-arrow-down w-5 text-gray-500"></i>
-                    <span>Quản lý nhập hàng</span>
+                <a href="import.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-blue-700 bg-blue-50">
+                    <i class="fas fa-arrow-down w-5 text-blue-500"></i>
+                    <span class="font-semibold">Quản lý nhập hàng</span>
                 </a>
                 <a href="orders.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-receipt w-5 text-gray-500"></i>
@@ -194,10 +168,8 @@ tailwind.config = {
             </nav>
         </aside>
 
-    <!-- MAIN -->
     <main class="flex-1 p-6 lg:p-8 bg-gray-50">
         <form method="POST" id="importForm" class="bg-white rounded-xl shadow-lg p-6 lg:p-8">
-            <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b gap-4">
                 <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-plus-circle text-primary"></i> Tạo phiếu nhập mới</h2>
                 <a href="import.php" class="text-gray-600 hover:text-primary"><i class="fas fa-arrow-left"></i> Quay lại</a>
@@ -210,9 +182,7 @@ tailwind.config = {
             </div>
             <?php endif; ?>
 
-            <!-- Thông tin phiếu -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-4 bg-gray-50 rounded-lg">
-                <!-- ✅ ĐÃ XÓA: Ô Nhà cung cấp -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Mã phiếu nhập</label>
                     <input type="text" value="<?php echo htmlspecialchars($maPhieuTuDong); ?>" readonly class="w-full px-4 py-2.5 rounded-lg border bg-gray-100 text-gray-500 cursor-not-allowed font-mono text-sm">
@@ -227,7 +197,6 @@ tailwind.config = {
                 </div>
             </div>
 
-            <!-- Danh sách mặt hàng -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-gray-800">📦 Danh sách mặt hàng nhập</h3>
@@ -236,11 +205,9 @@ tailwind.config = {
                     </button>
                 </div>
                 <div id="itemsContainer" class="space-y-4">
-                    <!-- Item rows will be added here by JS -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Tổng kết -->
             <div class="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-gray-600">
                     <p>Tổng số lượng: <span id="totalQty" class="font-bold text-gray-800">0</span> sản phẩm</p>
@@ -257,7 +224,6 @@ tailwind.config = {
     </main>
 </div>
 
-<!-- Template CHỈ cho sản phẩm có sẵn -->
 <template id="itemTemplate">
     <div class="item-card border rounded-xl p-4 bg-white animate-slide-in">
         <div class="flex justify-between items-start mb-3">
@@ -267,7 +233,7 @@ tailwind.config = {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div class="lg:col-span-2">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Chọn sản phẩm *</label>
-                <select name="items[][sanpham_id]" class="product-select w-full px-3 py-2 rounded-lg border text-sm" required onchange="onProductSelect(this)">
+                <select name="items[INDEX][sanpham_id]" class="product-select w-full px-3 py-2 rounded-lg border text-sm" required onchange="onProductSelect(this)">
                     <option value="">-- Chọn sản phẩm --</option>
                     <?php $sanphams->data_seek(0); while($sp = $sanphams->fetch_assoc()): ?>
                     <option value="<?php echo $sp['SanPham_id']; ?>" 
@@ -276,7 +242,7 @@ tailwind.config = {
                             data-ton="<?php echo $sp['SoLuongTon']; ?>"
                             data-loi="<?php echo $sp['PhanTramLoiNhuan'] ?? 20; ?>">
                         <?php echo htmlspecialchars($sp['TenSP']); ?> 
-                        (Tồn: <?php echo $sp['SoLuongTon']; ?> | %Lợi: <?php echo $sp['PhanTramLoiNhuan'] ?? 20; ?>%)
+                        (Tồn: <?php echo $sp['SoLuongTon']; ?> | %Lợi: <?php echo ($sp['PhanTramLoiNhuan'] * 100) ?? 20; ?>%)
                     </option>
                     <?php endwhile; ?>
                 </select>
@@ -284,11 +250,11 @@ tailwind.config = {
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Số lượng nhập *</label>
-                <input type="number" name="items[][so_luong]" class="qty-input w-full px-3 py-2 rounded-lg border text-sm" min="1" value="1" oninput="calcItemTotal(this)">
+                <input type="number" name="items[INDEX][so_luong]" class="qty-input w-full px-3 py-2 rounded-lg border text-sm" min="1" value="1" oninput="calcItemTotal(this)">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Giá nhập mới (VNĐ) *</label>
-                <input type="number" name="items[][gia_nhap]" class="price-input w-full px-3 py-2 rounded-lg border text-sm" min="0" step="0.01" value="0" oninput="calcItemTotal(this); calcSellingPrice(this)">
+                <input type="number" name="items[INDEX][gia_nhap]" class="price-input w-full px-3 py-2 rounded-lg border text-sm" min="0" step="0.01" value="0" oninput="calcItemTotal(this); calcSellingPrice(this)">
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
@@ -301,13 +267,13 @@ tailwind.config = {
                 <input type="text" class="selling-price w-full px-3 py-2 rounded-lg border text-sm bg-gray-100" readonly value="0đ">
             </div>
             <div class="flex items-end">
-                <p class="text-xs text-gray-500">🎯 Giá bán = Giá nhập TB × (1 + %Lợi)</p>
+                <p class="text-xs text-gray-500">🎯 Giá bán sẽ do hệ thống SQL tự tính toán</p>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Mã lô hàng</label>
-                <input type="text" name="items[][ma_lo_hang]" class="w-full px-3 py-2 rounded-lg border text-sm bg-gray-100 text-gray-500 cursor-not-allowed font-mono" readonly value="<?php echo htmlspecialchars($maLoHangTuDong); ?>">
+                <input type="text" name="items[INDEX][ma_lo_hang]" class="w-full px-3 py-2 rounded-lg border text-sm bg-gray-100 text-gray-500 cursor-not-allowed font-mono" readonly value="<?php echo htmlspecialchars($maLoHangTuDong); ?>">
             </div>
             <div class="flex items-end">
                 <p class="text-sm text-gray-600">Thành tiền: <span class="item-total font-bold text-primary">0</span>đ</p>
@@ -317,6 +283,8 @@ tailwind.config = {
 </template>
 
 <script>
+let itemIndex = 0; // Khởi tạo biến đếm toàn cục cho sản phẩm
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
@@ -325,7 +293,17 @@ function addItemRow() {
     const container = document.getElementById('itemsContainer');
     const template = document.getElementById('itemTemplate');
     const clone = template.content.cloneNode(true);
+
+    // Thay thế 'INDEX' trong thuộc tính 'name' bằng index hiện tại để tạo mảng PHP chuẩn xác
+    const selects = clone.querySelectorAll('select[name*="INDEX"]');
+    const inputs = clone.querySelectorAll('input[name*="INDEX"]');
+    
+    selects.forEach(el => el.name = el.name.replace('INDEX', itemIndex));
+    inputs.forEach(el => el.name = el.name.replace('INDEX', itemIndex));
+
     container.appendChild(clone);
+    itemIndex++; // Tăng biến đếm
+    calcTotal();
 }
 
 function removeItem(btn) {
@@ -346,8 +324,11 @@ function calcItemTotal(input) {
 function calcSellingPrice(input) {
     const card = input.closest('.item-card');
     const price = parseFloat(card.querySelector('.price-input').value) || 0;
-    const profit = parseFloat(card.querySelector('.profit-display').dataset.value) || 20;
-    const sellingPrice = price * (1 + profit / 100);
+    const profitStr = card.querySelector('.profit-display').dataset.value || 0;
+    const profit = parseFloat(profitStr);
+    
+    // Tạm tính giá bán dự kiến cho người dùng xem (Công thức trong SQL sẽ chạy chính thức)
+    const sellingPrice = price * (1 + profit);
     card.querySelector('.selling-price').value = formatCurrency(sellingPrice);
 }
 
@@ -356,12 +337,16 @@ function onProductSelect(select) {
     const option = select.options[select.selectedIndex];
     if (option.value) {
         const giaNhap = option.getAttribute('data-gianhap');
-        const profit = option.getAttribute('data-loi');
+        const profit = option.getAttribute('data-loi'); // Profit dạng thập phân (ví dụ 0.15)
+        
         if(giaNhap && giaNhap !== '0') card.querySelector('.price-input').value = giaNhap;
+        
         if(profit) {
-            card.querySelector('.profit-display').value = profit + '%';
+            const displayProfit = (parseFloat(profit) * 100).toFixed(0) + '%';
+            card.querySelector('.profit-display').value = displayProfit;
             card.querySelector('.profit-display').dataset.value = profit;
         }
+        
         calcItemTotal(card.querySelector('.qty-input'));
         calcSellingPrice(card.querySelector('.price-input'));
     }
@@ -386,8 +371,9 @@ function logout() {
     }
 }
 
+// Khởi tạo một dòng sản phẩm rỗng khi vừa mở trang
 document.addEventListener('DOMContentLoaded', () => {
-    calcTotal();
+    addItemRow();
 });
 </script>
 </body>
