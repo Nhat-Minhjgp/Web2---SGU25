@@ -59,16 +59,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
     }
 }
 
-// Xử lý reset mật khẩu
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password'])) {
-    $user_id = $_POST['user_id'];
-    $new_password = $_POST['new_password'];
+// Xử lý reset mật khẩu về mặc định 12345
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
+    $user_id = intval($_POST['user_id']);
+    $default_password = '12345';
     
-    if (changePassword($conn, $user_id, $new_password)) {
-        $message = 'Đặt lại mật khẩu thành công!';
+    // Hash mật khẩu trước khi lưu
+    $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
+    
+    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE User_id = ?");
+    $stmt->bind_param("si", $hashed_password, $user_id);
+    
+    if ($stmt->execute()) {
+        $message = '✅ Đã đặt lại mật khẩu thành <strong>12345</strong> cho tài khoản này!';
     } else {
-        $error = 'Có lỗi xảy ra!';
+        $error = '❌ Có lỗi xảy ra khi đặt lại mật khẩu!';
     }
+    $stmt->close();
 }
 
 // Lấy danh sách người dùng
@@ -283,7 +290,12 @@ $users_json = json_encode($users);
                                         <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition shadow-sm" title="Chỉnh sửa">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        
+                                        <!-- ✅ NÚT RESET MẬT KHẨU MỚI -->
+        <button onclick="resetPasswordDefault(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
+                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" 
+                title="Đặt lại mật khẩu thành 12345">
+            <i class="fas fa-key text-xs"></i>
+        </button>
                                         <?php if ($user['status'] === 1): ?>
                                             <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
                                                 <i class="fas fa-ban text-xs"></i>
@@ -297,6 +309,11 @@ $users_json = json_encode($users);
                                 </td>
                             </tr>
                             <?php endforeach; ?>
+                            <!-- Form ẩn để reset mật khẩu -->
+<form id="resetDefaultForm" method="POST" style="display:none;">
+    <input type="hidden" name="user_id" id="resetDefaultUserId">
+    <input type="hidden" name="reset_to_default" value="1">
+</form>
                         </tbody>
                     </table>
                 </div>
@@ -447,7 +464,13 @@ $users_json = json_encode($users);
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
-
+// ✅ Hàm reset mật khẩu về 12345 với xác nhận
+function resetPasswordDefault(userId, username) {
+    if (confirm(`⚠️ Bạn có chắc muốn ĐẶT LẠI mật khẩu của tài khoản "${username}" thành "12345"?`)) {
+        document.getElementById('resetDefaultUserId').value = userId;
+        document.getElementById('resetDefaultForm').submit();
+    }
+}
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.add('hidden');
