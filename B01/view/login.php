@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Xử lý database nếu không có lỗi
     if (empty($errors)) {
         try {
-            // ✅ PREPARED STATEMENT - Lớp bảo vệ chính chống SQL Injection
+            //  PREPARED STATEMENT - Lớp bảo vệ chính chống SQL Injection
             $stmt = $conn->prepare("SELECT User_id, Username, password, Ho_ten, email, SDT, role, status FROM users WHERE Username = ?");
             $stmt->bind_param("s", $form_data['username']);
             $stmt->execute();
@@ -421,7 +421,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                 <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-6 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng nhập</h1>
-                                      
+
 
 
                                         <!-- Thông báo lỗi -->
@@ -498,7 +498,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             </div>
         </main>
 
-        <!-- Footer (GIỮ NGUYÊN 100%) -->
+        <!-- Footer  -->
         <footer id="footer" class="bg-black text-white">
             <div class="container mx-auto px-4 py-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -572,7 +572,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             class="fas fa-times text-2xl text-gray-600"></i></button>
                 </div>
                 <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                    <a href="https://nvbplay.vn/my-account" class="flex items-center text-gray-700">
+                    <a href="./login.php" class="flex items-center text-gray-700">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3"><i
                                 class="far fa-user text-xl text-gray-600"></i></div>
                         <div>
@@ -581,311 +581,575 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         </div>
                     </a>
                 </div>
-                <!-- Mobile menu content giữ nguyên -->
+                <!-- Mobile Menu Items - Danh mục chính -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
+
+                    <!-- Cầu Lông -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="badminton">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/10/badminton-No.svg"
+                                        alt="Cầu Lông" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Cầu Lông</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
+
+                        <!-- Submenu Cầu Lông -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
+                            <!-- Vợt cầu lông -->
+                            <div>
+                                <a href="/product-category/vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Vợt
+                                    cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=yonex"
+                                        class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
+                                    <a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=adidas"
+                                        class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
+                                    <a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=li-ning"
+                                        class="block py-1 text-sm text-gray-600">Vợt Li-ning</a>
+                                    <a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=toalson"
+                                        class="block py-1 text-sm text-gray-600">Vợt Toalson</a>
+                                    <a href="https://nvbplay.vn/product-category/vot-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
+                            </div>
+
+                            <!-- Áo cầu lông -->
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Áo cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long?_brand=yonex"
+                                        class="block py-1 text-sm text-gray-600">Áo Yonex</a>
+                                    <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long?_brand=ds"
+                                        class="block py-1 text-sm text-gray-600">Áo DS</a>
+                                    <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long?_brand=kamito"
+                                        class="block py-1 text-sm text-gray-600">Áo Kamito</a>
+                                    <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
+                            </div>
+
+                            <!-- Quần cầu lông -->
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/quan-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="https://nvbplay.vn/product-category/quan-cau-long?_brand=yonex"
+                                        class="block py-1 text-sm text-gray-600">Quần Yonex</a>
+                                    <a href="https://nvbplay.vn/product-category/quan-cau-long?_brand=kamito"
+                                        class="block py-1 text-sm text-gray-600">Quần Kamito</a>
+                                    <a href="https://nvbplay.vn/product-category/quan-cau-long?_brand=adidas"
+                                        class="block py-1 text-sm text-gray-600">Quần Adidas</a>
+                                </div>
+                            </div>
+
+                            <!-- Túi vợt -->
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/tui-vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Túi vợt</a>
+                            </div>
+
+                            <!-- Balo -->
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/balo-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Balo</a>
+                            </div>
+
+                            <!-- Phụ kiện -->
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/phu-kien-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Phụ kiện</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="https://nvbplay.vn/product-category/phu-kien-cau-long/cuoc-dan-vot-cau-long"
+                                        class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
+                                    <a href="https://nvbplay.vn/product-category/phu-kien-cau-long/vo-cau-long"
+                                        class="block py-1 text-sm text-gray-600">Vớ cầu lông</a>
+                                    <a href="https://nvbplay.vn/product-category/phu-kien-cau-long/qua-cau-long"
+                                        class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
+                                    <a href="https://nvbplay.vn/product-category/phu-kien-cau-long/quan-can"
+                                        class="block py-1 text-sm text-gray-600">Quấn cán</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pickleball -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="pickleball">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/10/pickleball-No.svg"
+                                        alt="Pickleball" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Pickleball</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
+
+                        <!-- Submenu Pickleball -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball"
+                                    class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball?_brand=joola"
+                                        class="block py-1 text-sm text-gray-600">Vợt Joola</a>
+                                    <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball?_brand=selkirk"
+                                        class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
+                                    <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball?_brand=wika"
+                                        class="block py-1 text-sm text-gray-600">Vợt Wika</a>
+                                    <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/pickleball/phu-kien-pickleball"
+                                    class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/pickleball/balo-tui-pickleball"
+                                    class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Giày -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="giay">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/10/jogging-No.svg" alt="Giày"
+                                        class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Giày</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
+
+                        <!-- Submenu Giày -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/giay?_brand=yonex"
+                                    class="block py-2 text-gray-700">Giày Yonex</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/giay?_brand=adidas"
+                                    class="block py-2 text-gray-700">Giày Adidas</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/giay?_brand=mizuno"
+                                    class="block py-2 text-gray-700">Giày Mizuno</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/giay?_brand=asics"
+                                    class="block py-2 text-gray-700">Giày Asics</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/product-category/giay?_brand=kamito"
+                                    class="block py-2 text-gray-700">Giày Kamito</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chăm sóc sức khoẻ -->
+                    <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
+                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
+                        <div class="w-6 h-6 mr-3 flex-shrink-0">
+                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
+                                alt="Chăm sóc sức khoẻ" class="w-full h-full">
+                        </div>
+                        <span class="font-medium">Chăm sóc sức khoẻ</span>
+                    </a>
+
+                    <!-- Dịch vụ -->
+                    <a href="https://nvbplay.vn/product-category/dich-vu"
+                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
+                        <div class="w-6 h-6 mr-3 flex-shrink-0">
+                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
+                                alt="Dịch vụ" class="w-full h-full">
+                        </div>
+                        <span class="font-medium">Dịch vụ</span>
+                    </a>
+
+                    <!-- Tin Tức -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="news">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex-shrink-0">
+                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg" alt="Tin Tức"
+                                        class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Tin Tức</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
+
+                        <!-- Submenu Tin Tức -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-news">
+                            <div>
+                                <a href="https://nvbplay.vn/thong-tin" class="block py-2 text-gray-700">Thông tin</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/cau-long" class="block py-2 text-gray-700">Cầu lông</a>
+                            </div>
+                            <div>
+                                <a href="https://nvbplay.vn/pickleball" class="block py-2 text-gray-700">Pickleball</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuyển dụng -->
+                    <a href="https://nvbplay.vn/tuyen-dung"
+                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
+                        <div class="w-6 h-6 mr-3 flex-shrink-0">
+                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/hiring.svg" alt="Tuyển dụng"
+                                class="w-full h-full">
+                        </div>
+                        <span class="font-medium">Tuyển dụng</span>
+                    </a>
+                </div>
+
+                <!-- Link phụ -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <a href="https://nvbplay.vn/khuyen-mai" class="block py-2 text-gray-600 hover:text-red-600">Khuyến
+                        mãi</a>
+                    <a href="/blogs" class="block py-2 text-gray-600 hover:text-red-600">Blogs</a>
+                </div>
+
+                <!-- Thông tin liên hệ -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">62 Lê Bình, Tân An, Cần Thơ</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-phone-alt text-red-600 w-5 mr-2"></i>
+                        <a href="tel:0987.879.243" class="text-sm text-gray-600">0987.879.243</a>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="far fa-clock text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">08:00 - 21:00</span>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+    </div>
 
-        <!-- JavaScript Form Validation -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const form = document.getElementById('loginForm');
-                const username = document.getElementById('username');
-                const password = document.getElementById('password');
-                const submitBtn = document.getElementById('submitBtn');
-                const togglePassword = document.getElementById('togglePassword');
+    <!-- JavaScript Form Validation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('loginForm');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+            const togglePassword = document.getElementById('togglePassword');
 
-                // Toggle password visibility
-                if (togglePassword) {
-                    togglePassword.addEventListener('click', function () {
-                        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                        password.setAttribute('type', type);
-                        this.classList.toggle('fa-eye');
-                        this.classList.toggle('fa-eye-slash');
-                    });
-                }
-
-                // Validation functions
-                function validateUsername() {
-                    const value = username.value.trim();
-                    const error = document.getElementById('username-error');
-                    if (value.length === 0) {
-                        username.classList.add('input-invalid');
-                        username.classList.remove('input-valid');
-                        error.style.display = 'block';
-                        return false;
-                    }
-                    username.classList.add('input-valid');
-                    username.classList.remove('input-invalid');
-                    error.style.display = 'none';
-                    return true;
-                }
-
-                function validatePassword() {
-                    const value = password.value;
-                    const error = document.getElementById('password-error');
-                    if (value.length === 0) {
-                        password.classList.add('input-invalid');
-                        password.classList.remove('input-valid');
-                        error.style.display = 'block';
-                        return false;
-                    }
-                    password.classList.add('input-valid');
-                    password.classList.remove('input-invalid');
-                    error.style.display = 'none';
-                    return true;
-                }
-
-                function checkFormValidity() {
-                    const isValid = validateUsername() && validatePassword();
-                    submitBtn.disabled = !isValid;
-                    submitBtn.classList.toggle('opacity-50', !isValid);
-                    submitBtn.classList.toggle('cursor-not-allowed', !isValid);
-                    return isValid;
-                }
-
-                // Event listeners
-                username.addEventListener('blur', validateUsername);
-                username.addEventListener('input', checkFormValidity);
-                password.addEventListener('blur', validatePassword);
-                password.addEventListener('input', checkFormValidity);
-
-                // Form submit
-                form.addEventListener('submit', function (e) {
-                    if (!checkFormValidity()) {
-                        e.preventDefault();
-                        const firstError = form.querySelector('.input-invalid');
-                        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+            // Toggle password visibility
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function () {
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
                 });
+            }
 
-                // Initial check
-                checkFormValidity();
-            });
-        </script>
+            // Validation functions
+            function validateUsername() {
+                const value = username.value.trim();
+                const error = document.getElementById('username-error');
+                if (value.length === 0) {
+                    username.classList.add('input-invalid');
+                    username.classList.remove('input-valid');
+                    error.style.display = 'block';
+                    return false;
+                }
+                username.classList.add('input-valid');
+                username.classList.remove('input-invalid');
+                error.style.display = 'none';
+                return true;
+            }
 
-        <!-- JavaScript Menu (GIỮ NGUYÊN 100% từ file gốc) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-                if (menuToggle) {
-                    menuToggle.addEventListener('click', function () {
-                        mobileMenu.classList.remove('-translate-x-full');
-                        document.body.style.overflow = 'hidden';
-                    });
+            function validatePassword() {
+                const value = password.value;
+                const error = document.getElementById('password-error');
+                if (value.length === 0) {
+                    password.classList.add('input-invalid');
+                    password.classList.remove('input-valid');
+                    error.style.display = 'block';
+                    return false;
                 }
-                if (closeMenu) {
-                    closeMenu.addEventListener('click', function () {
-                        mobileMenu.classList.add('-translate-x-full');
-                        document.body.style.overflow = '';
-                    });
-                }
-                const categoryButton = document.querySelector('.relative button');
-                if (categoryButton) {
-                    categoryButton.addEventListener('click', function () {
-                        const subMenu = this.nextElementSibling;
-                        subMenu.classList.toggle('hidden');
-                        this.querySelector('i').classList.toggle('fa-chevron-down');
-                        this.querySelector('i').classList.toggle('fa-chevron-up');
-                    });
+                password.classList.add('input-valid');
+                password.classList.remove('input-invalid');
+                error.style.display = 'none';
+                return true;
+            }
+
+            function checkFormValidity() {
+                const isValid = validateUsername() && validatePassword();
+                submitBtn.disabled = !isValid;
+                submitBtn.classList.toggle('opacity-50', !isValid);
+                submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                return isValid;
+            }
+
+            // Event listeners
+            username.addEventListener('blur', validateUsername);
+            username.addEventListener('input', checkFormValidity);
+            password.addEventListener('blur', validatePassword);
+            password.addEventListener('input', checkFormValidity);
+
+            // Form submit
+            form.addEventListener('submit', function (e) {
+                if (!checkFormValidity()) {
+                    e.preventDefault();
+                    const firstError = form.querySelector('.input-invalid');
+                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
-        </script>
 
-        <!-- JavaScript Desktop Menu (GIỮ NGUYÊN 100% từ file gốc) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const menuTrigger = document.getElementById('mega-menu-trigger');
-                const menuDropdown = document.getElementById('mega-menu-dropdown');
-                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-                const menuContents = document.querySelectorAll('.menu-content');
-                if (menuTrigger) {
-                    menuTrigger.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        menuDropdown.classList.toggle('hidden');
-                    });
-                }
-                menuItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const menuId = this.getAttribute('data-menu');
-                        menuItems.forEach(el => {
-                            el.classList.remove('active', 'bg-red-50');
-                            const titleEl = el.querySelector('.font-bold');
-                            if (titleEl) titleEl.classList.remove('text-red-600');
-                        });
-                        this.classList.add('active', 'bg-red-50');
-                        const activeTitle = this.querySelector('.font-bold');
-                        if (activeTitle) activeTitle.classList.add('text-red-600');
-                        menuContents.forEach(content => { content.classList.add('hidden'); });
-                        const activeContent = document.getElementById(`content-${menuId}`);
-                        if (activeContent) { activeContent.classList.remove('hidden'); }
-                    });
-                });
-                document.addEventListener('click', function (e) {
-                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                        menuDropdown.classList.add('hidden');
-                    }
-                });
-                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-                if (menuToggle) { menuToggle.addEventListener('click', function () { mobileMenu.classList.remove('-translate-x-full'); }); }
-                if (closeMenu) { closeMenu.addEventListener('click', function () { mobileMenu.classList.add('-translate-x-full'); }); }
-                const categoryButton = document.querySelector('.relative button');
-                if (categoryButton) {
-                    categoryButton.addEventListener('click', function () {
-                        const subMenu = this.nextElementSibling;
-                        subMenu.classList.toggle('hidden');
-                        this.querySelector('i').classList.toggle('fa-chevron-down');
-                        this.querySelector('i').classList.toggle('fa-chevron-up');
-                    });
-                }
-            });
-        </script>
-
-
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('loginForm');
-        const username = document.getElementById('username');
-        const password = document.getElementById('password');
-        const submitBtn = document.getElementById('submitBtn');
-        const togglePassword = document.getElementById('togglePassword');
-        const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
-        const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
-
-        // === CLIENT-SIDE SQL INJECTION PATTERNS ===
-        const sqlPatterns = [
-        /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|EXECUTE)\b/i,
-        /(--|\/\*|\*\/|#|;)/,
-        /['"]\s*(OR|AND)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i,
-        /\b(WAITFOR|BENCHMARK|SLEEP|xp_|sp_)\b/i,
-        /%00|%27|%22|%3B/i
-        ];
-
-        function checkSQLInjection(value, fieldName) {
-        for (let pattern of sqlPatterns) {
-        if (pattern.test(value)) {
-        showSQLWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
-        return true;
-        }
-        }
-        return false;
-        }
-
-        function showSQLWarning(msg) {
-        sqlWarning.style.display = 'block';
-        sqlWarningMsg.textContent = msg;
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-
-        function hideSQLWarning() {
-        sqlWarning.style.display = 'none';
-        if (validateUsername() && validatePassword()) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-        }
-
-        // Toggle password visibility
-        if (togglePassword) {
-        togglePassword.addEventListener('click', function() {
-        const type = password.type === 'password' ? 'text' : 'password';
-        password.type = type;
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
-        });
-        }
-
-        function validateUsername() {
-        const value = username.value.trim();
-        const error = document.getElementById('username-error');
-
-        if (checkSQLInjection(value, 'tên đăng nhập')) {
-        username.classList.add('input-invalid');
-        username.classList.remove('input-valid');
-        return false;
-        }
-
-        if (value.length === 0) {
-        username.classList.add('input-invalid');
-        username.classList.remove('input-valid');
-        error.style.display = 'block';
-        return false;
-        }
-        username.classList.add('input-valid');
-        username.classList.remove('input-invalid');
-        error.style.display = 'none';
-        hideSQLWarning();
-        return true;
-        }
-
-        function validatePassword() {
-        const value = password.value;
-        const error = document.getElementById('password-error');
-
-        if (checkSQLInjection(value, 'mật khẩu')) {
-        password.classList.add('input-invalid');
-        password.classList.remove('input-valid');
-        return false;
-        }
-
-        if (value.length === 0) {
-        password.classList.add('input-invalid');
-        password.classList.remove('input-valid');
-        error.style.display = 'block';
-        return false;
-        }
-        password.classList.add('input-valid');
-        password.classList.remove('input-invalid');
-        error.style.display = 'none';
-        hideSQLWarning();
-        return true;
-        }
-
-        function checkFormValidity() {
-        const isValid = validateUsername() && validatePassword();
-        submitBtn.disabled = !isValid;
-        submitBtn.classList.toggle('opacity-50', !isValid);
-        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
-        return isValid;
-        }
-
-        // Event listeners
-        username.addEventListener('blur', validateUsername);
-        username.addEventListener('input', function() {
-        if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'tên đăng nhập');
+            // Initial check
             checkFormValidity();
+        });
+    </script>
+
+    <!-- JavaScript Menu  -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.getElementById('main-menu');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function () {
+                    mobileMenu.classList.remove('-translate-x-full');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            if (closeMenu) {
+                closeMenu.addEventListener('click', function () {
+                    mobileMenu.classList.add('-translate-x-full');
+                    document.body.style.overflow = '';
+                });
+            }
+            const categoryButton = document.querySelector('.relative button');
+            if (categoryButton) {
+                categoryButton.addEventListener('click', function () {
+                    const subMenu = this.nextElementSibling;
+                    subMenu.classList.toggle('hidden');
+                    this.querySelector('i').classList.toggle('fa-chevron-down');
+                    this.querySelector('i').classList.toggle('fa-chevron-up');
+                });
+            }
+        });
+    </script>
+
+    <!-- JavaScript Desktop Menu  -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuTrigger = document.getElementById('mega-menu-trigger');
+            const menuDropdown = document.getElementById('mega-menu-dropdown');
+            const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+            const menuContents = document.querySelectorAll('.menu-content');
+            if (menuTrigger) {
+                menuTrigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menuDropdown.classList.toggle('hidden');
+                });
+            }
+            menuItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const menuId = this.getAttribute('data-menu');
+                    menuItems.forEach(el => {
+                        el.classList.remove('active', 'bg-red-50');
+                        const titleEl = el.querySelector('.font-bold');
+                        if (titleEl) titleEl.classList.remove('text-red-600');
+                    });
+                    this.classList.add('active', 'bg-red-50');
+                    const activeTitle = this.querySelector('.font-bold');
+                    if (activeTitle) activeTitle.classList.add('text-red-600');
+                    menuContents.forEach(content => { content.classList.add('hidden'); });
+                    const activeContent = document.getElementById(`content-${menuId}`);
+                    if (activeContent) { activeContent.classList.remove('hidden'); }
+                });
+            });
+            document.addEventListener('click', function (e) {
+                if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
+                    menuDropdown.classList.add('hidden');
+                }
+            });
+            menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            const menuToggle = document.querySelector('.menu-toggle');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.getElementById('main-menu');
+            if (menuToggle) { menuToggle.addEventListener('click', function () { mobileMenu.classList.remove('-translate-x-full'); }); }
+            if (closeMenu) { closeMenu.addEventListener('click', function () { mobileMenu.classList.add('-translate-x-full'); }); }
+            const categoryButton = document.querySelector('.relative button');
+            if (categoryButton) {
+                categoryButton.addEventListener('click', function () {
+                    const subMenu = this.nextElementSibling;
+                    subMenu.classList.toggle('hidden');
+                    this.querySelector('i').classList.toggle('fa-chevron-down');
+                    this.querySelector('i').classList.toggle('fa-chevron-up');
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('loginForm');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+            const togglePassword = document.getElementById('togglePassword');
+            const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
+            const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
+
+            // === CLIENT-SIDE SQL INJECTION PATTERNS ===
+            const sqlPatterns = [
+                /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|EXECUTE)\b/i,
+                /(--|\/\*|\*\/|#|;)/,
+                /['"]\s*(OR|AND)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i,
+                /\b(WAITFOR|BENCHMARK|SLEEP|xp_|sp_)\b/i,
+                /%00|%27|%22|%3B/i
+            ];
+
+            function checkSQLInjection(value, fieldName) {
+                for (let pattern of sqlPatterns) {
+                    if (pattern.test(value)) {
+                        showSQLWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function showSQLWarning(msg) {
+                sqlWarning.style.display = 'block';
+                sqlWarningMsg.textContent = msg;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            function hideSQLWarning() {
+                sqlWarning.style.display = 'none';
+                if (validateUsername() && validatePassword()) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Toggle password visibility
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function () {
+                    const type = password.type === 'password' ? 'text' : 'password';
+                    password.type = type;
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            function validateUsername() {
+                const value = username.value.trim();
+                const error = document.getElementById('username-error');
+
+                if (checkSQLInjection(value, 'tên đăng nhập')) {
+                    username.classList.add('input-invalid');
+                    username.classList.remove('input-valid');
+                    return false;
+                }
+
+                if (value.length === 0) {
+                    username.classList.add('input-invalid');
+                    username.classList.remove('input-valid');
+                    error.style.display = 'block';
+                    return false;
+                }
+                username.classList.add('input-valid');
+                username.classList.remove('input-invalid');
+                error.style.display = 'none';
+                hideSQLWarning();
+                return true;
+            }
+
+            function validatePassword() {
+                const value = password.value;
+                const error = document.getElementById('password-error');
+
+                if (checkSQLInjection(value, 'mật khẩu')) {
+                    password.classList.add('input-invalid');
+                    password.classList.remove('input-valid');
+                    return false;
+                }
+
+                if (value.length === 0) {
+                    password.classList.add('input-invalid');
+                    password.classList.remove('input-valid');
+                    error.style.display = 'block';
+                    return false;
+                }
+                password.classList.add('input-valid');
+                password.classList.remove('input-invalid');
+                error.style.display = 'none';
+                hideSQLWarning();
+                return true;
+            }
+
+            function checkFormValidity() {
+                const isValid = validateUsername() && validatePassword();
+                submitBtn.disabled = !isValid;
+                submitBtn.classList.toggle('opacity-50', !isValid);
+                submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                return isValid;
+            }
+
+            // Event listeners
+            username.addEventListener('blur', validateUsername);
+            username.addEventListener('input', function () {
+                if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'tên đăng nhập');
+                checkFormValidity();
             });
 
             password.addEventListener('blur', validatePassword);
-            password.addEventListener('input', function() {
-            if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'mật khẩu');
+            password.addEventListener('input', function () {
+                if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'mật khẩu');
                 checkFormValidity();
-                });
+            });
 
-                // Form submit - final check
-                form.addEventListener('submit', function(e) {
-                if (checkSQLInjection(username.value, 'tên đăng nhập') || checkSQLInjection(password.value, 'mật khẩu'))
-                {
-                e.preventDefault();
-                return false;
+            // Form submit - final check
+            form.addEventListener('submit', function (e) {
+                if (checkSQLInjection(username.value, 'tên đăng nhập') || checkSQLInjection(password.value, 'mật khẩu')) {
+                    e.preventDefault();
+                    return false;
                 }
                 if (!checkFormValidity()) {
-                e.preventDefault();
-                const firstError = form.querySelector('.input-invalid');
-                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    e.preventDefault();
+                    const firstError = form.querySelector('.input-invalid');
+                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                });
+            });
 
-                // Initial check
-                checkFormValidity();
-                });
-                </script>
+            // Initial check
+            checkFormValidity();
+        });
+    </script>
 </body>
 
 </html>
