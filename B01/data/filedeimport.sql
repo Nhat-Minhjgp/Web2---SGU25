@@ -818,6 +818,31 @@ INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`
 (3, 'Tisdoo', '$2y$10$KVCLdId9zeX.m9V6n.KSBuIAhB3dHadrgsIs.o7q3sdNr54kMgZUq', 'hoàng ấn', 'bodow@gmail.com', '0598898588', 0, '1', '2026-03-23 10:47:04'),
 (4, 'beiu', '$2y$10$amSCnKvV/3fwmiwpx8GO9ui9YfkXdt3W4qZCXi/BQEpwaSEF50Lhy', 'hoàng ấn', 'bodowq@gmail.com', '0598898588', 0, '1', '2026-03-23 10:49:34');
 
+-- === 1. Cập nhật bảng donhang ===
+ALTER TABLE `donhang`
+  MODIFY `TongTien` DECIMAL(15,2) DEFAULT NULL,        -- Đổi từ INT sang DECIMAL để khớp với giá tiền
+  MODIFY `NgayDat` DATETIME DEFAULT CURRENT_TIMESTAMP, -- Thêm giờ để theo dõi chính xác
+  MODIFY `TrangThai` ENUM('Chờ xác nhận','Đã xác nhận','Đang giao','Hoàn thành','Đã hủy') DEFAULT 'Chờ xác nhận',
+  MODIFY `PhuongThucTT` ENUM('cod','banking') DEFAULT 'cod',
+  ADD COLUMN `GhiChu` TEXT DEFAULT NULL AFTER `linkTraCuu`,  -- Thêm ghi chú đơn hàng
+  ADD COLUMN `NgayCapNhat` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP AFTER `NgayDat`;
+
+-- === 2. Cập nhật bảng chitiethoadon ===
+ALTER TABLE `chitiethoadon`
+  MODIFY `Gia` DECIMAL(15,2) NOT NULL,                  -- Đảm bảo giá không NULL
+  MODIFY `SoLuong` INT UNSIGNED NOT NULL DEFAULT 1,     -- Số lượng luôn >= 1
+  ADD COLUMN `ThanhTien` DECIMAL(15,2) GENERATED ALWAYS AS (`SoLuong` * `Gia`) STORED AFTER `Gia`, -- Tự tính thành tiền
+  ADD INDEX `idx_donhang` (`DonHang_id`),
+  ADD INDEX `idx_sanpham` (`SanPham_id`);
+
+-- === 3. Thêm foreign key nếu chưa có ===
+ALTER TABLE `donhang`
+  ADD CONSTRAINT `fk_donhang_user` FOREIGN KEY (`User_id`) REFERENCES `users`(`User_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_donhang_diachi` FOREIGN KEY (`DiaChi_id`) REFERENCES `diachigh`(`add_id`) ON DELETE SET NULL;
+
+ALTER TABLE `chitiethoadon`
+  ADD CONSTRAINT `fk_ctdh_donhang` FOREIGN KEY (`DonHang_id`) REFERENCES `donhang`(`DonHang_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_ctdh_sanpham` FOREIGN KEY (`SanPham_id`) REFERENCES `sanpham`(`SanPham_id`) ON DELETE RESTRICT;
 
 UPDATE sanpham sp
 SET 
