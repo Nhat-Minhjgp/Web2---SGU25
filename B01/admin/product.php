@@ -60,31 +60,24 @@ $result = $conn->query($sql);
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-md sticky top-0 z-50 h-[70px] flex items-center w-full">
-        <div class="w-full px-6 flex justify-between items-center">
-            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">
-                NVBPlay Admin Panel
-            </h1>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold shadow-lg">
-                        <?php echo strtoupper(substr($admin_name, 0, 1)); ?>
+   <!-- HEADER -->
+   <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="flex justify-between items-center px-6 py-4">
+            <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
+                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
+                        <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800">
-                            <?php echo htmlspecialchars($admin_name); ?>
-                            <?php if ($admin_role === 'admin'): ?>
-                                <span class="ml-2 text-xs bg-gradient-custom text-white px-2 py-0.5 rounded-full">Admin</span>
-                            <?php else: ?>
-                                <span class="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">Admin</span>
-                            <?php endif; ?>
+                        <p class="font-semibold text-sm text-gray-800">
+                           
                         </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
-                <button onclick="logout()" class="flex items-center gap-2 text-red-500 hover:text-red-700 transition font-medium">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                 </button>
             </div>
         </div>

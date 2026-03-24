@@ -3,6 +3,13 @@ session_start();
 require_once __DIR__ . '/../control/connect.php';
 require_once __DIR__ . '/../control/function.php';
 
+
+
+// Lấy thông tin admin
+$admin_name = $_SESSION['Username'] ?? '';
+$admin_role = $_SESSION['admin_role'] ?? '';
+$admin_username = $_SESSION['admin_username'] ?? '';
+
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: index.php');
@@ -59,16 +66,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
     }
 }
 
-// Xử lý reset mật khẩu
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password'])) {
-    $user_id = $_POST['user_id'];
-    $new_password = $_POST['new_password'];
+// Xử lý reset mật khẩu về mặc định 12345
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
+    $user_id = intval($_POST['user_id']);
+    $default_password = '12345';
     
-    if (changePassword($conn, $user_id, $new_password)) {
-        $message = 'Đặt lại mật khẩu thành công!';
+    // Hash mật khẩu trước khi lưu
+    $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
+    
+    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE User_id = ?");
+    $stmt->bind_param("si", $hashed_password, $user_id);
+    
+    if ($stmt->execute()) {
+        $message = '✅ Đã đặt lại mật khẩu thành <strong>12345</strong> cho tài khoản này!';
     } else {
-        $error = 'Có lỗi xảy ra!';
+        $error = '❌ Có lỗi xảy ra khi đặt lại mật khẩu!';
     }
+    $stmt->close();
 }
 
 // Lấy danh sách người dùng
@@ -125,28 +139,25 @@ $users_json = json_encode($users);
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-md sticky top-0 z-50 h-[70px] flex items-center w-full">
-        <div class="w-full px-6 flex justify-between items-center">
-            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">
-                NVBPlay Admin Panel
-            </h1>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold shadow-lg">
-                        <?php echo strtoupper(substr($_SESSION['admin_name'] ?? 'A', 0, 1)); ?>
+   <!-- HEADER -->
+   <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="flex justify-between items-center px-6 py-4">
+            <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
+                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
+                        <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800">
-                            <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>
-                            <span class="ml-2 text-xs bg-gradient-custom text-white px-2 py-0.5 rounded-full">Admin</span>
+                        <p class="font-semibold text-sm text-gray-800">
+                           
                         </p>
-                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($_SESSION['admin_username'] ?? ''); ?></p>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
-                <a href="logout.php" class="flex items-center gap-2 text-red-500 hover:text-red-700 transition font-medium">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
+                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                </button>
             </div>
         </div>
     </header>
@@ -283,7 +294,12 @@ $users_json = json_encode($users);
                                         <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition shadow-sm" title="Chỉnh sửa">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        
+                                        <!-- ✅ NÚT RESET MẬT KHẨU MỚI -->
+        <button onclick="resetPasswordDefault(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
+                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" 
+                title="Đặt lại mật khẩu thành 12345">
+            <i class="fas fa-key text-xs"></i>
+        </button>
                                         <?php if ($user['status'] === 1): ?>
                                             <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
                                                 <i class="fas fa-ban text-xs"></i>
@@ -297,6 +313,11 @@ $users_json = json_encode($users);
                                 </td>
                             </tr>
                             <?php endforeach; ?>
+                            <!-- Form ẩn để reset mật khẩu -->
+<form id="resetDefaultForm" method="POST" style="display:none;">
+    <input type="hidden" name="user_id" id="resetDefaultUserId">
+    <input type="hidden" name="reset_to_default" value="1">
+</form>
                         </tbody>
                     </table>
                 </div>
@@ -447,7 +468,13 @@ $users_json = json_encode($users);
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
-
+// ✅ Hàm reset mật khẩu về 12345 với xác nhận
+function resetPasswordDefault(userId, username) {
+    if (confirm(`⚠️ Bạn có chắc muốn ĐẶT LẠI mật khẩu của tài khoản "${username}" thành "12345"?`)) {
+        document.getElementById('resetDefaultUserId').value = userId;
+        document.getElementById('resetDefaultForm').submit();
+    }
+}
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.add('hidden');
