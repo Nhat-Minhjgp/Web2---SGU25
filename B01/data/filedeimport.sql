@@ -158,12 +158,7 @@ INSERT INTO `nhacungcap` (`NCC_id`, `Ten_NCC`) VALUES
 (1, 'Sunrise'),
 (2, 'Elipsport'),
 (3, 'Minh Sport'),
-(4, 'Sunrise'),
-(5, 'Elipsport'),
-(6, 'Minh Sport'),
-(7, 'Sunrise'),
-(8, 'Elipsport'),
-(9, 'Minh Sport');
+
 
 -- --------------------------------------------------------
 
