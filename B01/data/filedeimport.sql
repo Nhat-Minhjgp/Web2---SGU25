@@ -158,12 +158,7 @@ INSERT INTO `nhacungcap` (`NCC_id`, `Ten_NCC`) VALUES
 (1, 'Sunrise'),
 (2, 'Elipsport'),
 (3, 'Minh Sport'),
-(4, 'Sunrise'),
-(5, 'Elipsport'),
-(6, 'Minh Sport'),
-(7, 'Sunrise'),
-(8, 'Elipsport'),
-(9, 'Minh Sport');
+
 
 -- --------------------------------------------------------
 
@@ -258,6 +253,9 @@ INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`) VALUES
 (1, 'Li-Ning', 'li-ning'),
 (2, 'Yonex', 'yonex'),
 (3, 'Victor', 'victor');
+(4, 'Venson', 'venson');
+(5, 'Mizuno', 'mizuno');
+(6, 'Kumpoo', 'kumpoo');
 
 -- --------------------------------------------------------
 
@@ -774,7 +772,6 @@ INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuong
 (11, 'Vợt Pickleball Joola Perseus', 3, 6, 2, 'đắt vãi ò', '/img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000,NULL , 0.15, 1, '2026-03-20 22:16:21', 4),
 (12, 'Vợt Pickleball JOOLA Ben Johns', 3, 6, 1, 'đắt vãi ò', '/img/sanpham/joola-ben-johns-hyperion.png', 2100000, NULL, 0.15, 1, '2026-03-20 22:16:21', 10),
 (13, 'Vợt Pickleball Soxter Impact', 3, 6, 3, 'đắt vãi ò', '/img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000,NULL , 0.15, 1, '2026-03-20 22:16:21', 6),
-(14, 'Hoàng chou', 2, 6, 3, 'sjdflsflsjlfksd', '/img/products/PROD-20260323134545-69c135f98a177.jpg', NULL, NULL, 20.00, 1, '2026-03-23 19:45:45', 0);
 
 
 INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
@@ -797,20 +794,7 @@ INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES
 
 
 INSERT INTO `phieunhap` ( `NguoiNhap`, `NgayNhap`, `SoLuong`) VALUES
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0);
+
 
 INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
 (1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
