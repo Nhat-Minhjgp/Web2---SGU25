@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 // Lấy thông tin admin
-$admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
+$admin_name = $_SESSION['Username'] ?? '';
 $admin_role = $_SESSION['admin_role'] ?? '';
 $admin_username = $_SESSION['admin_username'] ?? '';
 ?>
@@ -80,16 +80,11 @@ $admin_username = $_SESSION['admin_username'] ?? '';
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
-                        <?php echo strtoupper(substr($admin_name, 0, 1)); ?>
+                        <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
                         <p class="font-semibold text-sm text-gray-800">
-                            <?php echo htmlspecialchars($admin_name); ?>
-                            <?php if ($admin_role === 'admin'): ?>
-                                <span class="ml-2 px-2 py-1 text-xs rounded-full text-white role-badge-admin">Admin</span>
-                            <?php else: ?>
-                                <span class="ml-2 px-2 py-1 text-xs rounded-full text-white role-badge-staff">Staff</span>
-                            <?php endif; ?>
+                           
                         </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
@@ -143,12 +138,9 @@ $admin_username = $_SESSION['admin_username'] ?? '';
         <!-- MAIN CONTENT -->
         <main class="flex-1 p-8">
             <div class="bg-white rounded-xl shadow-lg p-8 animate-fadeIn">
-                <h2 class="text-3xl font-bold text-gradient-custom mb-4">Xin chào, <?php echo htmlspecialchars($admin_name); ?>!</h2>
+                <h2 class="text-3xl font-bold text-gradient-custom mb-4">Xin chào, <?php echo htmlspecialchars($admin_username); ?>!</h2>
                 <p class="text-gray-600 mb-2">Chào mừng bạn quay trở lại hệ thống quản lý NVBPlay. Hôm nay là ngày <?php echo date('d/m/Y'); ?>.</p>
-                <p class="text-gray-600 mb-8">Bạn đang đăng nhập với vai trò: 
-                    <strong class="<?php echo $admin_role === 'admin' ? 'text-gradient-custom' : 'text-green-600'; ?>">
-                        <?php echo $admin_role === 'admin' ? 'Quản trị viên' : 'Nhân viên'; ?>
-                    </strong>
+                <p class="text-gray-600 mb-8">
                 </p>
                 
                 <!-- Stats Grid -->
