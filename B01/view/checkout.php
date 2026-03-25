@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 			// 2. Chèn đơn hàng
 			$order_total_int = (int) round($order_total);
-			$stmt = $conn->prepare("INSERT INTO donhang (User_id, DiaChi_id, PhuongThucTT, TongTien, NgayDat, TrangThai, linkTraCuu) VALUES (?, ?, ?, ?, NOW(), 'Chờ xác nhận', ?)");
+			$stmt = $conn->prepare("INSERT INTO donhang (User_id, DiaChi_id, PhuongThucTT, TongTien, NgayDat, TrangThai, linkTraCuu) VALUES (?, ?, ?, ?, NOW(), 0, ?)");
 			$stmt->bind_param("iisds", $user_id, $selected_address_id, $payment_method, $order_total_int, $link_tra_cuu);
 			if (!$stmt->execute()) {
 				throw new Exception("Insert donhang failed: " . $stmt->error);
@@ -690,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 									<!-- Online Payment -->
 									<label
 										class="payment-method-item flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition"
-										data-payment="appota">
+										data-payment="banking">
 										<input type="radio" name="payment_method" value="banking"
 											class="text-[#FF3F1A] payment-radio">
 										<span class="flex-1 font-medium">Thanh toán trực tuyến</span>
@@ -988,7 +988,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 						if (item.dataset.payment === this.value) item.classList.add('active');
 					});
 					if (els.bankInfo) {
-						els.bankInfo.style.display = (this.value === 'appota') ? 'block' : 'none';
+						els.bankInfo.style.display = (this.value === 'banking') ? 'block' : 'none';
 					}
 				});
 			});
