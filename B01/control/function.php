@@ -219,5 +219,49 @@ function adminLogin($conn, $username, $password) {
     }
     return false;
 }
-
+/*
+* Cập nhật sản phẩm
+ */
+function updateProduct($conn, $product_id, $data) {
+    $sql = "UPDATE sanpham SET 
+            TenSP = ?, 
+            Danhmuc_id = ?, 
+            NCC_id = ?, 
+            Ma_thuonghieu = ?, 
+            MoTa = ?, 
+            image_url = ?, 
+            GiaNhapTB = ?, 
+            GiaBan = ?, 
+            PhanTramLoiNhuan = ?, 
+            TrangThai = ?, 
+            WHERE SanPham_id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    
+    // Xử lý các giá trị null
+    $danhmuc_id = !empty($data['danhmuc_id']) ? $data['danhmuc_id'] : null;
+    $ncc_id = !empty($data['ncc_id']) ? $data['ncc_id'] : null;
+    $thuonghieu_id = !empty($data['thuonghieu_id']) ? $data['thuonghieu_id'] : null;
+    $gia_nhap = isset($data['gia_nhap']) ? $data['gia_nhap'] : null;
+    $gia_ban = $data['gia_ban'];
+    $phan_tram = isset($data['phan_tram_loi_nhuan']) ? $data['phan_tram_loi_nhuan'] : null;
+    $image_url = isset($data['image_url']) ? $data['image_url'] : null;
+    
+    $stmt->bind_param("siiisssddssi",
+        $data['ten_sp'],
+        $danhmuc_id,
+        $ncc_id,
+        $thuonghieu_id,
+        $data['mota'],
+        $image_url,
+        $gia_nhap,
+        $gia_ban,
+        $phan_tram,
+        $data['trang_thai'],
+        $data['so_luong_ton'],
+        $product_id
+    );
+    
+    return $stmt->execute();
+}
 ?>
