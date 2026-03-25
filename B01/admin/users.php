@@ -3,8 +3,6 @@ session_start();
 require_once __DIR__ . '/../control/connect.php';
 require_once __DIR__ . '/../control/function.php';
 
-
-
 // Lấy thông tin admin
 $admin_name = $_SESSION['Username'] ?? '';
 $admin_role = $_SESSION['admin_role'] ?? '';
@@ -21,11 +19,16 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     $user_id = intval($_GET['id']);
     
     if ($_GET['action'] == 'lock') {
-        toggleUserStatus($conn, $user_id, 'blocked');
+        toggleUserStatus($conn, $user_id, '0');
         $message = 'Đã khóa tài khoản thành công!';
+        // Chuyển hướng để tránh submit lại khi refresh
+        header('Location: users.php');
+        exit();
     } elseif ($_GET['action'] == 'unlock') {
-        toggleUserStatus($conn, $user_id, 'active');
+        toggleUserStatus($conn, $user_id, '1');
         $message = 'Đã mở khóa tài khoản thành công!';
+        header('Location: users.php');
+        exit();
     }
 }
 
@@ -66,10 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
     }
 }
 
-// Xử lý reset mật khẩu về mặc định 12345
+// Xử lý reset mật khẩu về mặc định 123456
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
     $user_id = intval($_POST['user_id']);
-    $default_password = '12345';
+    $default_password = '123456';
     
     // Hash mật khẩu trước khi lưu
     $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
@@ -78,9 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
     $stmt->bind_param("si", $hashed_password, $user_id);
     
     if ($stmt->execute()) {
-        $message = ' Đã đặt lại mật khẩu thành <strong>12345</strong> cho tài khoản này!';
+        $message = 'Đã đặt lại mật khẩu thành <strong>123456</strong> cho tài khoản này!';
     } else {
-        $error = ' Có lỗi xảy ra khi đặt lại mật khẩu!';
+        $error = 'Có lỗi xảy ra khi đặt lại mật khẩu!';
     }
     $stmt->close();
 }
@@ -102,7 +105,7 @@ $users_json = json_encode($users);
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Cấu hình màu sắc giống design cũ -->
+    <!-- Cấu hình màu sắc -->
     <script>
         tailwind.config = {
             theme: {
@@ -119,21 +122,12 @@ $users_json = json_encode($users);
         }
     </script>
     <style>
-        /* Chỉ giữ lại animation cho modal, không giữ lại style layout */
         @keyframes slideIn {
             from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         .animate-slide-in {
             animation: slideIn 0.3s ease-out forwards;
-        }
-        /* Ẩn thanh cuộn nhưng vẫn cuộn được */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
         }
     </style>
 </head>
@@ -150,9 +144,9 @@ $users_json = json_encode($users);
                     </div>
                     <div>
                         <p class="font-semibold text-sm text-gray-800">
-                           
+                            <?php echo htmlspecialchars($admin_username); ?>
                         </p>
-                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
+                        <p class="text-xs text-gray-500">Quản trị viên</p>
                     </div>
                 </div>
                 <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
@@ -177,7 +171,6 @@ $users_json = json_encode($users);
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
                     <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
                 </a>
-               
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>
@@ -267,10 +260,12 @@ $users_json = json_encode($users);
                                     <?php 
                                     $roleClass = '';
                                     $roleName = '';
-                                    if ($user['role'] === 1) {
+                                    if ($user['role'] == 'admin' || $user['role'] == 1) {
                                         $roleClass = 'bg-gradient-custom text-white';
                                         $roleName = 'Admin';
-                                    
+                                    } elseif ($user['role'] == 'staff' || $user['role'] == 2) {
+                                        $roleClass = 'bg-blue-500 text-white';
+                                        $roleName = 'Nhân viên';
                                     } else {
                                         $roleClass = 'bg-gray-500 text-white';
                                         $roleName = 'Khách hàng';
@@ -279,10 +274,14 @@ $users_json = json_encode($users);
                                     <span class="px-3 py-1 rounded-full text-xs font-medium <?php echo $roleClass; ?>"><?php echo $roleName; ?></span>
                                 </td>
                                 <td class="p-4">
-                                    <?php if ($user['status'] === 'active'): ?>
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">Đang hoạt động</span>
+                                    <?php if ($user['status'] === 'active' || $user['status'] == 1): ?>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                                            <i class="fas fa-check-circle mr-1 text-xs"></i> Đang hoạt động
+                                        </span>
                                     <?php else: ?>
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200">Đã khóa</span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200">
+                                            <i class="fas fa-ban mr-1 text-xs"></i> Đã khóa
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="p-4 text-gray-600 text-sm"><?php echo date('d/m/Y', strtotime($user['created_at'])); ?></td>
@@ -294,30 +293,30 @@ $users_json = json_encode($users);
                                         <button onclick="editUser(<?php echo $user['User_id']; ?>)" class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition shadow-sm" title="Chỉnh sửa">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <!-- ✅ NÚT RESET MẬT KHẨU MỚI -->
-        <button onclick="resetPasswordDefault(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
-                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" 
-                title="Đặt lại mật khẩu thành 12345">
-            <i class="fas fa-key text-xs"></i>
-        </button>
-                                        <?php if ($user['status'] === 1): ?>
-                                            <a href="?action=lock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')">
+                                        <button onclick="resetPasswordDefault(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
+                                                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" 
+                                                title="Đặt lại mật khẩu thành 123456">
+                                            <i class="fas fa-key text-xs"></i>
+                                        </button>
+                                        <?php if ($user['status'] === 'active' || $user['status'] == 1): ?>
+                                            <!-- Nút KHÓA tài khoản (màu đỏ) -->
+                                            <button onclick="lockUser(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
+                                                    class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" 
+                                                    title="Khóa tài khoản">
                                                 <i class="fas fa-ban text-xs"></i>
-                                            </a>
+                                            </button>
                                         <?php else: ?>
-                                            <a href="?action=unlock&id=<?php echo $user['User_id']; ?>" class="w-8 h-8 rounded bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')">
+                                            <!-- Nút MỞ KHÓA tài khoản (màu xanh lá) -->
+                                            <button onclick="unlockUser(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
+                                                    class="w-8 h-8 rounded bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm" 
+                                                    title="Mở khóa tài khoản">
                                                 <i class="fas fa-check-circle text-xs"></i>
-                                            </a>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
-                            <!-- Form ẩn để reset mật khẩu -->
-<form id="resetDefaultForm" method="POST" style="display:none;">
-    <input type="hidden" name="user_id" id="resetDefaultUserId">
-    <input type="hidden" name="reset_to_default" value="1">
-</form>
                         </tbody>
                     </table>
                 </div>
@@ -437,26 +436,11 @@ $users_json = json_encode($users);
         </div>
     </div>
 
-    <!-- MODAL ĐẶT LẠI MẬT KHẨU -->
-    <div id="resetModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
-        <div class="bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
-            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
-                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-key"></i> Đặt lại mật khẩu</h3>
-                <button onclick="closeModal('resetModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
-            </div>
-            <form method="POST" class="p-6">
-                <input type="hidden" name="user_id" id="resetUserId">
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mật khẩu mới</label>
-                    <input type="password" name="new_password" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <button type="button" onclick="closeModal('resetModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
-                    <button type="submit" name="reset_password" class="px-5 py-2.5 rounded-lg bg-yellow-400 text-gray-800 hover:bg-yellow-500 transition font-medium shadow-lg">Đặt lại</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Form ẩn để reset mật khẩu -->
+    <form id="resetDefaultForm" method="POST" style="display:none;">
+        <input type="hidden" name="user_id" id="resetDefaultUserId">
+        <input type="hidden" name="reset_to_default" value="1">
+    </form>
 
     <!-- SCRIPT -->
     <script>
@@ -468,13 +452,7 @@ $users_json = json_encode($users);
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
-// ✅ Hàm reset mật khẩu về 12345 với xác nhận
-function resetPasswordDefault(userId, username) {
-    if (confirm(`⚠️ Bạn có chắc muốn ĐẶT LẠI mật khẩu của tài khoản "${username}" thành "12345"?`)) {
-        document.getElementById('resetDefaultUserId').value = userId;
-        document.getElementById('resetDefaultForm').submit();
-    }
-}
+
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.add('hidden');
@@ -482,16 +460,38 @@ function resetPasswordDefault(userId, username) {
             document.body.style.overflow = 'auto';
         }
 
+        // Hàm khóa tài khoản với xác nhận
+        function lockUser(userId, username) {
+            if (confirm(`⚠️ Bạn có chắc muốn KHÓA tài khoản "${username}"?`)) {
+                window.location.href = `?action=lock&id=${userId}`;
+            }
+        }
+
+        // Hàm mở khóa tài khoản với xác nhận
+        function unlockUser(userId, username) {
+            if (confirm(`✅ Bạn có chắc muốn MỞ KHÓA tài khoản "${username}"?`)) {
+                window.location.href = `?action=unlock&id=${userId}`;
+            }
+        }
+
+        // Hàm reset mật khẩu về 12345
+        function resetPasswordDefault(userId, username) {
+            if (confirm(`⚠️ Bạn có chắc muốn ĐẶT LẠI mật khẩu của tài khoản "${username}" thành "123456"?`)) {
+                document.getElementById('resetDefaultUserId').value = userId;
+                document.getElementById('resetDefaultForm').submit();
+            }
+        }
+
         function viewUser(userId) {
             const user = users.find(u => u.User_id == userId);
             
             if (user) {
-                const statusText = user.status === 'active' ? 'Đang hoạt động' : 'Đã khóa';
-                const statusColor = user.status === 'active' ? 'text-green-600' : 'text-red-600';
+                const statusText = (user.status === 'active' || user.status == 1) ? 'Đang hoạt động' : 'Đã khóa';
+                const statusColor = (user.status === 'active' || user.status == 1) ? 'text-green-600' : 'text-red-600';
                 
                 let roleText = '';
-                if (user.role === 'admin') roleText = 'Admin';
-                else if (user.role === 'staff') roleText = 'Nhân viên';
+                if (user.role == 'admin' || user.role == 1) roleText = 'Admin';
+                else if (user.role == 'staff' || user.role == 2) roleText = 'Nhân viên';
                 else roleText = 'Khách hàng';
                 
                 const html = `
@@ -530,19 +530,15 @@ function resetPasswordDefault(userId, username) {
                 document.getElementById('editFullname').value = user.Ho_ten || '';
                 document.getElementById('editEmail').value = user.email || '';
                 document.getElementById('editPhone').value = user.SDT || '';
-                document.getElementById('editRole').value = user.role;
-                document.getElementById('editStatus').value = user.status;
+                document.getElementById('editRole').value = (user.role == 'admin' || user.role == 1) ? 'admin' : ((user.role == 'staff' || user.role == 2) ? 'staff' : 'customer');
+                document.getElementById('editStatus').value = (user.status === 'active' || user.status == 1) ? 'active' : 'blocked';
                 openModal('editModal');
             } else {
                 alert('Không tìm thấy người dùng!');
             }
         }
 
-        function resetPassword(userId) {
-            document.getElementById('resetUserId').value = userId;
-            openModal('resetModal');
-        }
-
+        // Filter Table
         document.getElementById('searchInput').addEventListener('keyup', filterTable);
         document.getElementById('roleFilter').addEventListener('change', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
@@ -558,16 +554,22 @@ function resetPasswordDefault(userId, username) {
                 const fullname = row.cells[2].textContent.toLowerCase();
                 const email = row.cells[3].textContent.toLowerCase();
                 const role = row.cells[4].textContent.trim().toLowerCase();
-                const status = row.cells[5].textContent.trim();
+                const status = row.cells[5].textContent.trim().toLowerCase();
 
                 let matchSearch = searchValue === '' || username.includes(searchValue) || fullname.includes(searchValue) || email.includes(searchValue);
                 let matchRole = roleValue === '' || role.includes(roleValue);
                 let matchStatus = statusValue === '' || 
-                    (statusValue === 'active' && status === 'Đang hoạt động') ||
-                    (statusValue === 'blocked' && status === 'Đã khóa');
+                    (statusValue === '1' && status.includes('đang hoạt động')) ||
+                    (statusValue === '0' && status.includes('đã khóa'));
 
                 row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
             });
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                window.location.href = 'logout.php';
+            }
         }
 
         window.onclick = function(event) {

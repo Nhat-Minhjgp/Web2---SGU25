@@ -67,7 +67,6 @@ if (!$result) {
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm text-gray-800"><?php echo htmlspecialchars($admin_name); ?></p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
@@ -86,7 +85,10 @@ if (!$result) {
                 <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-home w-5"></i> Dashboard</a>
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-users w-5"></i> Quản lý người dùng</a>
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-box w-5"></i> Quản lý sản phẩm</a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md"><i class="fas fa-arrow-down w-5"></i> Quản lý nhập hàng</a>
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md"><i class="fas fa-arrow-down w-5"></i> Quản lý nhập hàng</a><a href="price.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-tag w-5 text-gray-500"></i>
+                    <span>Quản lý giá bán</span>
+                </a>
                 <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-receipt w-5"></i> Quản lý đơn hàng</a>
                 <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-warehouse w-5"></i> Tồn kho & Báo cáo</a>
             </nav>

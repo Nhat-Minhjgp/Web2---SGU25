@@ -33,7 +33,7 @@ $success = '';
 
 // Xử lý xóa hình ảnh
 if (isset($_POST['remove_image'])) {
-    $target_dir = "../uploads/";
+    $target_dir = "../";
     if ($product['image_url'] && file_exists($target_dir . $product['image_url'])) {
         unlink($target_dir . $product['image_url']);
     }
@@ -48,7 +48,7 @@ if (isset($_POST['remove_image'])) {
     }
 }
 
-// Xử lý cập nhật sản phẩm (KHÔNG CẬP NHẬT giá nhập và số lượng tồn)
+// Xử lý cập nhật sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     $data = [
         'ten_sp' => $_POST['ten_sp'],
@@ -56,15 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
         'ncc_id' => $_POST['ncc_id'] ?: null,
         'thuonghieu_id' => $_POST['thuonghieu_id'] ?: null,
         'mota' => $_POST['mota'],
-        'gia_ban' => $_POST['gia_ban'],
         'phan_tram_loi_nhuan' => $_POST['phan_tram_loi_nhuan'],
         'trang_thai' => $_POST['trang_thai'],
         'don_vi' => $_POST['don_vi']
     ];
     
+    // Tính giá bán từ giá nhập và tỷ lệ lợi nhuận
+    $data['gia_ban'] = $product['GiaNhapTB'] * (1 + $data['phan_tram_loi_nhuan'] / 100);
+    
     // Xử lý upload hình mới
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $target_dir = "../uploads/";
+        $target_dir = "../";
         if (!file_exists($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
@@ -93,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     }
     
     if (empty($error)) {
-        // Cập nhật sản phẩm (KHÔNG cập nhật GiaNhapTB và SoLuongTon)
+        // Cập nhật sản phẩm
         $sql = "UPDATE sanpham SET 
                 TenSP = ?, 
                 Danhmuc_id = ?, 
@@ -185,6 +187,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             font-size: 12px;
             margin-left: 10px;
         }
+        .price-calculated {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            color: #1f2937;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -218,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                 <?php endif; ?>
                 
                 <!-- Form sửa sản phẩm -->
-                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                <form method="POST" enctype="multipart/form-data" class="space-y-4" id="productForm">
                     <input type="hidden" name="update_product" value="1">
                     
                     <div class="grid grid-cols-2 gap-4">
@@ -292,16 +299,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                         <div class="form-group">
                             <label class="form-label">
                                 Giá nhập (VNĐ)
+                                <span class="info-badge">Không thể sửa</span>
                             </label>
                             <input type="text" value="<?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>đ" readonly class="form-control bg-gray-100">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tỷ lệ lợi nhuận (%)</label>
-                            <input type="number" name="phan_tram_loi_nhuan" value="<?php echo $product['PhanTramLoiNhuan']; ?>" step="0.01" class="form-control" id="phan_tram" onchange="tinhGiaBan()">
+                            <input type="number" name="phan_tram_loi_nhuan" id="phan_tram" value="<?php echo $product['PhanTramLoiNhuan']; ?>" step="0.01" class="form-control" onchange="tinhGiaBan()" onkeyup="tinhGiaBan()">
+                            <p class="text-xs text-gray-500 mt-1">Thay đổi để tự động tính giá bán</p>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Giá bán (VNĐ)</label>
-                            <input type="number" name="gia_ban" value="<?php echo $product['GiaBan']; ?>" class="form-control" id="gia_ban">
+                            <label class="form-label">
+                                Giá bán (VNĐ)
+                                <span class="info-badge">Tự động tính</span>
+                            </label>
+                            <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
+                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + % lợi nhuận/100)</p>
                         </div>
                     </div>
                     
@@ -309,6 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                         <div class="form-group">
                             <label class="form-label">
                                 Số lượng tồn kho
+                                <span class="info-badge">Không thể sửa</span>
                             </label>
                             <input type="text" value="<?php echo $product['SoLuongTon']; ?> sản phẩm" readonly class="form-control bg-gray-100">
                         </div>
@@ -327,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                         
                         <?php if ($product['image_url']): ?>
                             <div class="mb-3 p-4 bg-gray-50 rounded-lg flex items-center space-x-4">
-                                <img src="../uploads/<?php echo $product['image_url']; ?>" class="product-img-preview" alt="Product image">
+                                <img src="../<?php echo $product['image_url']; ?>" class="product-img-preview" alt="Product image">
                                 <div>
                                     <p class="text-sm text-gray-600">Hình ảnh hiện tại</p>
                                     <button type="submit" name="remove_image" value="1" class="mt-2 text-red-500 hover:text-red-700 text-sm flex items-center" onclick="return confirm('Bạn có chắc muốn xóa hình ảnh này?')">
@@ -367,13 +381,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
         const giaNhapGoc = <?php echo $product['GiaNhapTB']; ?>;
         
         function tinhGiaBan() {
-            let giaNhap = giaNhapGoc;
             let phanTram = parseFloat(document.getElementById('phan_tram').value);
-            if (!isNaN(giaNhap) && !isNaN(phanTram) && giaNhap > 0) {
-                let giaBan = giaNhap * (1 + phanTram);
-                document.getElementById('gia_ban').value = Math.round(giaBan);
+            
+            // Kiểm tra giá trị hợp lệ
+            if (isNaN(phanTram)) {
+                phanTram = 0;
+            }
+            
+            if (giaNhapGoc > 0) {
+                // Công thức tính giá bán: Giá nhập × (1 + % lợi nhuận/100)
+                let giaBan = giaNhapGoc * (1 + phanTram / 100);
+                // Làm tròn và hiển thị
+                document.getElementById('gia_ban').value = Math.round(giaBan).toLocaleString('vi-VN') + 'đ';
+            } else {
+                document.getElementById('gia_ban').value = '0đ';
             }
         }
+        
+        // Tự động tính khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            tinhGiaBan();
+        });
     </script>
 </body>
 </html>
