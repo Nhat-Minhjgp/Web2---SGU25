@@ -202,7 +202,7 @@ function getStatusBadge($status) {
         </div>
 
         <!-- Order Items -->
-        <h3 class="font-semibold text-gray-900 mb-3">📦 Sản phẩm đã đặt</h3>
+        <h3 class="font-semibold text-gray-900 mb-3"> Sản phẩm đã đặt</h3>
         <div class="border rounded-lg overflow-hidden mb-6">
             <table class="w-full">
                 <thead class="bg-gray-50">
@@ -243,7 +243,7 @@ function getStatusBadge($status) {
         </div>
 
         <!-- Order Status Timeline -->
-        <h3 class="font-semibold text-gray-900 mb-3">📍 Tiến trình đơn hàng</h3>
+        <h3 class="font-semibold text-gray-900 mb-3"> Tiến trình đơn hàng</h3>
         <div class="bg-gray-50 rounded-lg p-6 mb-6">
             <div class="timeline-item <?php echo in_array($order['TrangThai'], ['Chờ xác nhận','Đã xác nhận','Đang giao','Hoàn thành']) ? 'completed' : ''; ?>">
                 <p class="font-medium text-gray-900">Đơn hàng đã đặt</p>
