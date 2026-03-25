@@ -44,20 +44,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Đã thêm sản phẩm vào giỏ hàng!";
         }
     }
-
-    // Cập nhật số lượng
+    // cập nhập số lượng
     if (isset($_POST['update_cart'])) {
         $quantities = $_POST['quantity'] ?? [];
         foreach ($quantities as $product_id => $qty) {
             $product_id = (int) $product_id;
             $qty = (int) $qty;
             if ($qty > 0) {
-                $_SESSION['cart'][$product_id] = $qty;
+                // Kiểm tra tồn kho thực tế từ DB
+                $stmt_check = $conn->prepare("SELECT SoLuongTon FROM sanpham WHERE SanPham_id = ? AND TrangThai = 1");
+                $stmt_check->bind_param("i", $product_id);
+                $stmt_check->execute();
+                $row = $stmt_check->get_result()->fetch_assoc();
+                $stmt_check->close();
+
+                if ($row) {
+                    $ton_kho = (int) $row['SoLuongTon'];
+                    if ($qty > $ton_kho) {
+                        $qty = $ton_kho; // Tự giới hạn về mức tồn kho
+                        $errors[] = "Một sản phẩm đã được điều chỉnh về số lượng tối đa trong kho ($ton_kho).";
+                    }
+                    $_SESSION['cart'][$product_id] = $qty;
+                }
             } else {
                 unset($_SESSION['cart'][$product_id]);
             }
         }
-        $success = "Cập nhật giỏ hàng thành công!";
+        if (empty($errors))
+            $success = "Cập nhật giỏ hàng thành công!";
     }
 
     // Xóa sản phẩm
@@ -712,8 +726,12 @@ $user_info = [
 
                 <div class="flex flex-col lg:flex-row gap-4">
                     <!-- Cart Items (Left Column) -->
+                    <!-- Cart Items (Left Column) -->
                     <div class="w-full lg:w-2/3">
                         <form method="POST" action="" id="cartForm">
+                            <!-- ✅ THÊM DÒNG NÀY -->
+                            <input type="hidden" name="update_cart" value="1">
+
                             <!-- Cart Header (Desktop) -->
                             <div
                                 class="hidden md:grid grid-cols-[4fr,0.85fr,1.3fr,1.5fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
@@ -726,9 +744,8 @@ $user_info = [
                             <!-- Cart Items List -->
                             <div class="bg-white rounded-b-lg shadow-sm divide-y divide-gray-200">
                                 <?php if (!empty($cart_items)): ?>
-                                    <?php foreach ($cart_items as $item):
-                                        $discount = calculateDiscount($item['GiaNhapTB'] ?? 0, $item['GiaBan']);
-                                        ?>
+                                    <?php foreach ($cart_items as $item): ?>
+                                        <!-- Product Item -->
                                         <div
                                             class="p-4 md:p-0 md:grid md:grid-cols-[4fr,0.7fr,1.85fr,0.6fr] md:gap-4 md:items-center">
                                             <!-- Product Info -->
@@ -743,20 +760,25 @@ $user_info = [
                                                     </a>
                                                     <!-- Mobile price & quantity -->
                                                     <div class="md:hidden flex items-center justify-between mt-2">
-                                                        <span
-                                                            class="text-sm font-medium text-gray-900"><?php echo formatPrice($item['GiaBan']); ?></span>
+                                                        <span class="text-sm font-medium text-gray-900">
+                                                            <?php echo formatPrice($item['GiaBan']); ?>
+                                                        </span>
                                                         <div class="flex items-center border border-gray-300 rounded">
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, -1)">-</button>
                                                             <input type="number"
                                                                 name="quantity[<?php echo $item['SanPham_id']; ?>]"
                                                                 value="<?php echo $item['SoLuong']; ?>" min="1"
+                                                                max="<?php echo (int) $item['SoLuongTon']; ?>"
+                                                                data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
+
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, 1)">+</button>
                                                         </div>
-                                                        <span
-                                                            class="font-semibold text-red-600"><?php echo formatPrice($item['Thanhtien']); ?></span>
+                                                        <span class="font-semibold text-red-600">
+                                                            <?php echo formatPrice($item['Thanhtien']); ?>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -773,6 +795,8 @@ $user_info = [
                                                         onclick="updateQty(this, -1)">-</button>
                                                     <input type="number" name="quantity[<?php echo $item['SanPham_id']; ?>]"
                                                         value="<?php echo $item['SoLuong']; ?>" min="1"
+                                                        max="<?php echo (int) $item['SoLuongTon']; ?>"
+                                                        data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
                                                         class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
                                                     <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                         onclick="updateQty(this, 1)">+</button>
@@ -781,11 +805,12 @@ $user_info = [
 
                                             <!-- Subtotal & Remove (Desktop) -->
                                             <div class="hidden md:flex justify-end items-center gap-4">
-                                                <span
-                                                    class="font-semibold text-red-600"><?php echo formatPrice($item['Thanhtien']); ?></span>
+                                                <span class="font-semibold text-red-600">
+                                                    <?php echo formatPrice($item['Thanhtien']); ?>
+                                                </span>
                                                 <button type="button" onclick="removeItem(<?php echo $item['SanPham_id']; ?>)"
                                                     class="text-gray-400 hover:text-red-600 ml-5 mr-5" title="Xóa">
-                                                    <i class="fas fa-trash-alt "></i>
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
 
@@ -810,24 +835,8 @@ $user_info = [
                                     </div>
                                 <?php endif; ?>
                             </div>
-
-                            <!-- Continue Shopping & Actions -->
-                            <?php if (!empty($cart_items)): ?>
-                                <div class="mt-4 flex flex-col sm:flex-row gap-4 justify-between">
-                                    <a href="../view/shop.php"
-                                        class="inline-flex items-center text-red-600 hover:underline">
-                                        <i class="fas fa-arrow-left mr-2"></i> Tiếp tục xem sản phẩm
-                                    </a>
-                                    <div class="flex gap-3">
-                                        <button type="button" onclick="clearCart()"
-                                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                                            <i class="fas fa-trash mr-2"></i>Xóa tất cả
-                                        </button>
-
-                                    </div>
-                                </div>
-                            <?php endif; ?>
                         </form>
+
 
                         <!--  SẢN PHẨM RECOMMEND THEO DANH MỤC -->
                         <?php if ($recommended_products && $recommended_products->num_rows > 0): ?>
@@ -895,7 +904,7 @@ $user_info = [
                                     <i class="fas fa-credit-card mr-2"></i>Tiến hành thanh toán
                                 </a>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -1267,11 +1276,23 @@ $user_info = [
             // === QUANTITY UPDATE ===
             window.updateQty = function (btn, change) {
                 const input = btn.parentNode.querySelector('input');
+                const productId = input.name.match(/\[(\d+)\]/)[1];
+                const stock = parseInt(input.dataset.stock) || 999;
                 let val = parseInt(input.value);
                 if (isNaN(val)) val = 1;
                 let newVal = val + change;
                 if (newVal < 1) newVal = 1;
+                if (newVal > stock) {
+                    newVal = stock;
+                    alert(`Chỉ còn ${stock} sản phẩm trong kho!`);
+                }
                 input.value = newVal;
+
+                fetch('', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `update_cart=1&quantity[${productId}]=${newVal}`
+                }).then(() => location.reload());
             }
 
             // === REMOVE ITEM ===

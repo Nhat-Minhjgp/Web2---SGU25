@@ -1,6 +1,6 @@
 <?php
 /**
- * Checkout Page - NVBPlay Style (FIXED)
+ * Checkout Page - NVBPlay Style 
  */
 session_start();
 require_once '../control/connect.php';
@@ -34,18 +34,13 @@ if (!$user_info) {
 
 // === LẤY ĐỊA CHỈ MẶC ĐỊNH ===
 $default_address = null;
+$default_full_address = '';
 $stmt = $conn->prepare("SELECT * FROM diachigh WHERE User_id = ? AND Mac_dinh = 1 LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows > 0) {
 	$default_address = $result->fetch_assoc();
-}
-$stmt->close();
-
-// Build default full address
-$default_full_address = '';
-if ($default_address) {
 	$parts = array_filter([
 		$default_address['Duong'],
 		$default_address['Quan'],
@@ -54,6 +49,7 @@ if ($default_address) {
 	]);
 	$default_full_address = implode(', ', $parts);
 }
+$stmt->close();
 
 // === KHỞI TẠO BIẾN CART ===
 $cart_items = [];
@@ -128,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			$errors[] = "Sản phẩm '{$item['TenSP']}' chỉ còn {$item['SoLuongTon']} trong kho, bạn đặt $qty";
 		}
 	}
-
 	if (empty($errors)) {
 		$tracking_code = 'NVB' . date('Ymd') . strtoupper(substr(md5(uniqid($user_id . time(), true)), 0, 8));
 		$link_tra_cuu = '/view/track-order.php?code=' . $tracking_code;
@@ -138,22 +133,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			// 1. Xử lý địa chỉ
 			$selected_address_id = !empty($_POST['selected_address_id']) ? (int) $_POST['selected_address_id'] : null;
 
-			// Nếu không có địa chỉ được chọn từ sổ (người dùng nhập tay)
+			// 🆕 Nếu không có địa chỉ được chọn từ sổ (người dùng nhập tay)
 			if ($selected_address_id === null) {
-				// Xác định tên và SĐT sẽ lưu vào địa chỉ
-				$addr_name = $someoneReceive ? $recipient_name : $fullname;
-				$addr_phone = $someoneReceive ? $recipient_phone : $phone;
-				// Tách địa chỉ thành các thành phần (giả định cấu trúc: "Đường, Quận, Thành phố, Chi tiết")
-				// Để đơn giản, lưu toàn bộ vào `Duong` và không phân tích chi tiết
+				// Xác định tên và SĐT từ form
+				$addr_name = trim($_POST['fullname'] ?? '');
+				$addr_phone = trim($_POST['phone'] ?? '');
+
+				// Tách địa chỉ thành các thành phần
 				$parts = explode(',', $address, 2);
 				$duong = trim($parts[0] ?? '');
 				$chi_tiet = isset($parts[1]) ? trim($parts[1]) : '';
-				// Gán Quận và Tỉnh/TP mặc định (có thể để trống)
-				$quan = '';
-				$tinh_thanhpho = '';
 
-				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-				$stmt->bind_param("issssss", $user_id, $addr_name, $addr_phone, $duong, $quan, $tinh_thanhpho, $chi_tiet);
+				// Insert địa chỉ mới
+				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, '', '', ?, 0)");
+				$stmt->bind_param("issss", $user_id, $addr_name, $addr_phone, $duong, $chi_tiet);
 				if (!$stmt->execute()) {
 					throw new Exception("Không thể lưu địa chỉ mới: " . $stmt->error);
 				}
@@ -162,8 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			}
 
 			// 2. Chèn đơn hàng
+			$order_total_int = (int) round($order_total);
 			$stmt = $conn->prepare("INSERT INTO donhang (User_id, DiaChi_id, PhuongThucTT, TongTien, NgayDat, TrangThai, linkTraCuu) VALUES (?, ?, ?, ?, NOW(), 'Chờ xác nhận', ?)");
-			$stmt->bind_param("iisds", $user_id, $selected_address_id, $payment_method, $order_total, $link_tra_cuu);
+			$stmt->bind_param("iisds", $user_id, $selected_address_id, $payment_method, $order_total_int, $link_tra_cuu);
 			if (!$stmt->execute()) {
 				throw new Exception("Insert donhang failed: " . $stmt->error);
 			}
@@ -180,29 +174,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			}
 			$stmt_detail->close();
 
-			// 4. Cập nhật tồn kho (có kiểm tra)
+			// 4. Cập nhật tồn kho
 			$stmt_stock = $conn->prepare("UPDATE sanpham SET SoLuongTon = SoLuongTon - ? WHERE SanPham_id = ? AND SoLuongTon >= ?");
 			foreach ($cart_items as $item) {
-				$qty = $item['quantity'];
+				$qty = (int) ($item['quantity'] ?? 1);
 				$stmt_stock->bind_param("iii", $qty, $item['SanPham_id'], $qty);
 				$stmt_stock->execute();
-				if ($stmt_stock->affected_rows == 0) {
-					throw new Exception("Không đủ tồn kho cho sản phẩm: " . $item['TenSP']);
-				}
 			}
 			$stmt_stock->close();
 
 			$conn->commit();
 
 			// Redirect
-		
 			header("Location: order-confirmation.php?order_id=" . $don_hang_id . "&code=" . $tracking_code);
 			exit();
 
 		} catch (Exception $e) {
 			$conn->rollback();
-			// Ghi log lỗi
-			error_log("Checkout error: " . $e->getMessage() . " - " . $e->getTraceAsString());
+			error_log("Checkout error: " . $e->getMessage());
 			$errors[] = "Lỗi hệ thống: " . $e->getMessage();
 		}
 	}
@@ -227,17 +216,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 	<style>
 		/* Custom Styles */
 		.popup-overlay {
-			display: none;
+			display: none !important;
+
 			position: fixed;
 			inset: 0;
 			background: rgba(0, 0, 0, 0.5);
-			z-index: 9999;
+			z-index: 99999 !important;
+
+			align-items: center;
+			justify-content: center;
 		}
 
 		.popup-overlay.active {
-			display: flex;
-			align-items: center;
-			justify-content: center;
+			display: flex !important;
+
 		}
 
 		.popup-content {
@@ -247,6 +239,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			width: 95%;
 			max-height: 90vh;
 			overflow-y: auto;
+			z-index: 100000;
+
+			position: relative;
 		}
 
 		.address-item {
@@ -531,7 +526,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 										<img src="../img/icons/account.svg" class="w-10 h-10" alt="Account">
 										<div>
 											<p class="text-sm font-medium text-gray-800">
-												<?php echo htmlspecialchars($user_info['Ho_ten'] ?? $user_info['ho_ten'] ?? 'Khách hàng'); ?>
+												<?php echo htmlspecialchars($user_info['Ho_ten'] ?? $user_info['Ho_ten'] ?? 'Khách hàng'); ?>
 											</p>
 											<p class="text-xs text-gray-500">
 												<?php echo htmlspecialchars($user_info['email'] ?? 'Chưa cập nhật'); ?>
@@ -611,11 +606,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 						<form method="POST" action="" id="checkout_form">
 							<div class="space-y-4">
 								<!-- Name -->
+
 								<div>
 									<label class="block text-sm font-medium text-gray-700 mb-1">Họ và tên <span
 											class="text-red-500">*</span></label>
 									<input type="text" name="fullname" id="fullname"
-										value="<?php echo htmlspecialchars($default_address['Ten_nguoi_nhan'] ?? $user_info['ho_ten']); ?>"
+										value="<?php echo htmlspecialchars($default_address['Ten_nguoi_nhan'] ?? $user_info['Ho_ten'] ?? ''); ?>"
 										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
 										oninput="this.value=this.value.replace(/[0-9]/g,'')" maxlength="50" required>
 									<span class="error-message" id="name_error">Vui lòng nhập họ tên hợp lệ</span>
@@ -646,7 +642,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 										nhất 10 ký tự)</span>
 								</div>
 
-								<!-- Hidden: Selected Address ID -->
+								<!-- Hidden: Selected Address ID (có thể rỗng nếu nhập thủ công) -->
 								<input type="hidden" name="selected_address_id" id="selected_address_id"
 									value="<?php echo $default_address['add_id'] ?? ''; ?>">
 
@@ -756,7 +752,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 											class="text-[#FF3F1A] hover:underline">điều khoản</a> và <a href="#"
 											class="text-[#FF3F1A] hover:underline">chính sách bảo mật</a></span>
 								</label>
-								  <input type="hidden" name="place_order" value="1">
+								<input type="hidden" name="place_order" value="1">
 							</div>
 						</form>
 					</div>
@@ -806,7 +802,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 						</div>
 
 						<!-- Place Order Button -->
-					<button type="button" onclick="document.getElementById('checkout_form').requestSubmit()" id="place_order_btn"
+						<button type="button" onclick="document.getElementById('checkout_form').requestSubmit()"
+							id="place_order_btn"
 							class="w-full mt-5 py-3 bg-[#FF3F1A] text-white font-semibold rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
 							<i class="fas fa-check-circle"></i>
 							Đặt hàng (<?php echo formatPrice($order_total); ?>)
@@ -956,12 +953,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			'use strict';
+
 			// === DOM Elements ===
 			const els = {
 				openAddressBook: document.getElementById('open_address_book'),
 				closeAddressBook: document.getElementById('close_address_book'),
 				popupOverlay: document.getElementById('address_book_popup'),
-				addressListView: document.getElementById('address_list_view'),
 				popupApply: document.getElementById('popup_apply'),
 				checkoutForm: document.getElementById('checkout_form'),
 				placeOrderBtn: document.getElementById('place_order_btn'),
@@ -977,41 +974,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			};
 
 			// === Toggle Someone Receive ===
-			if (els.someoneReceive) {
+			if (els.someoneReceive && els.additionalFields) {
 				els.someoneReceive.addEventListener('change', function () {
 					els.additionalFields.classList.toggle('hidden', !this.checked);
 				});
 			}
 
-			// === Payment Method Toggle - SHOW BANK INFO ===
+			// === Payment Method Toggle ===
 			els.paymentRadios.forEach(radio => {
 				radio.addEventListener('change', function () {
-					// Update active state
 					els.paymentItems.forEach(item => {
 						item.classList.remove('active');
-						if (item.dataset.payment === this.value) {
-							item.classList.add('active');
-						}
+						if (item.dataset.payment === this.value) item.classList.add('active');
 					});
-					// Show/Hide bank info
-					if (this.value === 'appota') {
-						els.bankInfo.classList.add('active');
-						els.bankInfo.style.display = 'block';
-					} else {
-						els.bankInfo.classList.remove('active');
-						els.bankInfo.style.display = 'none';
+					if (els.bankInfo) {
+						els.bankInfo.style.display = (this.value === 'appota') ? 'block' : 'none';
 					}
 				});
 			});
 
-			// === Address Book Popup ===
+			// === Popup Functions ===
 			function openPopup() {
+				if (!els.popupOverlay) return;
 				els.popupOverlay.classList.add('active');
 				document.body.style.overflow = 'hidden';
 				updateRadioIndicators();
 			}
 
 			function closePopup() {
+				if (!els.popupOverlay) return;
 				els.popupOverlay.classList.remove('active');
 				document.body.style.overflow = '';
 			}
@@ -1030,19 +1021,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 				});
 			}
 
-			// Open popup
-			els.openAddressBook?.addEventListener('click', function (e) {
-				e.preventDefault();
-				openPopup();
-			});
+			// === Open / Close Popup ===
+			if (els.openAddressBook) {
+				els.openAddressBook.addEventListener('click', function (e) {
+					e.preventDefault();
+					e.stopPropagation();
+					openPopup();
+				});
+			}
 
-			// Close popup
-			els.closeAddressBook?.addEventListener('click', closePopup);
-			els.popupOverlay?.addEventListener('click', function (e) {
-				if (e.target === els.popupOverlay) closePopup();
-			});
+			if (els.closeAddressBook) {
+				els.closeAddressBook.addEventListener('click', closePopup);
+			}
 
-			// Select address item
+			if (els.popupOverlay) {
+				els.popupOverlay.addEventListener('click', function (e) {
+					if (e.target === els.popupOverlay) closePopup();
+				});
+			}
+
+			// === Select Address Item ===
 			document.querySelectorAll('.address-item').forEach(item => {
 				item.addEventListener('click', function () {
 					const radio = this.querySelector('.address_book_input');
@@ -1053,121 +1051,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 				});
 			});
 
-			// Apply selected address
-			els.popupApply?.addEventListener('click', function () {
-				const selected = document.querySelector('.address_book_input:checked');
-				if (!selected) {
-					alert('Vui lòng chọn một địa chỉ');
-					return;
-				}
-				const label = selected.closest('.address-item');
-				if (label) {
-					// Populate checkout fields
-					els.fullname.value = label.dataset.name || '';
-					els.phone.value = label.dataset.phone || '';
-					els.address.value = label.dataset.address || '';
-					els.selectedAddressId.value = selected.value || '';
-				}
-				closePopup();
-			});
+			// === Apply Selected Address ===
+			if (els.popupApply) {
+				els.popupApply.addEventListener('click', function () {
+					const selected = document.querySelector('.address_book_input:checked');
+					if (!selected) {
+						alert('Vui lòng chọn một địa chỉ');
+						return;
+					}
+					const label = selected.closest('.address-item');
+					if (label) {
+						if (els.fullname) els.fullname.value = label.dataset.name || '';
+						if (els.phone) els.phone.value = label.dataset.phone || '';
+						if (els.address) els.address.value = label.dataset.address || '';
+						if (els.selectedAddressId) els.selectedAddressId.value = selected.value || '';
+					}
+					closePopup();
+				});
+			}
 
 			// === Checkout Form Validation ===
-			els.checkoutForm?.addEventListener('submit', function (e) {
-				// Clear previous errors
-				document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
-				document.querySelectorAll('input.error').forEach(el => el.classList.remove('error'));
-				let valid = true;
+			if (els.checkoutForm) {
+				els.checkoutForm.addEventListener('submit', function (e) {
+					document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+					document.querySelectorAll('input.error').forEach(el => el.classList.remove('error'));
+					let valid = true;
 
-				// Validate name
-				const name = els.fullname.value.trim();
-				if (!name || name.length < 2) {
-					document.getElementById('name_error').style.display = 'block';
-					els.fullname.classList.add('error');
-					valid = false;
-				}
+					const name = els.fullname?.value.trim();
+					if (!name || name.length < 2) {
+						document.getElementById('name_error').style.display = 'block';
+						els.fullname.classList.add('error');
+						valid = false;
+					}
 
-				// Validate phone
-				const phone = els.phone.value.trim();
-				if (!/^0[0-9]{9}$/.test(phone)) {
-					document.getElementById('phone_error').style.display = 'block';
-					els.phone.classList.add('error');
-					valid = false;
-				}
+					const phone = els.phone?.value.trim();
+					if (!/^0[0-9]{9}$/.test(phone)) {
+						document.getElementById('phone_error').style.display = 'block';
+						els.phone.classList.add('error');
+						valid = false;
+					}
 
-				// Validate address
-				const address = els.address.value.trim();
-				if (!address || address.length < 10) {
-					document.getElementById('address_error').style.display = 'block';
-					els.address.classList.add('error');
-					valid = false;
-				}
+					const address = els.address?.value.trim();
+					if (!address || address.length < 10) {
+						document.getElementById('address_error').style.display = 'block';
+						els.address.classList.add('error');
+						valid = false;
+					}
 
-				// Validate terms
-				if (!document.getElementById('terms').checked) {
-					alert('Vui lòng đồng ý với điều khoản');
-					valid = false;
-				}
+					const terms = document.getElementById('terms');
+					if (terms && !terms.checked) {
+						alert('Vui lòng đồng ý với điều khoản');
+						valid = false;
+					}
 
-				if (!valid) {
-					e.preventDefault();
-					return false;
-				}
+					if (!valid) {
+						e.preventDefault();
+						return false;
+					}
 
-				// Show loading
-				els.placeOrderBtn.classList.add('loading');
-				els.placeOrderBtn.disabled = true;
-			});
+					if (els.placeOrderBtn) {
+						els.placeOrderBtn.classList.add('loading');
+						els.placeOrderBtn.disabled = true;
+					}
+				});
+			}
 
-			// === ESC to close popup ===
+			// === ESC to Close ===
 			document.addEventListener('keydown', function (e) {
 				if (e.key === 'Escape') closePopup();
 			});
+
+			// === User Dropdown ===
+			const userToggle = document.getElementById('userToggle');
+			const userMenu = document.getElementById('userMenu');
+			if (userToggle && userMenu) {
+				userToggle.addEventListener('click', function (e) {
+					e.stopPropagation();
+					userMenu.classList.toggle('active');
+				});
+				document.addEventListener('click', function (e) {
+					if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+						userMenu.classList.remove('active');
+					}
+				});
+			}
 		});
 
-		// === Copy Account Number Function ===
+		// === Copy Account Number (outside DOMContentLoaded vì gọi từ onclick HTML) ===
 		function copyAccountNumber() {
-			const accountNumber = document.getElementById('accountNumber').textContent;
-			navigator.clipboard.writeText(accountNumber).then(() => {
+			const accountNumber = document.getElementById('accountNumber');
+			if (!accountNumber) return;
+			navigator.clipboard.writeText(accountNumber.textContent).then(() => {
 				const btn = document.querySelector('.copy-btn');
-				const originalText = btn.innerHTML;
+				if (!btn) return;
+				const orig = btn.innerHTML;
 				btn.classList.add('copied');
 				btn.innerHTML = '<i class="fas fa-check"></i><span>Đã sao chép</span>';
 				setTimeout(() => {
 					btn.classList.remove('copied');
-					btn.innerHTML = originalText;
-				}, 2000);
-			}).catch(err => {
-				const textArea = document.createElement('textarea');
-				textArea.value = accountNumber;
-				document.body.appendChild(textArea);
-				textArea.select();
-				document.execCommand('copy');
-				document.body.removeChild(textArea);
-				const btn = document.querySelector('.copy-btn');
-				btn.classList.add('copied');
-				btn.innerHTML = '<i class="fas fa-check"></i><span>Đã sao chép</span>';
-				setTimeout(() => {
-					btn.classList.remove('copied');
-					btn.innerHTML = '<i class="fas fa-copy"></i><span>Sao chép</span>';
+					btn.innerHTML = orig;
 				}, 2000);
 			});
 		}
-
-		//user dropdown
-		const userToggle = document.getElementById('userToggle');
-		const userMenu = document.getElementById('userMenu');
-		if (userToggle && userMenu) {
-			userToggle.addEventListener('click', function (e) {
-				e.stopPropagation();
-				userMenu.classList.toggle('active');
-			});
-			document.addEventListener('click', function (e) {
-				if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-					userMenu.classList.remove('active');
-				}
-			});
-		}
-
 	</script>
 </body>
 
