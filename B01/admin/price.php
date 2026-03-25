@@ -99,11 +99,35 @@ $categories = getCategories($conn);
             background-clip: text;
         }
         
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .menu-btn i {
+            width: 20px;
+            color: #9ca3af;
+        }
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: #667eea;
+        }
+        .menu-btn:hover i {
+            color: #667eea;
+        }
         .menu-btn.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        .menu-btn.active i { color: white; }
+        .menu-btn.active i {
+            color: white;
+        }
         
         .profit-input {
             width: 100px;
@@ -163,7 +187,6 @@ $categories = getCategories($conn);
             animation: fadeIn 0.3s ease-out;
         }
         
-        /* Tooltip cho hình ảnh */
         .img-hover {
             position: relative;
             cursor: pointer;
@@ -183,7 +206,6 @@ $categories = getCategories($conn);
             z-index: 10;
         }
         
-        /* Modal xem ảnh lớn */
         .image-modal {
             display: none;
             position: fixed;
@@ -217,6 +239,30 @@ $categories = getCategories($conn);
             z-index: 2001;
         }
         .close-image-modal:hover { color: #ddd; }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
@@ -228,14 +274,13 @@ $categories = getCategories($conn);
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
-                        <?php echo strtoupper(substr($admin_name, 0, 1)); ?>
+                        <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
                         <p class="font-semibold text-sm text-gray-800">
-                            <?php echo htmlspecialchars($admin_name); ?>
-                            <span class="ml-2 px-2 py-1 text-xs rounded-full text-white bg-gradient-custom">Admin</span>
+                            <?php echo htmlspecialchars($admin_username); ?>
                         </p>
-                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
+                        <p class="text-xs text-gray-500">Quản trị viên</p>
                     </div>
                 </div>
                 <a href="logout.php" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
@@ -247,31 +292,34 @@ $categories = getCategories($conn);
 
     <div class="flex">
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-white shadow-lg min-h-screen">
-            <div class="p-4 border-b border-gray-200">
-                <h3 class="text-sm font-semibold text-gray-500 uppercase">Danh mục chức năng</h3>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Danh mục chức năng</h3>
             </div>
-            <nav class="p-2">
-                <a href="dashboard.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-home w-5 text-gray-500"></i><span>Dashboard</span>
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="menu-btn">
+                    <i class="fas fa-home"></i> Dashboard
                 </a>
-                <a href="users.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-users w-5 text-gray-500"></i><span>Quản lý người dùng</span>
+                <a href="users.php" class="menu-btn">
+                    <i class="fas fa-users"></i> Quản lý người dùng
                 </a>
-                <a href="product.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-box w-5 text-gray-500"></i><span>Quản lý sản phẩm</span>
+                <a href="categories.php" class="menu-btn">
+                    <i class="fas fa-tags"></i> Quản lý danh mục
                 </a>
-                <a href="import.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-arrow-down w-5 text-gray-500"></i><span>Quản lý nhập hàng</span>
+                <a href="product.php" class="menu-btn">
+                    <i class="fas fa-box"></i> Quản lý sản phẩm
                 </a>
-                <a href="price.php" class="menu-btn active flex items-center space-x-3 px-4 py-3 rounded-lg mb-1">
-                    <i class="fas fa-tag w-5 text-white"></i><span>Quản lý giá bán</span>
+                <a href="import.php" class="menu-btn">
+                    <i class="fas fa-arrow-down"></i> Quản lý nhập hàng
                 </a>
-                <a href="orders.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-receipt w-5 text-gray-500"></i><span>Quản lý đơn hàng</span>
+                <a href="price.php" class="menu-btn active">
+                    <i class="fas fa-tag"></i> Quản lý giá bán
                 </a>
-                <a href="inventory.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-warehouse w-5 text-gray-500"></i><span>Tồn kho & Báo cáo</span>
+                <a href="orders.php" class="menu-btn">
+                    <i class="fas fa-receipt"></i> Quản lý đơn hàng
+                </a>
+                <a href="inventory.php" class="menu-btn">
+                    <i class="fas fa-warehouse"></i> Tồn kho & Báo cáo
                 </a>
             </nav>
         </aside>
@@ -307,16 +355,17 @@ $categories = getCategories($conn);
                     <div class="overflow-x-auto border rounded-lg">
                         <table class="w-full">
                             <thead>
-                                
-                                    <th>Hình</th>
-                                    <th>Mã SP</th>
-                                    <th>Tên sản phẩm</th>
-                                    <th>Danh mục</th>
-                                    <th class="text-right">Giá vốn</th>
-                                    <th class="text-right">Tỷ lệ LN (%)</th>
-                                    <th class="text-right">Giá bán</th>
-                                    <th class="text-center">Thao tác</th>
-                                </thead>
+                                <tr class="bg-gradient-custom text-white">
+                                    <th class="p-3 text-left">Hình</th>
+                                    <th class="p-3 text-left">Mã SP</th>
+                                    <th class="p-3 text-left">Tên sản phẩm</th>
+                                    <th class="p-3 text-left">Danh mục</th>
+                                    <th class="p-3 text-right">Giá vốn</th>
+                                    <th class="p-3 text-right">Tỷ lệ LN (%)</th>
+                                    <th class="p-3 text-right">Giá bán</th>
+                                    <th class="p-3 text-center">Thao tác</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php if ($products && $products->num_rows > 0): ?>
                                     <?php while($row = $products->fetch_assoc()): ?>
@@ -333,9 +382,9 @@ $categories = getCategories($conn);
                                                 </div>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="font-mono">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> </td>
-                                        <td class="font-medium"><?php echo htmlspecialchars($row['TenSP']); ?> </td>
-                                        <td><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
+                                        <td class="font-mono">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                        <td class="font-medium"><?php echo htmlspecialchars($row['TenSP']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
                                         <td class="text-right font-mono"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                         <td class="text-right">
                                             <span id="profit_display_<?php echo $row['SanPham_id']; ?>">
@@ -381,7 +430,6 @@ $categories = getCategories($conn);
                             </div>
                             <div class="text-sm text-gray-500">
                                 <?php
-                                // Đếm số sản phẩm trong loại
                                 $count_sql = "SELECT COUNT(*) as total FROM sanpham WHERE Danhmuc_id = ?";
                                 $count_stmt = $conn->prepare($count_sql);
                                 $count_stmt->bind_param("i", $cat['Danhmuc_id']);
@@ -395,7 +443,7 @@ $categories = getCategories($conn);
                     </div>
                 </div>
 
-                <!-- PHẦN 3: TRA CỨU GIÁ (CÓ HÌNH ẢNH) -->
+                <!-- PHẦN 3: TRA CỨU GIÁ -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <i class="fas fa-search text-indigo-500 mr-2"></i>
@@ -416,21 +464,21 @@ $categories = getCategories($conn);
                         </button>
                     </div>
                     
-                    <div id="searchResults" class="overflow-x-auto border rounded-lg">
-                        <table class="w-full" id="searchTable">
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="w-full">
                             <thead>
-                                
-                                    <th>Hình</th>
-                                    <th>Mã SP</th>
-                                    <th>Tên sản phẩm</th>
-                                    <th>Danh mục</th>
-                                    <th class="text-right">Giá vốn</th>
-                                    <th class="text-right">Tỷ lệ LN</th>
-                                    <th class="text-right">Giá bán</th>
-                                </thead>
+                                <tr class="bg-gradient-custom text-white">
+                                    <th class="p-3 text-left">Hình</th>
+                                    <th class="p-3 text-left">Mã SP</th>
+                                    <th class="p-3 text-left">Tên sản phẩm</th>
+                                    <th class="p-3 text-left">Danh mục</th>
+                                    <th class="p-3 text-right">Giá vốn</th>
+                                    <th class="p-3 text-right">Tỷ lệ LN</th>
+                                    <th class="p-3 text-right">Giá bán</th>
+                                </tr>
+                            </thead>
                             <tbody id="searchTableBody">
                                 <?php
-                                // Lấy lại danh sách sản phẩm để hiển thị
                                 $all_sql = "SELECT sp.*, dm.Ten_danhmuc FROM sanpham sp LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id ORDER BY sp.SanPham_id DESC";
                                 $all_products = $conn->query($all_sql);
                                 while ($row = $all_products->fetch_assoc()):
@@ -440,7 +488,7 @@ $categories = getCategories($conn);
                                         <?php if ($row['image_url']): ?>
                                             <img src="../<?php echo $row['image_url']; ?>" 
                                                  class="product-img-thumb img-hover" 
-                                                 onclick="showLargeImage('../uploads/<?php echo $row['image_url']; ?>', '<?php echo htmlspecialchars($row['TenSP']); ?>')"
+                                                 onclick="showLargeImage('../<?php echo $row['image_url']; ?>', '<?php echo htmlspecialchars($row['TenSP']); ?>')"
                                                  style="cursor: pointer;">
                                         <?php else: ?>
                                             <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -448,9 +496,9 @@ $categories = getCategories($conn);
                                             </div>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="font-mono">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> </td>
-                                    <td class="font-medium"><?php echo htmlspecialchars($row['TenSP']); ?> </td>
-                                    <td><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
+                                    <td class="font-mono">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="font-medium"><?php echo htmlspecialchars($row['TenSP']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
                                     <td class="text-right font-mono"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                     <td class="text-right"><?php echo $row['PhanTramLoiNhuan']; ?>%</td>
                                     <td class="text-right font-semibold text-indigo-600"><?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ</td>
@@ -540,7 +588,6 @@ $categories = getCategories($conn);
     </div>
 
     <script>
-        // Mở modal cập nhật tỷ lệ lợi nhuận sản phẩm
         function openProfitModal(productId, productName, currentProfit) {
             document.getElementById('profit_product_id').value = productId;
             document.getElementById('profit_product_name').value = productName;
@@ -548,7 +595,6 @@ $categories = getCategories($conn);
             document.getElementById('profitModal').classList.add('show');
         }
         
-        // Mở modal cập nhật tỷ lệ lợi nhuận loại sản phẩm
         function openCategoryProfitModal(categoryId, categoryName) {
             document.getElementById('category_id').value = categoryId;
             document.getElementById('category_name').value = categoryName;
@@ -556,37 +602,30 @@ $categories = getCategories($conn);
             document.getElementById('categoryProfitModal').classList.add('show');
         }
         
-        // Đóng modal
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
         }
         
-        // Hiển thị ảnh lớn
         function showLargeImage(imageUrl, productName) {
             const modal = document.getElementById('imageModal');
             const img = document.getElementById('largeImage');
             const caption = document.getElementById('imageCaption');
-            
             img.src = imageUrl;
             caption.textContent = productName;
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
         }
         
-        // Đóng modal ảnh
         function closeImageModal() {
             const modal = document.getElementById('imageModal');
             modal.classList.remove('show');
             document.body.style.overflow = 'auto';
         }
         
-        // Tra cứu giá
         function searchPrice() {
             let keyword = document.getElementById('searchProduct').value.toLowerCase();
             let categoryId = document.getElementById('searchCategory').value;
-            
             let rows = document.querySelectorAll('#searchTableBody tr');
-            let hasResult = false;
             
             rows.forEach(row => {
                 let productName = row.cells[2]?.textContent.toLowerCase() || '';
@@ -596,35 +635,19 @@ $categories = getCategories($conn);
                 let matchKeyword = keyword === '' || productName.includes(keyword) || productCode.includes(keyword);
                 let matchCategory = categoryId === '' || productCategory === document.querySelector(`#searchCategory option[value="${categoryId}"]`)?.textContent;
                 
-                if (matchKeyword && matchCategory) {
-                    row.style.display = '';
-                    hasResult = true;
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchKeyword && matchCategory) ? '' : 'none';
             });
-            
-            if (!hasResult && keyword !== '') {
-                
-            }
         }
         
-        // Click outside modal
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.classList.remove('show');
             }
         }
         
-        // Tìm kiếm realtime
-        document.getElementById('searchProduct').addEventListener('keyup', function() {
-            searchPrice();
-        });
-        document.getElementById('searchCategory').addEventListener('change', function() {
-            searchPrice();
-        });
+        document.getElementById('searchProduct').addEventListener('keyup', function() { searchPrice(); });
+        document.getElementById('searchCategory').addEventListener('change', function() { searchPrice(); });
         
-        // Đóng modal ảnh bằng phím ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeImageModal();
