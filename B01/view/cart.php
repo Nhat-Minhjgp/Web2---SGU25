@@ -4,145 +4,166 @@ session_start();
 require_once '../control/connect.php';
 
 // === KIỂM TRA AJAX REQUEST ===
-$is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+$is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 // === XỬ LÝ CÁC ACTION (POST) ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
+    if ($is_ajax) {
+        header('Content-Type: application/json');
+    }
 
     $response = ['success' => false, 'message' => '', 'cart_count' => 0];
 
-    // 1. Thêm sản phẩm vào giỏ
-    if (isset($_POST['add_to_cart']) || isset($_POST['buy_now'])) {
+    // ✅ 1. XỬ LÝ MUA NGAY (KIỂM TRA TRƯỚC)
+    if (isset($_POST['buy_now']) && $_POST['buy_now'] == '1') {
         $product_id = (int) ($_POST['product_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
-        $buy_now = isset($_POST['buy_now']);
 
         if ($product_id > 0 && $quantity > 0) {
-            // Kiểm tra tồn kho
-            $stmt_check = $conn->prepare("SELECT SoLuongTon, TrangThai FROM sanpham WHERE SanPham_id = ?");
-            $stmt_check->bind_param("i", $product_id);
-            $stmt_check->execute();
-            $stock_info = $stmt_check->get_result()->fetch_assoc();
-            $stmt_check->close();
+            $stmt = $conn->prepare("SELECT SoLuongTon FROM sanpham WHERE SanPham_id = ? AND TrangThai = 1");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stock = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
 
-            if ($stock_info && $stock_info['TrangThai'] == 1) {
-                if ($quantity > $stock_info['SoLuongTon']) {
-                    $quantity = $stock_info['SoLuongTon'];
-                }
-
+            if ($stock && $quantity <= $stock['SoLuongTon']) {
                 if (isset($_SESSION['cart'][$product_id])) {
                     $_SESSION['cart'][$product_id] += $quantity;
                 } else {
                     $_SESSION['cart'][$product_id] = $quantity;
                 }
 
-                //  QUAN TRỌNG: Đóng session ngay sau khi ghi để tránh lock
-                session_write_close();
+                $_SESSION['buy_now'] = [
+                    'product_id' => $product_id,
+                    'quantity' => $quantity
+                ];
 
-                $response['success'] = true;
-                $response['message'] = 'Đã thêm sản phẩm vào giỏ hàng!';
-                $response['cart_count'] = array_sum($_SESSION['cart']);
-                $response['redirect_checkout'] = $buy_now;
+                if ($is_ajax) {
+                    echo json_encode(['success' => true, 'redirect' => 'checkout.php']);
+                    exit();
+                } else {
+                    header("Location: checkout.php");
+                    exit();
+                }
             } else {
-                $response['message'] = 'Sản phẩm không tồn tại hoặc hết hàng';
+                if ($is_ajax) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Sản phẩm không đủ số lượng']);
+                    exit();
+                }
             }
-        } else {
-            $response['message'] = 'Dữ liệu không hợp lệ';
         }
-
-        echo json_encode($response);
-        exit();
     }
 
-    // 2. Cập nhật số lượng
+    // ✅ 2. THÊM VÀO GIỎ HÀNG THƯỜNG
+    if (isset($_POST['add_to_cart'])) {
+        $product_id = (int) $_POST['product_id'];
+        $quantity = (int) ($_POST['quantity'] ?? 1);
+
+        if ($product_id > 0 && $quantity > 0) {
+            $stmt = $conn->prepare("SELECT SoLuongTon FROM sanpham WHERE SanPham_id = ? AND TrangThai = 1");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stock = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            if ($stock && $quantity <= $stock['SoLuongTon']) {
+                if (isset($_SESSION['cart'][$product_id])) {
+                    $_SESSION['cart'][$product_id] += $quantity;
+                } else {
+                    $_SESSION['cart'][$product_id] = $quantity;
+                }
+
+                if ($is_ajax) {
+                    $response['success'] = true;
+                    $response['message'] = 'Đã thêm sản phẩm vào giỏ hàng!';
+                    $response['cart_count'] = array_sum($_SESSION['cart']);
+                    echo json_encode($response);
+                    exit();
+                } else {
+                    header("Location: cart.php?added=1");
+                    exit();
+                }
+            } else {
+                if ($is_ajax) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Sản phẩm không đủ số lượng']);
+                    exit();
+                }
+            }
+        }
+    }
+
+    // 3. Cập nhật số lượng
     if (isset($_POST['update_cart'])) {
         $quantities = $_POST['quantity'] ?? [];
-        $errors = [];
-
         foreach ($quantities as $product_id => $qty) {
             $product_id = (int) $product_id;
             $qty = (int) $qty;
-
             if ($qty > 0) {
-                $stmt_check = $conn->prepare("SELECT SoLuongTon FROM sanpham WHERE SanPham_id = ? AND TrangThai = 1");
-                $stmt_check->bind_param("i", $product_id);
-                $stmt_check->execute();
-                $row = $stmt_check->get_result()->fetch_assoc();
-                $stmt_check->close();
-
-                if ($row) {
-                    $ton_kho = (int) $row['SoLuongTon'];
-                    if ($qty > $ton_kho) {
-                        $qty = $ton_kho;
-                        $errors[] = "Sản phẩm ID $product_id đã được điều chỉnh về mức tồn kho tối đa ($ton_kho).";
-                    }
-                    $_SESSION['cart'][$product_id] = $qty;
-                }
+                $_SESSION['cart'][$product_id] = $qty;
             } else {
                 unset($_SESSION['cart'][$product_id]);
             }
         }
 
-        session_write_close();
-
-        $response['success'] = true;
-        $response['message'] = empty($errors) ? 'Cập nhật giỏ hàng thành công!' : implode(' ', $errors);
-        $response['cart_count'] = array_sum($_SESSION['cart']);
-
-        // Nếu là AJAX thì trả JSON, không thì reload
         if ($is_ajax) {
+            $response['success'] = true;
+            $response['cart_count'] = array_sum($_SESSION['cart']);
             echo json_encode($response);
+            exit();
+        } else {
+            header("Location: cart.php?updated=1");
             exit();
         }
     }
 
-    // 3. Xóa sản phẩm
+    // 4. Xóa sản phẩm
     if (isset($_POST['remove_item'])) {
         $product_id = (int) ($_POST['product_id'] ?? 0);
         if (isset($_SESSION['cart'][$product_id])) {
             unset($_SESSION['cart'][$product_id]);
-            session_write_close();
-
-            $response['success'] = true;
-            $response['message'] = 'Đã xóa sản phẩm khỏi giỏ hàng!';
-            $response['cart_count'] = array_sum($_SESSION['cart']);
-
-            if ($is_ajax) {
-                echo json_encode($response);
-                exit();
-            }
         }
-    }
-
-    // 4. Xóa tất cả
-    if (isset($_POST['clear_cart'])) {
-        $_SESSION['cart'] = [];
-        session_write_close();
-
-        $response['success'] = true;
-        $response['message'] = 'Đã xóa tất cả giỏ hàng!';
 
         if ($is_ajax) {
+            $response['success'] = true;
+            $response['cart_count'] = array_sum($_SESSION['cart']);
             echo json_encode($response);
+            exit();
+        } else {
+            header("Location: cart.php?removed=1");
             exit();
         }
     }
 
-    // Nếu không phải AJAX và không có action đặc biệt, cho phép render HTML bên dưới
-    if (!$is_ajax) {
-        header("Location: cart.php");
+    // 5. Xóa tất cả
+    if (isset($_POST['clear_cart'])) {
+        $_SESSION['cart'] = [];
+        if ($is_ajax) {
+            $response['success'] = true;
+            $response['cart_count'] = 0;
+            echo json_encode($response);
+            exit();
+        } else {
+            header("Location: cart.php?cleared=1");
+            exit();
+        }
+    }
+
+    // Nếu là AJAX nhưng không match action nào
+    if ($is_ajax) {
+        echo json_encode(['success' => false, 'message' => 'Invalid action']);
         exit();
     }
 }
 
-// ===  KIỂM TRA ĐĂNG NHẬP (Chỉ cho trang HTML, không áp dụng cho AJAX add-to-cart) ===
+// === KIỂM TRA ĐĂNG NHẬP ===
 if (!$is_ajax) {
     if (!isset($_SESSION['user_id'])) {
         header("Location: login.php?redirect=cart");
         exit();
     }
-
     if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
         session_destroy();
         setcookie('remember_user', '', time() - 3600, '/');
@@ -151,12 +172,12 @@ if (!$is_ajax) {
     }
 }
 
-// === KHỞI TẠO GIỎ HÀNG TỪ SESSION ===
+// === KHỞI TẠO GIỎ HÀNG ===
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// === LẤY THÔNG TIN SẢN PHẨM TỪ DATABASE ===
+// === LẤY THÔNG TIN SẢN PHẨM ===
 $cart_items = [];
 $total_amount = 0;
 $total_items = 0;
@@ -187,35 +208,6 @@ if (!empty($_SESSION['cart'])) {
     $stmt->close();
 }
 
-// === LẤY SẢN PHẨM RECOMMEND ===
-$recommended_products = [];
-if (!empty($cart_danhmuc_ids)) {
-    $danhmuc_placeholders = implode(',', array_fill(0, count($cart_danhmuc_ids), '?'));
-    $exclude_ids = array_keys($_SESSION['cart']);
-    $exclude_placeholders = !empty($exclude_ids) ? implode(',', array_fill(0, count($exclude_ids), '?')) : '0';
-
-    $recommend_sql = "SELECT s.*, d.Ten_danhmuc
-        FROM sanpham s
-        LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
-        WHERE s.Danhmuc_id IN ($danhmuc_placeholders)
-        AND s.TrangThai = 1
-        AND s.SanPham_id NOT IN ($exclude_placeholders)
-        ORDER BY RAND()
-        LIMIT 5";
-
-    $stmt = $conn->prepare($recommend_sql);
-    $types = str_repeat('i', count($cart_danhmuc_ids));
-    if (!empty($exclude_ids)) {
-        $types .= str_repeat('i', count($exclude_ids));
-        $stmt->bind_param($types, ...$cart_danhmuc_ids, ...$exclude_ids);
-    } else {
-        $stmt->bind_param($types, ...$cart_danhmuc_ids);
-    }
-    $stmt->execute();
-    $recommended_products = $stmt->get_result();
-    $stmt->close();
-}
-
 // Format giá
 function formatPrice($price)
 {
@@ -230,7 +222,6 @@ function calculateDiscount($import_price, $sell_price)
     return 0;
 }
 
-// Lấy thông tin user cho header
 $is_logged_in = isset($_SESSION['user_id']);
 $user_info = [
     'user_id' => $_SESSION['user_id'] ?? '',
@@ -247,68 +238,11 @@ $user_info = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giỏ hàng | NVBPlay</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Custom styles */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .rotate-180 {
-            transform: rotate(180deg);
-        }
-
-        .category-toggle.active {
-            background-color: #fef2f2;
-            color: #dc2626;
-        }
-
-        .category-submenu {
-            transition: all 0.3s ease;
-        }
-
-        body.menu-open {
-            overflow: hidden;
-        }
-
-        .alert-error {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-        }
-
-        .alert-success {
-            background-color: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
-        }
-
         .qty-input {
             width: 60px;
             text-align: center;
@@ -333,7 +267,19 @@ $user_info = [
             overflow: hidden;
         }
 
-        /* === USER DROPDOWN STYLES === */
+        .alert-success {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .alert-error {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        /* User Dropdown */
         .user-dropdown {
             position: relative;
         }
@@ -384,16 +330,6 @@ $user_info = [
             background: #f9fafb;
         }
 
-        .user-menu-item i {
-            width: 18px;
-            color: #6b7280;
-        }
-
-        .user-menu-divider {
-            border-top: 1px solid #f3f4f6;
-            margin: 4px 0;
-        }
-
         .user-menu-item.logout {
             color: #dc2626;
         }
@@ -401,12 +337,9 @@ $user_info = [
         .user-menu-item.logout i {
             color: #dc2626;
         }
-
-        .role-badge-staff {
-            background: #dc2626;
-        }
     </style>
-    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
+</head>
+<link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
@@ -768,30 +701,31 @@ $user_info = [
         <main class="flex-grow bg-gray-50 py-8">
             <div class="container mx-auto px-4">
                 <!-- Success/Error Messages -->
-                <?php if ($success): ?>
+                <?php if (isset($_GET['added']) && $_GET['added'] == '1'): ?>
                     <div class="alert-success p-3 rounded mb-4 text-sm">
-                        <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?>
+                        <i class="fas fa-check-circle mr-2"></i>Đã thêm sản phẩm vào giỏ hàng!
                     </div>
                 <?php endif; ?>
-
-                <?php if (!empty($errors)): ?>
-                    <div class="alert-error p-3 rounded mb-4 text-sm">
-                        <ul class="list-disc list-inside">
-                            <?php foreach ($errors as $error): ?>
-                                <li><?php echo htmlspecialchars($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
+                <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+                    <div class="alert-success p-3 rounded mb-4 text-sm">
+                        <i class="fas fa-check-circle mr-2"></i>Đã cập nhật giỏ hàng!
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($_GET['removed']) && $_GET['removed'] == '1'): ?>
+                    <div class="alert-success p-3 rounded mb-4 text-sm">
+                        <i class="fas fa-check-circle mr-2"></i>Đã xóa sản phẩm!
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($_GET['cleared']) && $_GET['cleared'] == '1'): ?>
+                    <div class="alert-success p-3 rounded mb-4 text-sm">
+                        <i class="fas fa-check-circle mr-2"></i>Đã xóa toàn bộ giỏ hàng!
                     </div>
                 <?php endif; ?>
 
                 <div class="flex flex-col lg:flex-row gap-4">
                     <!-- Cart Items (Left Column) -->
-                    <!-- Cart Items (Left Column) -->
                     <div class="w-full lg:w-2/3">
                         <form method="POST" action="" id="cartForm">
-                            <!-- ✅ THÊM DÒNG NÀY -->
-                            <input type="hidden" name="update_cart" value="1">
-
                             <!-- Cart Header (Desktop) -->
                             <div
                                 class="hidden md:grid grid-cols-[4fr,0.85fr,1.3fr,1.5fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
@@ -831,8 +765,8 @@ $user_info = [
                                                                 value="<?php echo $item['SoLuong']; ?>" min="1"
                                                                 max="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
+                                                                data-product-id="<?php echo $item['SanPham_id']; ?>"
                                                                 class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
-
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, 1)">+</button>
                                                         </div>
@@ -842,12 +776,10 @@ $user_info = [
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <!-- Price (Desktop) -->
                                             <div class="hidden md:block text-center text-gray-700">
                                                 <?php echo formatPrice($item['GiaBan']); ?>
                                             </div>
-
                                             <!-- Quantity (Desktop) -->
                                             <div class="hidden md:flex justify-center">
                                                 <div class="flex items-center border border-gray-300 rounded">
@@ -857,12 +789,12 @@ $user_info = [
                                                         value="<?php echo $item['SoLuong']; ?>" min="1"
                                                         max="<?php echo (int) $item['SoLuongTon']; ?>"
                                                         data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
+                                                        data-product-id="<?php echo $item['SanPham_id']; ?>"
                                                         class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
                                                     <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                         onclick="updateQty(this, 1)">+</button>
                                                 </div>
                                             </div>
-
                                             <!-- Subtotal & Remove (Desktop) -->
                                             <div class="hidden md:flex justify-end items-center gap-4">
                                                 <span class="font-semibold text-red-600">
@@ -873,7 +805,6 @@ $user_info = [
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
-
                                             <!-- Remove button for mobile -->
                                             <div class="md:hidden flex justify-end mt-2">
                                                 <button type="button" onclick="removeItem(<?php echo $item['SanPham_id']; ?>)"
@@ -897,8 +828,7 @@ $user_info = [
                             </div>
                         </form>
 
-
-                        <!--  SẢN PHẨM RECOMMEND THEO DANH MỤC -->
+                        <!-- SẢN PHẨM RECOMMEND THEO DANH MỤC -->
                         <?php if ($recommended_products && $recommended_products->num_rows > 0): ?>
                             <div class="mt-12">
                                 <h3 class="text-lg font-bold mb-4 flex items-center">
@@ -952,7 +882,6 @@ $user_info = [
                                     <span>Tạm tính</span>
                                     <span><?php echo formatPrice($total_amount); ?></span>
                                 </div>
-
                                 <div class="border-t border-gray-200 pt-3 flex justify-between font-bold text-lg">
                                     <span>Tổng cộng</span>
                                     <span class="text-red-600"><?php echo formatPrice($total_amount); ?></span>
@@ -964,7 +893,6 @@ $user_info = [
                                     <i class="fas fa-credit-card mr-2"></i>Tiến hành thanh toán
                                 </a>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -1328,24 +1256,27 @@ $user_info = [
     </div>
     </div>
 
-    <!-- JavaScript -->
+    !-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            console.log(' DOM loaded – cart.js started');
+            console.log('DOM loaded – cart.js started');
 
             // === QUANTITY UPDATE ===
             window.updateQty = function (btn, change) {
                 const input = btn.parentNode.querySelector('input');
-                const productId = input.name.match(/\[(\d+)\]/)[1];
+                const productId = input.dataset.productId;
                 const stock = parseInt(input.dataset.stock) || 999;
                 let val = parseInt(input.value);
+
                 if (isNaN(val)) val = 1;
                 let newVal = val + change;
+
                 if (newVal < 1) newVal = 1;
                 if (newVal > stock) newVal = stock;
 
                 input.value = newVal;
 
+                // Gửi AJAX update
                 fetch('', {
                     method: 'POST',
                     headers: {
@@ -1356,118 +1287,155 @@ $user_info = [
                 })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) location.reload();
-                    });
-
-                // === REMOVE ITEM ===
-                window.removeItem = function (productId) {
-                    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.innerHTML = '<input type="hidden" name="product_id" value="' + productId + '"><input type="hidden" name="remove_item" value="1">';
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                }
-
-                // === CLEAR CART ===
-                window.clearCart = function () {
-                    if (confirm('Bạn có chắc chắn muốn xóa tất cả giỏ hàng?')) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.innerHTML = '<input type="hidden" name="clear_cart" value="1">';
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                }
-
-                // === USER DROPDOWN TOGGLE ===
-                const userToggle = document.getElementById('userToggle');
-                const userMenu = document.getElementById('userMenu');
-                if (userToggle && userMenu) {
-                    userToggle.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        userMenu.classList.toggle('active');
-                    });
-                    document.addEventListener('click', function (e) {
-                        if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                            userMenu.classList.remove('active');
+                        if (data.success) {
+                            location.reload();
                         }
+                    })
+                    .catch(err => {
+                        console.error('Lỗi cập nhật số lượng:', err);
+                        location.reload();
                     });
-                }
+            };
 
-                // ===  MOBILE MAIN MENU TOGGLE  ===
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-
-                console.log('🔍 Menu elements:', {
-                    toggle: menuToggle ? ' Found' : ' Not found',
-                    close: closeMenu ? ' Found' : ' Not found',
-                    menu: mobileMenu ? ' Found' : ' Not found'
-                });
-
-                if (menuToggle && mobileMenu) {
-                    menuToggle.addEventListener('click', function () {
-                        mobileMenu.classList.remove('-translate-x-full');
-                        document.body.style.overflow = 'hidden';
-                        console.log(' Mobile menu opened');
-                    });
-                } else {
-                    console.error(' Menu toggle or mobile menu not found');
-                }
-
-                if (closeMenu && mobileMenu) {
-                    closeMenu.addEventListener('click', function () {
-                        mobileMenu.classList.add('-translate-x-full');
-                        document.body.style.overflow = '';
-                        console.log(' Mobile menu closed');
-                    });
-                }
-
-                // === DESKTOP MEGA MENU ===
-                const menuTrigger = document.getElementById('mega-menu-trigger');
-                const menuDropdown = document.getElementById('mega-menu-dropdown');
-                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-                const menuContents = document.querySelectorAll('.menu-content');
-
-                if (menuTrigger) {
-                    menuTrigger.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        menuDropdown.classList.toggle('hidden');
-                    });
-                }
-
-                menuItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const menuId = this.getAttribute('data-menu');
-                        menuItems.forEach(el => {
-                            el.classList.remove('active', 'bg-red-50');
-                            const titleEl = el.querySelector('.font-bold');
-                            if (titleEl) titleEl.classList.remove('text-red-600');
+            // === REMOVE ITEM ===
+            window.removeItem = function (productId) {
+                if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                    fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `remove_item=1&product_id=${productId}`
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Lỗi xóa sản phẩm:', err);
+                            location.reload();
                         });
-                        this.classList.add('active', 'bg-red-50');
-                        const activeTitle = this.querySelector('.font-bold');
-                        if (activeTitle) activeTitle.classList.add('text-red-600');
-                        menuContents.forEach(content => { content.classList.add('hidden'); });
-                        const activeContent = document.getElementById(`content-${menuId}`);
-                        if (activeContent) { activeContent.classList.remove('hidden'); }
-                    });
-                });
+                }
+            };
 
+            // === CLEAR CART ===
+            window.clearCart = function () {
+                if (confirm('Bạn có chắc chắn muốn xóa tất cả giỏ hàng?')) {
+                    fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `clear_cart=1`
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Lỗi xóa giỏ hàng:', err);
+                            location.reload();
+                        });
+                }
+            };
+
+            // === USER DROPDOWN TOGGLE ===
+            const userToggle = document.getElementById('userToggle');
+            const userMenu = document.getElementById('userMenu');
+            if (userToggle && userMenu) {
+                userToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('active');
+                });
                 document.addEventListener('click', function (e) {
-                    if (!menuDropdown?.contains(e.target) && !menuTrigger?.contains(e.target)) {
-                        menuDropdown?.classList.add('hidden');
+                    if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.remove('active');
                     }
                 });
+            }
 
-                if (menuDropdown) {
-                    menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-                }
 
-                console.log('All event listeners registered');
+
+
+            // ===  MOBILE MAIN MENU TOGGLE  ===
+            const menuToggle = document.querySelector('.menu-toggle');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.getElementById('main-menu');
+
+            console.log('🔍 Menu elements:', {
+                toggle: menuToggle ? ' Found' : ' Not found',
+                close: closeMenu ? ' Found' : ' Not found',
+                menu: mobileMenu ? ' Found' : ' Not found'
             });
+
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener('click', function () {
+                    mobileMenu.classList.remove('-translate-x-full');
+                    document.body.style.overflow = 'hidden';
+                    console.log(' Mobile menu opened');
+                });
+            } else {
+                console.error(' Menu toggle or mobile menu not found');
+            }
+
+            if (closeMenu && mobileMenu) {
+                closeMenu.addEventListener('click', function () {
+                    mobileMenu.classList.add('-translate-x-full');
+                    document.body.style.overflow = '';
+                    console.log(' Mobile menu closed');
+                });
+            }
+
+            // === DESKTOP MEGA MENU ===
+            const menuTrigger = document.getElementById('mega-menu-trigger');
+            const menuDropdown = document.getElementById('mega-menu-dropdown');
+            const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+            const menuContents = document.querySelectorAll('.menu-content');
+
+            if (menuTrigger) {
+                menuTrigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menuDropdown.classList.toggle('hidden');
+                });
+            }
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const menuId = this.getAttribute('data-menu');
+                    menuItems.forEach(el => {
+                        el.classList.remove('active', 'bg-red-50');
+                        const titleEl = el.querySelector('.font-bold');
+                        if (titleEl) titleEl.classList.remove('text-red-600');
+                    });
+                    this.classList.add('active', 'bg-red-50');
+                    const activeTitle = this.querySelector('.font-bold');
+                    if (activeTitle) activeTitle.classList.add('text-red-600');
+                    menuContents.forEach(content => { content.classList.add('hidden'); });
+                    const activeContent = document.getElementById(`content-${menuId}`);
+                    if (activeContent) { activeContent.classList.remove('hidden'); }
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!menuDropdown?.contains(e.target) && !menuTrigger?.contains(e.target)) {
+                    menuDropdown?.classList.add('hidden');
+                }
+            });
+
+            if (menuDropdown) {
+                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            }
+
+            console.log('All event listeners registered');
+        });
+
     </script>
 
 </body>

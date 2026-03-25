@@ -123,7 +123,7 @@
     `PhuongThucTT` varchar(50) DEFAULT NULL,
     `TongTien` int(11) DEFAULT NULL,
     `NgayDat` date DEFAULT NULL,
-    `TrangThai` tinyint (1) DEFAULT NULL,
+    `TrangThai` tinyint (1) DEFAULT 0,
     `linkTraCuu` varchar(255) DEFAULT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -822,7 +822,6 @@
   ALTER TABLE `donhang`
     MODIFY `TongTien` DECIMAL(15,2) DEFAULT NULL,        -- Đổi từ INT sang DECIMAL để khớp với giá tiền
     MODIFY `NgayDat` DATETIME DEFAULT CURRENT_TIMESTAMP, -- Thêm giờ để theo dõi chính xác
-    MODIFY `TrangThai` ENUM('Chờ xác nhận','Đã xác nhận','Đang giao','Hoàn thành','Đã hủy') DEFAULT 'Chờ xác nhận',
     MODIFY `PhuongThucTT` ENUM('cod','banking') DEFAULT 'cod',
     ADD COLUMN `GhiChu` TEXT DEFAULT NULL AFTER `linkTraCuu`,  -- Thêm ghi chú đơn hàng
     ADD COLUMN `NgayCapNhat` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP AFTER `NgayDat`;

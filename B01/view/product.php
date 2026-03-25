@@ -2,11 +2,11 @@
 // view/product.php
 session_start();
 require_once '../control/connect.php';
-// === KIỂM TRA ĐĂNG NHẬP  ===
+
+// === KIỂM TRA ĐĂNG NHẬP ===
 $is_logged_in = isset($_SESSION['user_id']);
 $user_info = null;
 if ($is_logged_in) {
-    // Chặn role=1 (Staff/Admin) không được vào khu vực user
     if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
         session_destroy();
         setcookie('remember_user', '', time() - 3600, '/');
@@ -21,57 +21,65 @@ if ($is_logged_in) {
         'role' => $_SESSION['role'] ?? 0
     ];
 }
+
 // Lấy ID sản phẩm từ URL
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($product_id <= 0) {
     header('Location: shop.php');
     exit();
 }
+
 // Lấy thông tin sản phẩm
 $sql = "SELECT s.*, d.Ten_danhmuc, d.slug as danhmuc_slug,
-th.Ten_thuonghieu, th.slug as thuonghieu_slug,
-ncc.Ten_NCC
-FROM sanpham s
-LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
-LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
-LEFT JOIN nhacungcap ncc ON s.NCC_id = ncc.NCC_id
-WHERE s.SanPham_id = ? AND s.TrangThai = 1";
+    th.Ten_thuonghieu, th.slug as thuonghieu_slug,
+    ncc.Ten_NCC
+    FROM sanpham s
+    LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
+    LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
+    LEFT JOIN nhacungcap ncc ON s.NCC_id = ncc.NCC_id
+    WHERE s.SanPham_id = ? AND s.TrangThai = 1";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
 $product = $stmt->get_result()->fetch_assoc();
+
 if (!$product) {
     header('Location: shop.php');
     exit();
 }
+
 // Lấy hình ảnh từ image_url trong bảng sanpham
 $product_images = [
     ['DuongDan' => $product['image_url']]
 ];
+
 // Lấy sản phẩm cùng danh mục (related products)
 $related_sql = "SELECT s.*, d.slug as danhmuc_slug
-FROM sanpham s
-LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
-WHERE s.Danhmuc_id = ?
-AND s.SanPham_id != ?
-AND s.TrangThai = 1
-ORDER BY RAND()
-LIMIT 5";
+    FROM sanpham s
+    LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
+    WHERE s.Danhmuc_id = ?
+    AND s.SanPham_id != ?
+    AND s.TrangThai = 1
+    ORDER BY RAND()
+    LIMIT 5";
 $related_stmt = $conn->prepare($related_sql);
 $related_stmt->bind_param("ii", $product['Danhmuc_id'], $product_id);
 $related_stmt->execute();
 $related_products = $related_stmt->get_result();
+
 // Format giá
 function formatPrice($price)
 {
     return number_format($price, 0, ',', '.') . ' ₫';
 }
+
 $is_in_stock = $product['SoLuongTon'] > 0;
 $max_qty = $is_in_stock ? $product['SoLuongTon'] : 0;
 $disabled_attr = $is_in_stock ? '' : 'disabled';
 $btn_class = $is_in_stock
     ? 'bg-red-600 hover:bg-red-700 cursor-pointer'
     : 'bg-gray-400 cursor-not-allowed';
+
 // Tính phần trăm giảm giá
 function calculateDiscount($import_price, $sell_price)
 {
@@ -80,6 +88,7 @@ function calculateDiscount($import_price, $sell_price)
     }
     return 0;
 }
+
 $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 ?>
 <!DOCTYPE html>
@@ -89,33 +98,11 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($product['TenSP']); ?> - NVBPlay</title>
-    <meta name="description" content="<?php echo htmlspecialchars($product['TenSP']); ?>">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        body.menu-open {
-            overflow: hidden;
-        }
-
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -123,7 +110,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             overflow: hidden;
         }
 
-        /* === USER DROPDOWN STYLES === */
         .user-dropdown {
             position: relative;
         }
@@ -174,16 +160,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             background: #f9fafb;
         }
 
-        .user-menu-item i {
-            width: 18px;
-            color: #6b7280;
-        }
-
-        .user-menu-divider {
-            border-top: 1px solid #f3f4f6;
-            margin: 4px 0;
-        }
-
         .user-menu-item.logout {
             color: #dc2626;
         }
@@ -192,11 +168,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             color: #dc2626;
         }
 
-        .role-badge-staff {
-            background: #dc2626;
-        }
-
-        /* === DISABLED BUTTON STYLES === */
         button:disabled {
             opacity: 0.7;
             pointer-events: none;
@@ -206,12 +177,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
         button:disabled:hover {
             transform: none !important;
             box-shadow: none !important;
-        }
-
-        input:disabled {
-            background-color: #f3f4f6 !important;
-            color: #9ca3af !important;
-            cursor: not-allowed;
         }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
@@ -294,7 +259,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
                                 </button>
                             </div>
-                            <!-- Account Dropdown (THAY ĐỔI THEO TRẠNG THÁI ĐĂNG NHẬP) -->
+                            <!-- Account Dropdown  -->
                             <div class="user-dropdown">
                                 <?php if ($is_logged_in): ?>
                                     <!-- Đã đăng nhập -->
@@ -380,6 +345,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 </div>
             </div>
         </header>
+
+
         <!-- Main Content -->
         <main class="flex-grow bg-gray-50 py-8 md:p-[30px]">
             <div class="container mx-auto px-4">
@@ -426,7 +393,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 <?php if ($product['Ten_NCC']): ?>
                                     <div class="flex items-center">
                                         <i class="fas fa-truck mr-2 text-red-600"></i>
-                                        <span>NCC: <?php echo htmlspecialchars($product['Ten_NCC']); ?></span>
+                                        <span>NCC:
+                                            <?php echo htmlspecialchars($product['Ten_NCC']); ?></span>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -478,9 +446,10 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <!-- Add to Cart Form -->
-                            <form class="mt-auto space-y-4" method="POST" action="cart.php">
+                            <!-- ✅ FORM ĐÃ THÊM ID="addToCartForm" -->
+                            <form id="addToCartForm" class="mt-auto space-y-4" method="POST" action="cart.php">
                                 <input type="hidden" name="product_id" value="<?php echo $product['SanPham_id']; ?>">
+
                                 <!-- Quantity -->
                                 <div class="flex items-center gap-4">
                                     <span class="font-medium text-gray-700">Số lượng:</span>
@@ -488,16 +457,14 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         class="flex items-center border border-gray-300 rounded <?php echo !$is_in_stock ? 'bg-gray-100' : ''; ?>">
                                         <button type="button" onclick="decreaseQty()"
                                             class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                                            <?php echo $disabled_attr; ?>>-
-                                        </button>
+                                            <?php echo $disabled_attr; ?>>-</button>
                                         <input type="number" name="quantity" id="quantity" value="1" min="1"
                                             max="<?php echo $max_qty; ?>"
                                             class="w-16 text-center border-none focus:ring-0 p-0 <?php echo !$is_in_stock ? 'bg-gray-100 text-gray-500' : ''; ?>"
                                             readonly <?php echo $disabled_attr; ?>>
                                         <button type="button" onclick="increaseQty()"
                                             class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                                            <?php echo $disabled_attr; ?>>+
-                                        </button>
+                                            <?php echo $disabled_attr; ?>>+</button>
                                     </div>
                                 </div>
                                 <!-- Buttons -->
@@ -518,7 +485,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 <!-- Thông báo khi hết hàng -->
                                 <?php if (!$is_in_stock): ?>
                                     <p class="text-center text-sm text-red-600 font-medium">
-                                        <i class="fas fa-info-circle mr-1"></i>Sản phẩm tạm thời hết hàng. Vui lòng quay lại
+                                        <i class="fas fa-info-circle mr-1"></i>Sản phẩm tạm thời hết
+                                        hàng. Vui lòng quay lại
                                         sau!
                                     </p>
                                 <?php endif; ?>
@@ -544,7 +512,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 <!-- Related Products -->
                 <?php if ($related_products->num_rows > 0): ?>
                     <div class="mb-12">
-                        <h3 class="text-xl font-bold text-gray-900 mb-6 uppercase">Sản phẩm tương tự</h3>
+                        <h3 class="text-xl font-bold text-gray-900 mb-6 uppercase">Sản phẩm tương tự
+                        </h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             <?php while ($related = $related_products->fetch_assoc()):
                                 $related_discount = calculateDiscount($related['GiaNhapTB'], $related['GiaBan']);
@@ -571,7 +540,9 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         </a>
                                     </h4>
                                     <div class="flex items-center gap-2">
-                                        <div class="text-red-600 font-bold"><?php echo formatPrice($related['GiaBan']); ?></div>
+                                        <div class="text-red-600 font-bold">
+                                            <?php echo formatPrice($related['GiaBan']); ?>
+                                        </div>
                                         <?php if ($related_discount > 0): ?>
                                             <div class="text-gray-400 text-xs line-through">
                                                 <?php echo formatPrice($related['GiaNhapTB']); ?>
@@ -585,74 +556,119 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 <?php endif; ?>
             </div>
         </main>
-        <!-- Footer -->
-        <footer id="footer" class="bg-black text-white mt-12">
-            <div class="container mx-auto px-4 py-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="pl-5">
-                        <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
-                        <div class="flex space-x-3 mb-4">
-                            <a href="https://www.facebook.com/nvbplay" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fab fa-tiktok"></i>
-                            </a>
-                            <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                                <i class="fas fa-shopping-bag"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a>
-                            </li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
-                            </li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                    TRẢ</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
-                                    <span class="font-medium w-20">Địa chỉ:</span>
-                                    <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
+        <!-- Related Products -->
+        <?php if ($related_products->num_rows > 0): ?>
+            <div class="mb-12">
+                <h3 class="text-xl font-bold text-gray-900 mb-6 uppercase">Sản phẩm tương tự</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <?php while ($related = $related_products->fetch_assoc()):
+                        $related_discount = calculateDiscount($related['GiaNhapTB'], $related['GiaBan']);
+                        ?>
+                        <!-- Product Item -->
+                        <div class="group">
+                            <div class="bg-white rounded-lg overflow-hidden shadow-sm mb-2 relative aspect-square">
+                                <?php if ($related_discount > 0): ?>
+                                    <div class="absolute top-2 right-2 z-10">
+                                        <span
+                                            class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">-<?php echo $related_discount; ?>%</span>
+                                    </div>
+                                <?php endif; ?>
+                                <a href="product.php?id=<?php echo $related['SanPham_id']; ?>" class="hover:text-red-600">
+                                    <img src="../<?php echo htmlspecialchars($related['image_url']); ?>" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105
+                            transition-transform">
                                 </a>
-                            </li>
-                            <li>
-                                <div class="flex">
-                                    <span class="font-medium w-20">Giờ làm việc:</span>
-                                    <span class="text-gray-400">08:00 - 21:00</span>
+                            </div>
+                            <h4 class="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-1">
+                                <a href="product.php?id=<?php echo $related['SanPham_id']; ?>" class="hover:text-red-600">
+                                    <?php echo htmlspecialchars($related['TenSP']); ?>
+                                </a>
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <div class="text-red-600 font-bold">
+                                    <?php echo formatPrice($related['GiaBan']); ?>
                                 </div>
-                            </li>
-                            <li>
-                                <a href="tel:0987.879.243" class="flex">
-                                    <span class="font-medium w-20">Hotline:</span>
-                                    <span class="text-gray-400">0987.879.243</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="border-t border-gray-800 my-6"></div>
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-gray-500 text-sm mb-4 md:mb-0">
-                        <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
-                    </div>
-                    <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
-                        <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-                            alt="Bộ Công Thương" class="h-12 w-auto">
-                    </a>
+                                <?php if ($related_discount > 0): ?>
+                                    <div class="text-gray-400 text-xs line-through">
+                                        <?php echo formatPrice($related['GiaNhapTB']); ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
                 </div>
             </div>
-        </footer>
+        <?php endif; ?>
+    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-black text-white mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="pl-5">
+                    <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
+                    <div class="flex space-x-3 mb-4">
+                        <a href="https://www.facebook.com/nvbplay" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fas fa-shopping-bag"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a>
+                        </li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
+                        </li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+                                TRẢ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
+                                <span class="font-medium w-20">Địa chỉ:</span>
+                                <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex">
+                                <span class="font-medium w-20">Giờ làm việc:</span>
+                                <span class="text-gray-400">08:00 - 21:00</span>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="tel:0987.879.243" class="flex">
+                                <span class="font-medium w-20">Hotline:</span>
+                                <span class="text-gray-400">0987.879.243</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 my-6"></div>
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                    <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
+                </div>
+                <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
+                    <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
+                        alt="Bộ Công Thương" class="h-12 w-auto">
+                </a>
+            </div>
+        </div>
+    </footer>
     </div>
     <!-- Mobile Menu -->
     <div id="main-menu"
@@ -702,107 +718,113 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             btn.classList.remove('border-gray-200');
             btn.classList.add('border-red-600');
         }
+
         // Quantity controls
         function decreaseQty() {
             const qtyInput = document.getElementById('quantity');
-            if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
+            if (qtyInput.disabled) return;
             let currentValue = parseInt(qtyInput.value);
             if (currentValue > 1) {
                 qtyInput.value = currentValue - 1;
             }
         }
+
         function increaseQty() {
             const qtyInput = document.getElementById('quantity');
-            if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
+            if (qtyInput.disabled) return;
             const maxQty = parseInt(qtyInput.max);
             let currentValue = parseInt(qtyInput.value);
             if (currentValue < maxQty && maxQty > 0) {
                 qtyInput.value = currentValue + 1;
             }
         }
-        // Add to cart via AJAX (Giữ nguyên cho nút Thêm vào giỏ nếu cần dùng JS)
-        function addToCart() {
-            const form = document.querySelector('form');
+
+        function buyNow() {
+           
+            const form = document.getElementById('addToCartForm');
+            if (!form) {
+                alert('Lỗi: Không tìm thấy form!');
+                return;
+            }
+
             const formData = new FormData(form);
+            formData.append('buy_now', '1');
+
+            const buyBtn = document.getElementById('buyNowBtn');
+            const originalText = buyBtn.innerHTML;
+            buyBtn.disabled = true;
+            buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+
+            
             fetch('cart.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'include'
             })
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
-                    if (data.success) {
-                        alert('Đã thêm sản phẩm vào giỏ hàng!');
+                    if (data.success && data.redirect) {
+                        // ✅ Redirect đến checkout.php
+                        window.location.href = data.redirect + '?t=' + Date.now();
                     } else {
-                        alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                        throw new Error(data.message || 'Lỗi không xác định');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                .catch(err => {
+                    console.error(err);
+                    alert('Có lỗi: ' + err.message);
+                    buyBtn.disabled = false;
+                    buyBtn.innerHTML = originalText;
                 });
         }
 
 
-// === MUA NGAY  ===
-function buyNow() {
-    const form = document.querySelector('form');
-    const formData = new FormData(form);
-    // Thêm flag để backend biết đây là mua ngay
-    formData.append('buy_now', '1'); 
+        //  SHOW TOAST WHEN ADDED TO CART - REDIRECT VỀ CART.PHP
+        window.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
 
-    const buyBtn = document.getElementById('buyNowBtn');
-    const originalText = buyBtn.innerHTML;
-    
-    // Hiển thị trạng thái đang xử lý
-    buyBtn.disabled = true;
-    buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+            if (urlParams.get('added') === '1') {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+                toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Đã thêm vào giỏ hàng!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
 
-    fetch('cart.php', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include' //  QUAN TRỌNG: Gửi kèm session cookie
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            //  Chỉ chuyển hướng khi server xác nhận đã lưu session thành công
-            // Thêm timestamp để tránh cache trình duyệt
-            window.location.href = 'checkout.php?t=' + new Date().getTime();
-        } else {
-            throw new Error(data.message || 'Không thể thêm vào giỏ hàng');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra: ' + error.message + '. Vui lòng thử lại!');
-        // Khôi phục nút nếu lỗi
-        buyBtn.disabled = false;
-        buyBtn.innerHTML = originalText;
-    });
-}
-
+            if (urlParams.get('error') === '1') {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                toast.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Có lỗi xảy ra!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
 
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function () {
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
-            if (menuToggle) {
+
+            if (menuToggle && mobileMenu) {
                 menuToggle.addEventListener('click', function () {
                     mobileMenu.classList.remove('-translate-x-full');
                     document.body.style.overflow = 'hidden';
                 });
             }
-            if (closeMenu) {
+            if (closeMenu && mobileMenu) {
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
                     document.body.style.overflow = '';
                 });
             }
-            // === USER DROPDOWN TOGGLE ===
+
+            // User dropdown toggle
             const userToggle = document.getElementById('userToggle');
             const userMenu = document.getElementById('userMenu');
             if (userToggle && userMenu) {
@@ -817,6 +839,21 @@ function buyNow() {
                 });
             }
         });
+
+        // Validate add to cart
+        function validateAddToCart() {
+            const qtyInput = document.getElementById('quantity');
+            if (qtyInput && qtyInput.disabled) {
+                alert('Sản phẩm hiện đã hết hàng!');
+                return false;
+            }
+            const qty = parseInt(qtyInput?.value || 1);
+            if (qty < 1 || isNaN(qty)) {
+                alert('Số lượng không hợp lệ!');
+                return false;
+            }
+            return true;
+        }
     </script>
 </body>
 
