@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['cart'][$product_id] = $quantity;
                 }
 
-                // ✅ QUAN TRỌNG: Đóng session ngay sau khi ghi để tránh lock
+                //  QUAN TRỌNG: Đóng session ngay sau khi ghi để tránh lock
                 session_write_close();
 
                 $response['success'] = true;
