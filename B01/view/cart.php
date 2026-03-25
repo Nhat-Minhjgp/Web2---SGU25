@@ -757,7 +757,7 @@ $user_info = [
                         <form method="POST" action="" id="cartForm">
                             <!-- Cart Header (Desktop) -->
                             <div
-                                class="hidden md:grid grid-cols-[4fr,0.85fr,1.3fr,1.5fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
+                                class="hidden md:grid grid-cols-[4fr,0.85fr,1.3fr,1.9fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
                                 <span>Sản phẩm</span>
                                 <span class="text-center">Đơn giá</span>
                                 <span class="text-center">Số lượng</span>
@@ -775,10 +775,10 @@ $user_info = [
                                             <div class="flex gap-4">
                                                 <img src="../<?php echo htmlspecialchars($item['image_url']); ?>"
                                                     alt="<?php echo htmlspecialchars($item['TenSP']); ?>"
-                                                    class="w-20 h-20 object-cover rounded border">
+                                                    class="w-20 h-20 object-cover rounded">
                                                 <div>
                                                     <a href="product.php?id=<?php echo $item['SanPham_id']; ?>"
-                                                        class="font-medium text-gray-800 hover:text-red-600 line-clamp-2">
+                                                        class="font-medium text-gray-800 hover:text-red-600 mt-2 line-clamp-2">
                                                         <?php echo htmlspecialchars($item['TenSP']); ?>
                                                     </a>
                                                     <!-- Mobile price & quantity -->
@@ -789,13 +789,13 @@ $user_info = [
                                                         <div class="flex items-center border border-gray-300 rounded">
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, -1)">-</button>
-                                                            <input type="number"
+                                                            <input type="number" 
                                                                 name="quantity[<?php echo $item['SanPham_id']; ?>]"
                                                                 value="<?php echo $item['SoLuong']; ?>" min="1"
                                                                 max="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 data-product-id="<?php echo $item['SanPham_id']; ?>"
-                                                                class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
+                                                                class="qty-input w-12 text-center border-0  focus:ring-0 p-0">
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, 1)">+</button>
                                                         </div>
