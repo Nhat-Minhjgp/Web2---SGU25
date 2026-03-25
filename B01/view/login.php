@@ -2,12 +2,10 @@
 session_start();
 // --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
-
 // Khởi tạo biến tránh warning
 $errors = [];
 $success = '';
 $form_data = ['username' => '', 'password' => ''];
-
 // === SERVER-SIDE SQL INJECTION PATTERNS ===
 $sqlInjectionPatterns = [
     '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b|\bEXEC\b|\bTRUNCATE\b)/i',
@@ -17,7 +15,6 @@ $sqlInjectionPatterns = [
     '/[\'"]\s*OR\s*[\'"]?1[\'"]?\s*=\s*[\'"]?1/i',
     '/%00|%27|%22|%3B/i'  // URL-encoded dangerous chars
 ];
-
 function checkSQLInjectionServer($value)
 {
     global $sqlInjectionPatterns;
@@ -28,13 +25,16 @@ function checkSQLInjectionServer($value)
     }
     return false;
 }
-
 // --- XỬ LÝ FORM SUBMIT ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Lấy dữ liệu & sanitize
     $raw_username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
+
+    // === LƯU LẠI DỮ LIỆU ĐỂ HIỂN THỊ KHI CÓ LỖI (Theo yêu cầu) ===
+// Lưu ý bảo mật: Thông thường nên xóa password khi lỗi để tránh lưu cache trình duyệt
+    $form_data['password'] = $password;
 
     // === SERVER-SIDE SQL INJECTION CHECK ===
     if (checkSQLInjectionServer($raw_username) || checkSQLInjectionServer($password)) {
@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Sanitize sau khi đã check SQL injection
         $form_data['username'] = trim(preg_replace('/[^a-zA-Z0-9]/', '', $raw_username));
     }
-
     // Validation cơ bản
     if (empty($form_data['username']) && empty($errors)) {
         $errors[] = "Tên đăng nhập không được để trống";
@@ -51,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($password) && empty($errors)) {
         $errors[] = "Mật khẩu không được để trống";
     }
-
     // Xử lý database nếu không có lỗi
     if (empty($errors)) {
         try {
@@ -60,10 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("s", $form_data['username']);
             $stmt->execute();
             $result = $stmt->get_result();
-
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-
                 // Verify password
                 if (password_verify($password, $user['password'])) {
                     // Kiểm tra status
@@ -80,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['ho_ten'] = $user['Ho_ten'];
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['role'] = $user['role'];
-
                         // Remember me
                         if ($remember) {
                             setcookie('remember_user', $form_data['username'], [
@@ -90,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 'samesite' => 'Lax'
                             ]);
                         }
-
                         $success = "Đăng nhập thành công! Chuyển hướng...";
                         header("Refresh: 2; URL=../index.php");
                         exit();
@@ -109,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 // Tự động điền username nếu có remember cookie
 if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
     $form_data['username'] = htmlspecialchars($_COOKIE['remember_user']);
@@ -201,20 +194,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             margin-top: 2px;
             display: none;
         }
-
-        /* Password toggle */
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6b7280;
-        }
-
-        .password-toggle:hover {
-            color: #dc2626;
-        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -222,7 +201,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
 <body class="font-sans antialiased bg-gray-50">
     <!-- Popup Overlay -->
     <div id="popup_overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50"></div>
-
     <!-- Main Wrapper -->
     <div id="wrapper" class="min-h-screen flex flex-col">
         <!-- Header (GIỮ NGUYÊN 100%) -->
@@ -402,7 +380,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </header>
-
         <main id="main" class="bg-white mt-20 mb-20">
             <div class="page-wrapper my-account mb">
                 <div class="container mx-auto px-5" role="main">
@@ -416,14 +393,10 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         alt="Banner Login" title="My account" class="w-full h-full object-cover"
                                         style="min-height: 500px;">
                                 </div>
-
                                 <!-- Login Form -->
                                 <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-6 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng nhập</h1>
-
-
-
                                         <!-- Thông báo lỗi -->
                                         <?php if (!empty($errors)): ?>
                                             <div class="alert-error p-3 rounded mb-4 text-sm">
@@ -437,7 +410,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                     class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?>
                                             </div>
                                         <?php endif; ?>
-
                                         <!-- Thông báo thành công -->
                                         <?php if ($success): ?>
                                             <div class="alert-success p-3 rounded mb-4 text-sm">
@@ -445,7 +417,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                 <?php echo htmlspecialchars($success); ?>
                                             </div>
                                         <?php endif; ?>
-
                                         <form id="loginForm" class="space-y-4" method="POST" action="" novalidate>
                                             <!-- Tên đăng nhập -->
                                             <div>
@@ -457,31 +428,32 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                 <div class="error-text" id="username-error">Tên đăng nhập không được để
                                                     trống</div>
                                             </div>
-
                                             <!-- Mật khẩu -->
                                             <div class="relative">
                                                 <input type="password" id="password" name="password"
                                                     placeholder="Mật khẩu *"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm pr-10"
+                                                    value="<?php echo htmlspecialchars($form_data['password']); ?>"
                                                     required>
-                                                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                                                <!-- Nút hiện mật khẩu -->
+                                                <button type="button" id="togglePassword"
+                                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                                                 <div class="error-text" id="password-error">Mật khẩu không được để trống
                                                 </div>
                                             </div>
-
                                             <!-- Remember Me -->
                                             <div class="flex items-center gap-2 text-xs">
                                                 <input type="checkbox" name="remember" id="remember" class="mt-1">
                                                 <label for="remember" class="text-gray-600">Ghi nhớ đăng nhập</label>
                                             </div>
-
                                             <!-- Nút đăng nhập -->
                                             <button type="submit" id="submitBtn"
                                                 class="w-full bg-[#FF3F1A] text-white text-sm py-2.5 rounded hover:bg-red-600 font-medium transition"
                                                 disabled>
                                                 ĐĂNG NHẬP
                                             </button>
-
                                             <!-- Links -->
                                             <div class="flex justify-between text-xs pt-2">
                                                 <a href="#" class="text-gray-500 hover:text-red-600">Quên mật khẩu?</a>
@@ -497,7 +469,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </main>
-
         <!-- Footer  -->
         <footer id="footer" class="bg-black text-white">
             <div class="container mx-auto px-4 py-8">
@@ -560,7 +531,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </footer>
-
         <!-- Mobile Menu (GIỮ NGUYÊN 100%) -->
         <div id="main-menu"
             class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
@@ -584,7 +554,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 <!-- Mobile Menu Items - Danh mục chính -->
                 <div class="mb-4">
                     <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
-
                     <!-- Cầu Lông -->
                     <div class="mb-2">
                         <button
@@ -599,7 +568,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-
                         <!-- Submenu Cầu Lông -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
                             <!-- Vợt cầu lông -->
@@ -620,7 +588,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-red-600">Xem thêm</a>
                                 </div>
                             </div>
-
                             <!-- Áo cầu lông -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
@@ -636,7 +603,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-red-600">Xem thêm</a>
                                 </div>
                             </div>
-
                             <!-- Quần cầu lông -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/quan-cau-long"
@@ -650,19 +616,16 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-gray-600">Quần Adidas</a>
                                 </div>
                             </div>
-
                             <!-- Túi vợt -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/tui-vot-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Túi vợt</a>
                             </div>
-
                             <!-- Balo -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/balo-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Balo</a>
                             </div>
-
                             <!-- Phụ kiện -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/phu-kien-cau-long"
@@ -680,7 +643,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                         </div>
                     </div>
-
                     <!-- Pickleball -->
                     <div class="mb-2">
                         <button
@@ -695,7 +657,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-
                         <!-- Submenu Pickleball -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
                             <div>
@@ -722,7 +683,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                         </div>
                     </div>
-
                     <!-- Giày -->
                     <div class="mb-2">
                         <button
@@ -737,7 +697,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-
                         <!-- Submenu Giày -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
                             <div>
@@ -762,7 +721,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                         </div>
                     </div>
-
                     <!-- Chăm sóc sức khoẻ -->
                     <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
                         class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
@@ -772,7 +730,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         </div>
                         <span class="font-medium">Chăm sóc sức khoẻ</span>
                     </a>
-
                     <!-- Dịch vụ -->
                     <a href="https://nvbplay.vn/product-category/dich-vu"
                         class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
@@ -782,7 +739,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         </div>
                         <span class="font-medium">Dịch vụ</span>
                     </a>
-
                     <!-- Tin Tức -->
                     <div class="mb-2">
                         <button
@@ -797,7 +753,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-
                         <!-- Submenu Tin Tức -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-news">
                             <div>
@@ -811,7 +766,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                         </div>
                     </div>
-
                     <!-- Tuyển dụng -->
                     <a href="https://nvbplay.vn/tuyen-dung"
                         class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
@@ -822,14 +776,12 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         <span class="font-medium">Tuyển dụng</span>
                     </a>
                 </div>
-
                 <!-- Link phụ -->
                 <div class="mt-6 pt-4 border-t border-gray-200">
                     <a href="https://nvbplay.vn/khuyen-mai" class="block py-2 text-gray-600 hover:text-red-600">Khuyến
                         mãi</a>
                     <a href="/blogs" class="block py-2 text-gray-600 hover:text-red-600">Blogs</a>
                 </div>
-
                 <!-- Thông tin liên hệ -->
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div class="flex items-center mb-2">
@@ -849,85 +801,94 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
         </div>
     </div>
     </div>
-
-    <!-- JavaScript Form Validation -->
+    <!-- JavaScript Form Validation & Toggle Password -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('loginForm');
             const username = document.getElementById('username');
             const password = document.getElementById('password');
             const submitBtn = document.getElementById('submitBtn');
-            const togglePassword = document.getElementById('togglePassword');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const toggleIcon = togglePasswordBtn ? togglePasswordBtn.querySelector('i') : null;
 
-            // Toggle password visibility
-            if (togglePassword) {
-                togglePassword.addEventListener('click', function () {
+            // === ✅ TOGGLE PASSWORD VISIBILITY ===
+            if (togglePasswordBtn && password && toggleIcon) {
+                togglePasswordBtn.addEventListener('click', function () {
                     const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                     password.setAttribute('type', type);
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
+                    // Toggle icon
+                    toggleIcon.classList.toggle('fa-eye');
+                    toggleIcon.classList.toggle('fa-eye-slash');
+                    // Change color when active
+                    if (type === 'text') {
+                        togglePasswordBtn.style.color = '#FF3F1A';
+                    } else {
+                        togglePasswordBtn.style.color = '#6b7280';
+                    }
                 });
             }
 
-            // Validation functions
+            // === Validation functions ===
             function validateUsername() {
                 const value = username.value.trim();
                 const error = document.getElementById('username-error');
                 if (value.length === 0) {
                     username.classList.add('input-invalid');
                     username.classList.remove('input-valid');
-                    error.style.display = 'block';
+                    if (error) error.style.display = 'block';
                     return false;
                 }
                 username.classList.add('input-valid');
                 username.classList.remove('input-invalid');
-                error.style.display = 'none';
+                if (error) error.style.display = 'none';
                 return true;
             }
-
             function validatePassword() {
                 const value = password.value;
                 const error = document.getElementById('password-error');
                 if (value.length === 0) {
                     password.classList.add('input-invalid');
                     password.classList.remove('input-valid');
-                    error.style.display = 'block';
+                    if (error) error.style.display = 'block';
                     return false;
                 }
                 password.classList.add('input-valid');
                 password.classList.remove('input-invalid');
-                error.style.display = 'none';
+                if (error) error.style.display = 'none';
                 return true;
             }
-
             function checkFormValidity() {
                 const isValid = validateUsername() && validatePassword();
-                submitBtn.disabled = !isValid;
-                submitBtn.classList.toggle('opacity-50', !isValid);
-                submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                if (submitBtn) {
+                    submitBtn.disabled = !isValid;
+                    submitBtn.classList.toggle('opacity-50', !isValid);
+                    submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                }
                 return isValid;
             }
-
             // Event listeners
-            username.addEventListener('blur', validateUsername);
-            username.addEventListener('input', checkFormValidity);
-            password.addEventListener('blur', validatePassword);
-            password.addEventListener('input', checkFormValidity);
-
+            if (username) {
+                username.addEventListener('blur', validateUsername);
+                username.addEventListener('input', checkFormValidity);
+            }
+            if (password) {
+                password.addEventListener('blur', validatePassword);
+                password.addEventListener('input', checkFormValidity);
+            }
             // Form submit
-            form.addEventListener('submit', function (e) {
-                if (!checkFormValidity()) {
-                    e.preventDefault();
-                    const firstError = form.querySelector('.input-invalid');
-                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            });
-
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    if (!checkFormValidity()) {
+                        e.preventDefault();
+                        const firstError = form.querySelector('.input-invalid');
+                        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
             // Initial check
             checkFormValidity();
         });
     </script>
-
     <!-- JavaScript Menu  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -957,7 +918,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             }
         });
     </script>
-
     <!-- JavaScript Desktop Menu  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -1008,146 +968,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                     this.querySelector('i').classList.toggle('fa-chevron-up');
                 });
             }
-        });
-    </script>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('loginForm');
-            const username = document.getElementById('username');
-            const password = document.getElementById('password');
-            const submitBtn = document.getElementById('submitBtn');
-            const togglePassword = document.getElementById('togglePassword');
-            const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
-            const sqlInjectionMessage = document.getElementById('sqlInjectionMessage');
-
-            // === CLIENT-SIDE SQL INJECTION PATTERNS ===
-            const sqlPatterns = [
-                /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|EXECUTE)\b/i,
-                /(--|\/\*|\*\/|#|;)/,
-                /['"]\s*(OR|AND)\s*['"]?\d+['"]?\s*=\s*['"]?\d+['"]?/i,
-                /\b(WAITFOR|BENCHMARK|SLEEP|xp_|sp_)\b/i,
-                /%00|%27|%22|%3B/i
-            ];
-
-            function checkSQLInjection(value, fieldName) {
-                for (let pattern of sqlPatterns) {
-                    if (pattern.test(value)) {
-                        showSQLWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            function showSQLWarning(msg) {
-                sqlWarning.style.display = 'block';
-                sqlWarningMsg.textContent = msg;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-
-            function hideSQLWarning() {
-                sqlWarning.style.display = 'none';
-                if (validateUsername() && validatePassword()) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-
-            // Toggle password visibility
-            if (togglePassword) {
-                togglePassword.addEventListener('click', function () {
-                    const type = password.type === 'password' ? 'text' : 'password';
-                    password.type = type;
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
-                });
-            }
-
-            function validateUsername() {
-                const value = username.value.trim();
-                const error = document.getElementById('username-error');
-
-                if (checkSQLInjection(value, 'tên đăng nhập')) {
-                    username.classList.add('input-invalid');
-                    username.classList.remove('input-valid');
-                    return false;
-                }
-
-                if (value.length === 0) {
-                    username.classList.add('input-invalid');
-                    username.classList.remove('input-valid');
-                    error.style.display = 'block';
-                    return false;
-                }
-                username.classList.add('input-valid');
-                username.classList.remove('input-invalid');
-                error.style.display = 'none';
-                hideSQLWarning();
-                return true;
-            }
-
-            function validatePassword() {
-                const value = password.value;
-                const error = document.getElementById('password-error');
-
-                if (checkSQLInjection(value, 'mật khẩu')) {
-                    password.classList.add('input-invalid');
-                    password.classList.remove('input-valid');
-                    return false;
-                }
-
-                if (value.length === 0) {
-                    password.classList.add('input-invalid');
-                    password.classList.remove('input-valid');
-                    error.style.display = 'block';
-                    return false;
-                }
-                password.classList.add('input-valid');
-                password.classList.remove('input-invalid');
-                error.style.display = 'none';
-                hideSQLWarning();
-                return true;
-            }
-
-            function checkFormValidity() {
-                const isValid = validateUsername() && validatePassword();
-                submitBtn.disabled = !isValid;
-                submitBtn.classList.toggle('opacity-50', !isValid);
-                submitBtn.classList.toggle('cursor-not-allowed', !isValid);
-                return isValid;
-            }
-
-            // Event listeners
-            username.addEventListener('blur', validateUsername);
-            username.addEventListener('input', function () {
-                if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'tên đăng nhập');
-                checkFormValidity();
-            });
-
-            password.addEventListener('blur', validatePassword);
-            password.addEventListener('input', function () {
-                if (/[;'"\\<>%]/.test(this.value)) checkSQLInjection(this.value, 'mật khẩu');
-                checkFormValidity();
-            });
-
-            // Form submit - final check
-            form.addEventListener('submit', function (e) {
-                if (checkSQLInjection(username.value, 'tên đăng nhập') || checkSQLInjection(password.value, 'mật khẩu')) {
-                    e.preventDefault();
-                    return false;
-                }
-                if (!checkFormValidity()) {
-                    e.preventDefault();
-                    const firstError = form.querySelector('.input-invalid');
-                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            });
-
-            // Initial check
-            checkFormValidity();
         });
     </script>
 </body>
