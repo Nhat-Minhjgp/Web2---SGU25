@@ -123,7 +123,7 @@
     `PhuongThucTT` varchar(50) DEFAULT NULL,
     `TongTien` int(11) DEFAULT NULL,
     `NgayDat` date DEFAULT NULL,
-    `TrangThai` varchar(50) DEFAULT NULL,
+    `TrangThai` tinyint (1) DEFAULT NULL,
     `linkTraCuu` varchar(255) DEFAULT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
