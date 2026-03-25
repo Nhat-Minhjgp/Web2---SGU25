@@ -183,7 +183,7 @@ $stmt->close();
 // Lấy thông tin user cho header
 $user_info = [
     'username' => $_SESSION['username'] ?? '',
-    'ho_ten' => $_SESSION['ho_ten'] ?? '',
+    'Ho_ten' => $_SESSION['Ho_ten'] ?? '',
     'email' => $_SESSION['email'] ?? ''
 ];
 ?>
@@ -256,13 +256,74 @@ $user_info = [
             color: #16a34a;
         }
 
-        /* Mobile Account Menu Styles */
-        #mobile-account-menu {
-            transition: transform 0.3s ease-in-out;
+        .user-dropdown {
+            position: relative;
         }
 
-        #mobile-account-overlay {
-            transition: opacity 0.3s ease-in-out;
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            min-width: 220px;
+            z-index: 50;
+            display: none;
+            /* Mặc định ẩn */
+            animation: slideDown 0.2s ease;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        /* Khi có class active thì hiện */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .user-menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .user-menu-item i {
+            width: 18px;
+            color: #6b7280;
+        }
+
+        .user-menu-divider {
+            border-top: 1px solid #f3f4f6;
+            margin: 4px 0;
+        }
+
+        .user-menu-item.logout {
+            color: #dc2626;
+        }
+
+        .user-menu-item.logout i {
+            color: #dc2626;
         }
 
         /* Popup Styles */
@@ -405,31 +466,37 @@ $user_info = [
                                 <button id="userToggle"
                                     class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition">
                                     <img src="../../img/icons/account.svg" class="w-6 h-6" alt="Account">
-                                    <span
-                                        class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($user_info['username']); ?></span>
+                                    <span class="text-sm font-medium text-gray-700">
+                                        <?php echo htmlspecialchars($user_info['username']); ?>
+                                    </span>
                                     <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                                 </button>
-                                <div id="userMenu"
-                                    class="user-menu absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border hidden z-50 min-w-[200px]">
-                                    <div class="px-4 py-3 border-b">
+
+                                <!-- User Menu Dropdown -->
+                                <div id="userMenu" class="user-menu">
+                                    <div class="px-4 py-3 border-b border-gray-100">
                                         <div class="flex items-center space-x-3">
                                             <img src="../../img/icons/account.svg" class="w-10 h-10" alt="Account">
                                             <div>
-                                                <p class="text-sm font-medium">
-                                                    <?php echo htmlspecialchars($user_info['ho_ten']); ?></p>
+                                                <!-- ✅ SỬA: $user_info thay vì $user -->
+                                                <p class="text-sm font-medium text-gray-800">
+                                                    <?php echo htmlspecialchars($user_info['Ho_ten']); ?>
+                                                </p>
                                                 <p class="text-xs text-gray-500">
-                                                    <?php echo htmlspecialchars($user_info['email']); ?></p>
+                                                    <?php echo htmlspecialchars($user_info['email']); ?>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="../my-account.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Tài
-                                        khoản của tôi</a>
-                                    <a href="./orders.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Đơn hàng</a>
-                                    <a href="./address-book.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Sổ địa
-                                        chỉ</a>
-                                    <div class="border-t my-1"></div>
-                                    <a href="../../control/logout.php"
-                                        class="block px-4 py-2 hover:bg-gray-50 text-sm text-red-600">Đăng xuất</a>
+                                    <a href="./my-account.php" class="user-menu-item"><i
+                                            class="fas fa-user"></i><span>Tài khoản của tôi</span></a>
+                                    <a href="./my-account/orders.php" class="user-menu-item"><i
+                                            class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a>
+                                    <a href="./my-account/address-book.php" class="user-menu-item"><i
+                                            class="fas fa-map-marker-alt"></i><span>Sổ địa chỉ</span></a>
+                                    <div class="user-menu-divider"></div>
+                                    <a href="../control/logout.php" class="user-menu-item logout"><i
+                                            class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
                                 </div>
                             </div>
 
@@ -488,14 +555,16 @@ $user_info = [
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
                                             <h3 class="font-semibold text-gray-900">
-                                                <?php echo htmlspecialchars($user_info['ho_ten']); ?></h3>
+                                                <?php echo htmlspecialchars($user_info['Ho_ten']); ?>
+                                            </h3>
                                         </div>
                                         <div class="rank">
                                             <img src="../../img/icons/subscription.svg" class="w-25 h-25">
                                         </div>
                                     </div>
                                     <p class="text-sm text-gray-500">
-                                        <?php echo htmlspecialchars($user_info['email']); ?></p>
+                                        <?php echo htmlspecialchars($user_info['email']); ?>
+                                    </p>
                                 </div>
                             </div>
                             <button class="lg:hidden absolute top-4 right-4 p-2" onclick="toggleMobileAccountMenu()">
@@ -637,12 +706,7 @@ $user_info = [
                                                                         title="Sửa">
                                                                         <i class="fas fa-edit"></i>
                                                                     </button>
-                                                                    <button
-                                                                        onclick="deleteAddress(<?php echo $addr['add_id']; ?>)"
-                                                                        class="p-2 text-gray-500 hover:text-red-600 transition"
-                                                                        title="Xóa">
-                                                                        <i class="fas fa-trash-alt"></i>
-                                                                    </button>
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -674,7 +738,8 @@ $user_info = [
                             class="w-12 h-12 rounded-full border-2 border-gray-200">
                         <div>
                             <h3 class="font-semibold text-gray-900">
-                                <?php echo htmlspecialchars($user_info['ho_ten']); ?></h3>
+                                <?php echo htmlspecialchars($user_info['ho_ten']); ?>
+                            </h3>
                             <p class="text-xs text-gray-500"><?php echo htmlspecialchars($user_info['email']); ?></p>
                         </div>
                     </div>
@@ -892,21 +957,26 @@ $user_info = [
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
-        // === USER DROPDOWN TOGGLE ===
         document.addEventListener('DOMContentLoaded', function () {
+            // ===  USER DROPDOWN TOGGLE  ===
             const userToggle = document.getElementById('userToggle');
             const userMenu = document.getElementById('userMenu');
+
             if (userToggle && userMenu) {
                 userToggle.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    userMenu.classList.toggle('hidden');
+                    userMenu.classList.toggle('active');
                 });
+
                 document.addEventListener('click', function (e) {
                     if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                        userMenu.classList.add('hidden');
+                        userMenu.classList.remove('active');
                     }
+                });
+
+                userMenu.addEventListener('click', function (e) {
+                    e.stopPropagation();
                 });
             }
 
@@ -914,37 +984,50 @@ $user_info = [
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
-            if (menuToggle) {
+
+            if (menuToggle && mobileMenu) {
                 menuToggle.addEventListener('click', function () {
                     mobileMenu.classList.remove('-translate-x-full');
                     document.body.style.overflow = 'hidden';
                 });
             }
-            if (closeMenu) {
+
+            if (closeMenu && mobileMenu) {
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
                     document.body.style.overflow = '';
                 });
             }
+
+            // Mega menu
+            const menuTrigger = document.getElementById('mega-menu-trigger');
+            const menuDropdown = document.getElementById('mega-menu-dropdown');
+
+            if (menuTrigger && menuDropdown) {
+                menuTrigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menuDropdown.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
+                        menuDropdown.classList.add('hidden');
+                    }
+                });
+            }
         });
 
-        // === MOBILE ACCOUNT MENU TOGGLE ===
+        // Mobile account menu toggle
         function toggleMobileAccountMenu() {
             const mobileMenu = document.getElementById('mobile-account-menu');
             const overlay = document.getElementById('mobile-account-overlay');
-            const body = document.body;
-            if (mobileMenu.classList.contains('-translate-x-full')) {
-                mobileMenu.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                body.style.overflow = 'hidden';
-            } else {
-                mobileMenu.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                body.style.overflow = '';
+            if (mobileMenu && overlay) {
+                mobileMenu.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
             }
         }
 
-        // === POPUP FUNCTIONS ===
+        // Popup functions
         function openAddPopup() {
             document.getElementById('popupTitle').textContent = 'Thêm địa chỉ mới';
             document.getElementById('addressForm').reset();
@@ -973,11 +1056,6 @@ $user_info = [
             document.getElementById('addressPopup').classList.remove('active');
         }
 
-        function deleteAddress(addId) {
-            document.getElementById('delete_id').value = addId;
-            document.getElementById('deletePopup').classList.add('active');
-        }
-
         function closeDeletePopup() {
             document.getElementById('deletePopup').classList.remove('active');
         }
@@ -994,48 +1072,8 @@ $user_info = [
         document.getElementById('addressPopup').addEventListener('click', function (e) {
             if (e.target === this) closePopup();
         });
-
         document.getElementById('deletePopup').addEventListener('click', function (e) {
             if (e.target === this) closeDeletePopup();
-        });
-    </script>
-
-    <!-- JavaScript Menu (GIỮ NGUYÊN) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuTrigger = document.getElementById('mega-menu-trigger');
-            const menuDropdown = document.getElementById('mega-menu-dropdown');
-            const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-            const menuContents = document.querySelectorAll('.menu-content');
-            if (menuTrigger) {
-                menuTrigger.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    menuDropdown.classList.toggle('hidden');
-                });
-            }
-            menuItems.forEach(item => {
-                item.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const menuId = this.getAttribute('data-menu');
-                    menuItems.forEach(el => {
-                        el.classList.remove('active', 'bg-red-50');
-                        const titleEl = el.querySelector('.font-bold');
-                        if (titleEl) titleEl.classList.remove('text-red-600');
-                    });
-                    this.classList.add('active', 'bg-red-50');
-                    const activeTitle = this.querySelector('.font-bold');
-                    if (activeTitle) activeTitle.classList.add('text-red-600');
-                    menuContents.forEach(content => { content.classList.add('hidden'); });
-                    const activeContent = document.getElementById(`content-${menuId}`);
-                    if (activeContent) { activeContent.classList.remove('hidden'); }
-                });
-            });
-            document.addEventListener('click', function (e) {
-                if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                    menuDropdown.classList.add('hidden');
-                }
-            });
-            menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
         });
     </script>
 </body>

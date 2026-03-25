@@ -2,11 +2,9 @@
 // view/product.php
 session_start();
 require_once '../control/connect.php';
-
 // === KIỂM TRA ĐĂNG NHẬP  ===
 $is_logged_in = isset($_SESSION['user_id']);
 $user_info = null;
-
 if ($is_logged_in) {
     // Chặn role=1 (Staff/Admin) không được vào khu vực user
     if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
@@ -15,7 +13,6 @@ if ($is_logged_in) {
         header("Location: login.php?error=staff_not_allowed");
         exit();
     }
-
     $user_info = [
         'user_id' => $_SESSION['user_id'] ?? '',
         'username' => $_SESSION['username'] ?? '',
@@ -24,62 +21,51 @@ if ($is_logged_in) {
         'role' => $_SESSION['role'] ?? 0
     ];
 }
-
 // Lấy ID sản phẩm từ URL
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
 if ($product_id <= 0) {
     header('Location: shop.php');
     exit();
 }
-
 // Lấy thông tin sản phẩm
 $sql = "SELECT s.*, d.Ten_danhmuc, d.slug as danhmuc_slug,
-        th.Ten_thuonghieu, th.slug as thuonghieu_slug,
-        ncc.Ten_NCC
-        FROM sanpham s
-        LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
-        LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
-        LEFT JOIN nhacungcap ncc ON s.NCC_id = ncc.NCC_id
-        WHERE s.SanPham_id = ? AND s.TrangThai = 1";
-
+th.Ten_thuonghieu, th.slug as thuonghieu_slug,
+ncc.Ten_NCC
+FROM sanpham s
+LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
+LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
+LEFT JOIN nhacungcap ncc ON s.NCC_id = ncc.NCC_id
+WHERE s.SanPham_id = ? AND s.TrangThai = 1";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
 $product = $stmt->get_result()->fetch_assoc();
-
 if (!$product) {
     header('Location: shop.php');
     exit();
 }
-
-// Lấy hình ảnh từ image_url trong bảng sanpham 
+// Lấy hình ảnh từ image_url trong bảng sanpham
 $product_images = [
     ['DuongDan' => $product['image_url']]
 ];
-
 // Lấy sản phẩm cùng danh mục (related products)
 $related_sql = "SELECT s.*, d.slug as danhmuc_slug
-                FROM sanpham s
-                LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
-                WHERE s.Danhmuc_id = ? 
-                AND s.SanPham_id != ? 
-                AND s.TrangThai = 1
-                ORDER BY RAND()
-                LIMIT 5";
-
+FROM sanpham s
+LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
+WHERE s.Danhmuc_id = ?
+AND s.SanPham_id != ?
+AND s.TrangThai = 1
+ORDER BY RAND()
+LIMIT 5";
 $related_stmt = $conn->prepare($related_sql);
 $related_stmt->bind_param("ii", $product['Danhmuc_id'], $product_id);
 $related_stmt->execute();
 $related_products = $related_stmt->get_result();
-
 // Format giá
 function formatPrice($price)
 {
     return number_format($price, 0, ',', '.') . ' ₫';
 }
-
-
 $is_in_stock = $product['SoLuongTon'] > 0;
 $max_qty = $is_in_stock ? $product['SoLuongTon'] : 0;
 $disabled_attr = $is_in_stock ? '' : 'disabled';
@@ -94,7 +80,6 @@ function calculateDiscount($import_price, $sell_price)
     }
     return 0;
 }
-
 $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 ?>
 <!DOCTYPE html>
@@ -235,7 +220,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 <body class="font-sans antialiased bg-gray-50">
     <!-- Popup Overlay -->
     <div id="popup_overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50"></div>
-
     <!-- Main Wrapper -->
     <div id="wrapper" class="min-h-screen flex flex-col">
         <!-- Header -->
@@ -251,7 +235,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                         </div>
                     </div>
                 </div>
-
                 <!-- Main Header -->
                 <div id="masthead" class="py-2 md:py-3 border-b">
                     <div class="container mx-auto px-4 flex items-center justify-between">
@@ -261,7 +244,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 <i class="fas fa-bars text-2xl"></i>
                             </button>
                         </div>
-
                         <!-- Desktop Left Menu -->
                         <div class="hidden md:flex items-center flex-1 ml-6">
                             <ul class="flex items-center space-x-4">
@@ -284,7 +266,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 </li>
                             </ul>
                         </div>
-
                         <!-- Logo - Centered -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
                             <a href="../index.php" title="NVBPlay" rel="home">
@@ -292,7 +273,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     class="h-12 md:h-14 w-auto transform scale-75">
                             </a>
                         </div>
-
                         <!-- Desktop Right Elements -->
                         <div class="hidden md:flex items-center space-x-4">
                             <!-- Address Book (chỉ hiển thị khi đã đăng nhập) -->
@@ -308,14 +288,12 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 </div>
                                 <div class="h-5 w-px bg-gray-300"></div>
                             <?php endif; ?>
-
                             <!-- Search button -->
                             <div class="search-header relative">
                                 <button class="search-toggle p-2">
                                     <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
                                 </button>
                             </div>
-
                             <!-- Account Dropdown (THAY ĐỔI THEO TRẠNG THÁI ĐĂNG NHẬP) -->
                             <div class="user-dropdown">
                                 <?php if ($is_logged_in): ?>
@@ -370,7 +348,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </a>
                                 <?php endif; ?>
                             </div>
-
                             <!-- Cart -->
                             <a href="cart.php" class="relative p-2">
                                 <i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i>
@@ -378,7 +355,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                             </a>
                         </div>
-
                         <!-- Mobile Right Elements -->
                         <div class="md:hidden flex items-center space-x-3">
                             <button class="search-toggle p-1">
@@ -404,7 +380,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 </div>
             </div>
         </header>
-
         <!-- Main Content -->
         <main class="flex-grow bg-gray-50 py-8 md:p-[30px]">
             <div class="container mx-auto px-4">
@@ -419,7 +394,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
                                     id="main-product-image">
                             </div>
-
                             <!-- Thumbnails - Chỉ hiển thị nếu có nhiều ảnh -->
                             <?php if (count($product_images) > 1): ?>
                                 <div class="grid grid-cols-4 gap-2">
@@ -434,14 +408,12 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 </div>
                             <?php endif; ?>
                         </div>
-
                         <!-- Right: Product Info -->
                         <div class="flex flex-col">
                             <!-- Title -->
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-4 mb-4">
                                 <?php echo htmlspecialchars($product['TenSP']); ?>
                             </h1>
-
                             <!-- Brand & Category -->
                             <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
                                 <?php if ($product['Ten_thuonghieu']): ?>
@@ -458,7 +430,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </div>
                                 <?php endif; ?>
                             </div>
-
                             <!-- Product Description -->
                             <?php if (!empty($product['MoTa'])): ?>
                                 <div class="text-gray-600 mb-6 mt-6 rounded-lg">
@@ -468,7 +439,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </div>
                                 </div>
                             <?php endif; ?>
-
                             <!-- Short Description -->
                             <div class="text-gray-600 mb-6 mt-6 space-y-4">
                                 <h4 class="font-bold text-gray-900">Chính sách:</h4>
@@ -479,7 +449,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     <li>Không đi kèm/bảo hành túi vợt</li>
                                 </ul>
                             </div>
-
                             <!-- Price -->
                             <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                                 <div class="flex items-end gap-3 mb-2">
@@ -509,11 +478,9 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </div>
                                 <?php endif; ?>
                             </div>
-
                             <!-- Add to Cart Form -->
                             <form class="mt-auto space-y-4" method="POST" action="cart.php">
                                 <input type="hidden" name="product_id" value="<?php echo $product['SanPham_id']; ?>">
-
                                 <!-- Quantity -->
                                 <div class="flex items-center gap-4">
                                     <span class="font-medium text-gray-700">Số lượng:</span>
@@ -521,17 +488,18 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         class="flex items-center border border-gray-300 rounded <?php echo !$is_in_stock ? 'bg-gray-100' : ''; ?>">
                                         <button type="button" onclick="decreaseQty()"
                                             class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                                            <?php echo $disabled_attr; ?>>-</button>
+                                            <?php echo $disabled_attr; ?>>-
+                                        </button>
                                         <input type="number" name="quantity" id="quantity" value="1" min="1"
                                             max="<?php echo $max_qty; ?>"
                                             class="w-16 text-center border-none focus:ring-0 p-0 <?php echo !$is_in_stock ? 'bg-gray-100 text-gray-500' : ''; ?>"
                                             readonly <?php echo $disabled_attr; ?>>
                                         <button type="button" onclick="increaseQty()"
                                             class="px-3 py-2 hover:bg-gray-100 text-gray-600 <?php echo !$is_in_stock ? 'opacity-50 cursor-not-allowed' : ''; ?>"
-                                            <?php echo $disabled_attr; ?>>+</button>
+                                            <?php echo $disabled_attr; ?>>+
+                                        </button>
                                     </div>
                                 </div>
-
                                 <!-- Buttons -->
                                 <div class="grid grid-cols-2 gap-4">
                                     <!-- Thêm vào giỏ -->
@@ -540,15 +508,13 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         <?php echo $disabled_attr; ?> <?php if (!$is_in_stock): ?>title="Sản phẩm hiện đã hết hàng" <?php endif; ?>>
                                         <i class="fas fa-shopping-cart mr-2"></i>Thêm vào giỏ
                                     </button>
-
-                                    <!-- Mua ngay -->
-                                    <button type="submit" name="buy_now" value="1"
+                                    <!-- Mua ngay (ĐÃ CẬP NHẬT) -->
+                                    <button type="button" id="buyNowBtn"
                                         class="w-full text-white font-bold py-3 rounded-xl transition shadow-lg <?php echo $is_in_stock ? 'shadow-red-200 hover:bg-red-700' : 'shadow-gray-200'; ?> <?php echo $btn_class; ?>"
-                                        <?php echo $disabled_attr; ?> <?php if (!$is_in_stock): ?>title="Sản phẩm hiện đã hết hàng" <?php endif; ?>>
+                                        <?php echo $disabled_attr; ?> <?php if (!$is_in_stock): ?>title="Sản phẩm hiện đã hết hàng" <?php endif; ?> onclick="buyNow()">
                                         Mua ngay
                                     </button>
                                 </div>
-
                                 <!-- Thông báo khi hết hàng -->
                                 <?php if (!$is_in_stock): ?>
                                     <p class="text-center text-sm text-red-600 font-medium">
@@ -557,7 +523,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     </p>
                                 <?php endif; ?>
                             </form>
-
                             <!-- Additional Info -->
                             <div class="mt-6 pt-6 border-t border-gray-200">
                                 <div class="grid grid-cols-2 gap-4 text-sm">
@@ -576,7 +541,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                         </div>
                     </div>
                 </div>
-
                 <!-- Related Products -->
                 <?php if ($related_products->num_rows > 0): ?>
                     <div class="mb-12">
@@ -597,7 +561,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                         <a href="product.php?id=<?php echo $related['SanPham_id']; ?>"
                                             class="hover:text-red-600">
                                             <img src="../<?php echo htmlspecialchars($related['image_url']); ?>" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105
-                                            transition-transform">
+                            transition-transform">
                                         </a>
                                     </div>
                                     <h4 class="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-1">
@@ -621,7 +585,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 <?php endif; ?>
             </div>
         </main>
-
         <!-- Footer -->
         <footer id="footer" class="bg-black text-white mt-12">
             <div class="container mx-auto px-4 py-8">
@@ -643,7 +606,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                             </a>
                         </div>
                     </div>
-
                     <div>
                         <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
                         <ul class="space-y-2">
@@ -655,7 +617,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                     TRẢ</a></li>
                         </ul>
                     </div>
-
                     <div>
                         <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
                         <ul class="space-y-3">
@@ -680,9 +641,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                         </ul>
                     </div>
                 </div>
-
                 <div class="border-t border-gray-800 my-6"></div>
-
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-gray-500 text-sm mb-4 md:mb-0">
                         <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
@@ -695,7 +654,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             </div>
         </footer>
     </div>
-
     <!-- Mobile Menu -->
     <div id="main-menu"
         class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
@@ -732,7 +690,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             </div>
         </div>
     </div>
-
     <!-- JavaScript -->
     <script>
         // Change product image
@@ -745,34 +702,28 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             btn.classList.remove('border-gray-200');
             btn.classList.add('border-red-600');
         }
-
-        // Quantity controls -
+        // Quantity controls
         function decreaseQty() {
             const qtyInput = document.getElementById('quantity');
             if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
-
             let currentValue = parseInt(qtyInput.value);
             if (currentValue > 1) {
                 qtyInput.value = currentValue - 1;
             }
         }
-
         function increaseQty() {
             const qtyInput = document.getElementById('quantity');
             if (qtyInput.disabled) return; //  Không cho chỉnh nếu hết hàng
-
             const maxQty = parseInt(qtyInput.max);
             let currentValue = parseInt(qtyInput.value);
             if (currentValue < maxQty && maxQty > 0) {
                 qtyInput.value = currentValue + 1;
             }
         }
-
-        // Add to cart via AJAX
+        // Add to cart via AJAX (Giữ nguyên cho nút Thêm vào giỏ nếu cần dùng JS)
         function addToCart() {
             const form = document.querySelector('form');
             const formData = new FormData(form);
-
             fetch('cart.php', {
                 method: 'POST',
                 body: formData
@@ -791,26 +742,66 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 });
         }
 
+
+// === MUA NGAY  ===
+function buyNow() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    // Thêm flag để backend biết đây là mua ngay
+    formData.append('buy_now', '1'); 
+
+    const buyBtn = document.getElementById('buyNowBtn');
+    const originalText = buyBtn.innerHTML;
+    
+    // Hiển thị trạng thái đang xử lý
+    buyBtn.disabled = true;
+    buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+
+    fetch('cart.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' //  QUAN TRỌNG: Gửi kèm session cookie
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            //  Chỉ chuyển hướng khi server xác nhận đã lưu session thành công
+            // Thêm timestamp để tránh cache trình duyệt
+            window.location.href = 'checkout.php?t=' + new Date().getTime();
+        } else {
+            throw new Error(data.message || 'Không thể thêm vào giỏ hàng');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra: ' + error.message + '. Vui lòng thử lại!');
+        // Khôi phục nút nếu lỗi
+        buyBtn.disabled = false;
+        buyBtn.innerHTML = originalText;
+    });
+}
+
+
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function () {
             const menuToggle = document.querySelector('.menu-toggle');
             const closeMenu = document.querySelector('.close-menu');
             const mobileMenu = document.getElementById('main-menu');
-
             if (menuToggle) {
                 menuToggle.addEventListener('click', function () {
                     mobileMenu.classList.remove('-translate-x-full');
                     document.body.style.overflow = 'hidden';
                 });
             }
-
             if (closeMenu) {
                 closeMenu.addEventListener('click', function () {
                     mobileMenu.classList.add('-translate-x-full');
                     document.body.style.overflow = '';
                 });
             }
-
             // === USER DROPDOWN TOGGLE ===
             const userToggle = document.getElementById('userToggle');
             const userMenu = document.getElementById('userMenu');
@@ -826,8 +817,6 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 });
             }
         });
-
-
     </script>
 </body>
 

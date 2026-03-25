@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? 0) != 0) {
     header("Location: ../../login.php?redirect=orders");
     exit();
 }
+
 $user_id = (int) $_SESSION['user_id'];
 
 // === 2. LẤY THÔNG TIN USER ===
@@ -43,7 +44,6 @@ $status_map = [
     'shipping' => 'Đang giao',
     'completed' => 'Hoàn thành',
     'cancelled' => 'Đã hủy'
-
 ];
 
 if ($status_filter !== 'all' && isset($status_map[$status_filter])) {
@@ -66,37 +66,40 @@ $where_sql = implode(" AND ", $where_clauses);
 // === 5. ĐẾM TỔNG SỐ ĐƠN HÀNG ===
 $count_stmt = $conn->prepare("
     SELECT COUNT(DISTINCT d.DonHang_id) as total 
-    FROM donhang d
-    LEFT JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id
-    LEFT JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id
+    FROM donhang d 
+    LEFT JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id 
+    LEFT JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id 
     WHERE $where_sql
 ");
 $count_stmt->bind_param($types, ...$params);
 $count_stmt->execute();
 $total_orders = $count_stmt->get_result()->fetch_assoc()['total'];
 $count_stmt->close();
+
 $total_pages = ceil($total_orders / $per_page);
 
 // === 6. LẤY DANH SÁCH ĐƠN HÀNG ===
 $orders_stmt = $conn->prepare("
     SELECT d.*, 
-           dh.Ten_nguoi_nhan, dh.SDT_nhan, dh.Duong, dh.Quan, dh.Tinh_thanhpho, dh.Dia_chi_chitiet,
-           GROUP_CONCAT(sp.TenSP SEPARATOR '||') as product_names,
-           GROUP_CONCAT(ctdh.SoLuong SEPARATOR '||') as product_qty,
-           GROUP_CONCAT(ctdh.Gia SEPARATOR '||') as product_price,
-           GROUP_CONCAT(sp.image_url SEPARATOR '||') as product_images
-    FROM donhang d
-    LEFT JOIN diachigh dh ON d.DiaChi_id = dh.add_id
-    LEFT JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id
-    LEFT JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id
-    WHERE $where_sql
-    GROUP BY d.DonHang_id
-    ORDER BY d.NgayDat DESC
+    dh.Ten_nguoi_nhan, dh.SDT_nhan, dh.Duong, dh.Quan, dh.Tinh_thanhpho, dh.Dia_chi_chitiet,
+    GROUP_CONCAT(sp.TenSP SEPARATOR '||') as product_names,
+    GROUP_CONCAT(ctdh.SoLuong SEPARATOR '||') as product_qty,
+    GROUP_CONCAT(ctdh.Gia SEPARATOR '||') as product_price,
+    GROUP_CONCAT(sp.image_url SEPARATOR '||') as product_images
+    FROM donhang d 
+    LEFT JOIN diachigh dh ON d.DiaChi_id = dh.add_id 
+    LEFT JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id 
+    LEFT JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id 
+    WHERE $where_sql 
+    GROUP BY d.DonHang_id 
+    ORDER BY d.NgayDat DESC 
     LIMIT ? OFFSET ?
 ");
+
 $params[] = $per_page;
 $params[] = $offset;
 $types .= "ii";
+
 $orders_stmt->bind_param($types, ...$params);
 $orders_stmt->execute();
 $orders = $orders_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -122,23 +125,9 @@ function getStatusBadge($status)
         'Hoàn thành' => 'bg-green-100 text-green-800',
         'Đã hủy' => 'bg-red-100 text-red-800',
         'Chờ thanh toán' => 'bg-orange-100 text-orange-800'
-
     ];
     $color = $colors[$status] ?? 'bg-gray-100 text-gray-800';
     return "<span class='px-3 py-1 rounded-full text-sm font-medium $color'>$status</span>";
-}
-
-function getStatusKey($status)
-{
-    $map = [
-        'Chờ thanh toán' => 'pending-payment',
-        'Chờ xác nhận' => 'processing',
-        'Đang giao' => 'shipping',
-        'Hoàn thành' => 'completed',
-        'Đã hủy' => 'cancelled'
-
-    ];
-    return $map[$status] ?? 'all';
 }
 ?>
 <!DOCTYPE html>
@@ -186,6 +175,75 @@ function getStatusKey($status)
         .order-details.expanded {
             display: block;
         }
+
+        /* === USER DROPDOWN STYLES === */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            min-width: 220px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .user-menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .user-menu-item i {
+            width: 18px;
+            color: #6b7280;
+        }
+
+        .user-menu-divider {
+            border-top: 1px solid #f3f4f6;
+            margin: 4px 0;
+        }
+
+        .user-menu-item.logout {
+            color: #dc2626;
+        }
+
+        .user-menu-item.logout i {
+            color: #dc2626;
+        }
     </style>
 </head>
 
@@ -215,57 +273,16 @@ function getStatusKey($status)
                                     </button>
                                     <div id="mega-menu-dropdown"
                                         class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
-                                        <div class="flex p-4">
-                                            <div class="w-64 border-r border-gray-200 pr-4">
-                                                <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start"
-                                                    data-menu="badminton">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/badminton-No.svg"
-                                                            alt="Cầu Lông" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold text-red-600">Cầu Lông</p>
-                                                        <p class="text-xs text-gray-500">Trang bị cầu lông chuyên nghiệp
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="pickleball">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/pickleball-No.svg"
-                                                            alt="Pickleball" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">Pickleball</p>
-                                                        <p class="text-xs text-gray-500">Trang bị pickleball hàng đầu
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="giay">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/jogging-No.svg"
-                                                            alt="Giày" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">Giày</p>
-                                                        <p class="text-xs text-gray-500">Giày thể thao tối ưu hoá vận
-                                                            động</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1 pl-4">
-                                                <div id="content-badminton" class="menu-content"></div>
-                                                <div id="content-pickleball" class="menu-content hidden"></div>
-                                                <div id="content-giay" class="menu-content hidden"></div>
-                                            </div>
-                                        </div>
+                                        <!-- Mega menu content -->
                                     </div>
                                 </li>
-                                <li><a href="../shop.php"
-                                        class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img
-                                            src="../../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2"><span>CỬA
-                                            HÀNG</span></a></li>
+                                <li>
+                                    <a href="../shop.php"
+                                        class="flex items-center text-gray-700 hover:text-red-600 font-medium">
+                                        <img src="../../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
+                                        <span>CỬA HÀNG</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -290,26 +307,29 @@ function getStatusKey($status)
 
                             <!-- Search -->
                             <div class="search-header relative">
-                                <button class="search-toggle p-2"><i
-                                        class="fas fa-search text-gray-700 hover:text-red-600"></i></button>
+                                <button class="search-toggle p-2">
+                                    <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
+                                </button>
                             </div>
 
-                            <!-- Account Dropdown -->
-                            <div class="user-dropdown relative">
+                            <!-- ✅ USER DROPDOWN (ĐÃ SỬA) -->
+                            <div class="user-dropdown">
                                 <button id="userToggle"
                                     class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition">
                                     <img src="../../img/icons/account.svg" class="w-6 h-6" alt="Account">
-                                    <span
-                                        class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($user_info['username']); ?></span>
+                                    <span class="text-sm font-medium text-gray-700">
+                                        <?php echo htmlspecialchars($user_info['username']); ?>
+                                    </span>
                                     <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                                 </button>
-                                <div id="userMenu"
-                                    class="user-menu absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border hidden z-50 min-w-[200px]">
-                                    <div class="px-4 py-3 border-b">
+
+                                <!-- User Menu Dropdown -->
+                                <div id="userMenu" class="user-menu">
+                                    <div class="px-4 py-3 border-b border-gray-100">
                                         <div class="flex items-center space-x-3">
                                             <img src="../../img/icons/account.svg" class="w-10 h-10" alt="Account">
                                             <div>
-                                                <p class="text-sm font-medium">
+                                                <p class="text-sm font-medium text-gray-800">
                                                     <?php echo htmlspecialchars($user_info['ho_ten']); ?>
                                                 </p>
                                                 <p class="text-xs text-gray-500">
@@ -318,14 +338,23 @@ function getStatusKey($status)
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="../my-account.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Tài
-                                        khoản của tôi</a>
-                                    <a href="./orders.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Đơn hàng</a>
-                                    <a href="./address-book.php" class="block px-4 py-2 hover:bg-gray-50 text-sm">Sổ địa
-                                        chỉ</a>
-                                    <div class="border-t my-1"></div>
-                                    <a href="../../control/logout.php"
-                                        class="block px-4 py-2 hover:bg-gray-50 text-sm text-red-600">Đăng xuất</a>
+                                    <a href="./my-account.php" class="user-menu-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Tài khoản của tôi</span>
+                                    </a>
+                                    <a href="./orders.php" class="user-menu-item">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span>Đơn hàng</span>
+                                    </a>
+                                    <a href="./address-book.php" class="user-menu-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>Sổ địa chỉ</span>
+                                    </a>
+                                    <div class="user-menu-divider"></div>
+                                    <a href="../../control/logout.php" class="user-menu-item logout">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span>Đăng xuất</span>
+                                    </a>
                                 </div>
                             </div>
 
@@ -339,9 +368,12 @@ function getStatusKey($status)
 
                         <!-- Mobile Right Elements -->
                         <div class="md:hidden flex items-center space-x-3">
-                            <button class="search-toggle p-1"><i class="fas fa-search text-xl"></i></button>
-                            <a href="../my-account.php" class="p-1"><img src="../../img/icons/account.svg"
-                                    class="w-6 h-6" alt="Account"></a>
+                            <button class="search-toggle p-1">
+                                <i class="fas fa-search text-xl"></i>
+                            </button>
+                            <a href="../my-account.php" class="p-1">
+                                <img src="../../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                            </a>
                             <a href="../cart.php" class="relative p-1">
                                 <i class="fas fa-shopping-basket text-xl"></i>
                                 <span
@@ -622,7 +654,7 @@ function getStatusKey($status)
                 </div>
             </div>
         </main>
-        
+
         <!-- Mobile Account Menu Overlay -->
         <div id="mobile-account-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"
             onclick="toggleMobileAccountMenu()"></div>
@@ -683,7 +715,7 @@ function getStatusKey($status)
             </div>
         </div>
 
-        
+
 
 
         <!-- Footer -->
