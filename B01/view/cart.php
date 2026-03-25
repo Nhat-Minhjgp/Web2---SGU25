@@ -208,6 +208,35 @@ if (!empty($_SESSION['cart'])) {
     $stmt->close();
 }
 
+// === LẤY SẢN PHẨM RECOMMEND ===
+$recommended_products = [];
+if (!empty($cart_danhmuc_ids)) {
+    $danhmuc_placeholders = implode(',', array_fill(0, count($cart_danhmuc_ids), '?'));
+    $exclude_ids = array_keys($_SESSION['cart']);
+    $exclude_placeholders = !empty($exclude_ids) ? implode(',', array_fill(0, count($exclude_ids), '?')) : '0';
+
+    $recommend_sql = "SELECT s.*, d.Ten_danhmuc
+        FROM sanpham s
+        LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
+        WHERE s.Danhmuc_id IN ($danhmuc_placeholders)
+        AND s.TrangThai = 1
+        AND s.SanPham_id NOT IN ($exclude_placeholders)
+        ORDER BY RAND()
+        LIMIT 5";
+
+    $stmt = $conn->prepare($recommend_sql);
+    $types = str_repeat('i', count($cart_danhmuc_ids));
+    if (!empty($exclude_ids)) {
+        $types .= str_repeat('i', count($exclude_ids));
+        $stmt->bind_param($types, ...$cart_danhmuc_ids, ...$exclude_ids);
+    } else {
+        $stmt->bind_param($types, ...$cart_danhmuc_ids);
+    }
+    $stmt->execute();
+    $recommended_products = $stmt->get_result();
+    $stmt->close();
+}
+
 // Format giá
 function formatPrice($price)
 {
@@ -832,7 +861,7 @@ $user_info = [
                         <?php if ($recommended_products && $recommended_products->num_rows > 0): ?>
                             <div class="mt-12">
                                 <h3 class="text-lg font-bold mb-4 flex items-center">
-                                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                    <i class="text-yellow-500 mr-2"></i>
                                     Sản phẩm mua cùng
                                 </h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
