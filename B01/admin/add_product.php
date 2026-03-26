@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_product'])) {
     $ncc_id = intval($_POST['ncc_id'] ?? 0);
     $ma_thuonghieu = intval($_POST['thuonghieu_id'] ?? 0);
     $mota = trim($_POST['mota'] ?? '');
-    $phanTramLoiNhuan = floatval($_POST['phan_tram_loi'] ?? 20);
+    $phanTramLoiNhuan = floatval($_POST['phan_tram_loi'] ?? 20)/100;
     
     // Upload hình ảnh
     $imageUrl = '';
@@ -180,7 +180,7 @@ tailwind.config = {
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">% Lợi nhuận dự kiến *</label>
                     <input type="number" name="phan_tram_loi" min="0" max="200" value="20" class="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:border-primary">
-                    <p class="text-xs text-gray-500 mt-1">Giá bán sẽ = Giá nhập trung bình × (1 + <?php echo htmlspecialchars($_POST['phan_tram_loi'] ?? 20); ?>%)</p>
+                    <p class="text-xs text-gray-500 mt-1">Giá bán sẽ = Giá nhập trung bình × (1 + % Lợi nhuận)</p>
                 </div>
 
                 <!-- Hình ảnh -->
