@@ -761,19 +761,19 @@
   ('Vợt Pickleball', 'vot-pickleball');
 
   INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuonghieu`, `MoTa`, `image_url`, `GiaNhapTB`, `GiaBan`, `PhanTramLoiNhuan`, `TrangThai`, `TaoNgay`, `SoLuongTon`) VALUES
-  (1, 'Yonex Astrox 100ZZ', 1, 1, 2, 'đắt vãi ò', '/img/sanpham/Vot-cau-long-Yonex-Astrox-100ZZ.png', 3200000, NULL , 0.15, 1, '2026-03-20 22:16:21', 10),
-  (2, 'Li-Ning Halbertec 9000', 1,2, 1, 'đắt vãi ò', '/img/sanpham/vot-cau-long-li-ning-halbertec-9000.png', 2500000, NULL , 0.15, 1, '2026-03-20 22:16:21', 15),
-  (3, 'Victor Thruster F Enhanced', 1, 2, 3, 'đắt vãi ò', '/img/sanpham/vot-cau-long-victor-thruster-ryuga.png', 2800000,NULL, 0.15, 1, '2026-03-20 22:16:21', 8),
-  (4, 'Yonex Nanoflare 1000 game', 1, 3, 2, 'đắt vãi ò', '/img/sanpham/vot-cau-long-yonex-nanoflare-1000-game.png', 3100000, NULL , 0.15, 1, '2026-03-20 22:16:21', 12),
-  (5, 'Li-Ning Aeronaut 9000', 1, 2, 1, 'đắt vãi ò', '/img/sanpham/aeronaut-9000i.png', 2900000, NULL , 0.15, 1, '2026-03-20 22:16:21', 7),
-  (6, 'Quả cầu lông Yonex AS50', 2, 3, 2, 'đắt vãi ò', '/img/sanpham/ong-cau-yonex-as50-speed-2.png', 450000,NULL , 0.15, 1, '2026-03-20 22:16:21', 50),
-  (7, 'Quả cầu lông Hải Yến S70', 2, 1, 3, 'đắt vãi ò', '/img/sanpham/ong-cau-long-hai-yen-s70.png', 180000,NULL , 0.15, 1, '2026-03-20 22:16:21', 100),
-  (8, 'Quả cầu lông vinastar', 2, 2, 1, 'đắt vãi ò', '/img/sanpham/ong-cau-vina-start-xanh.png', 350000,NULL , 0.15, 1, '2026-03-20 22:16:21', 60),
-  (9, 'Quả cầu Li-ning AYQN024-4', 2, 3, 3, 'đắt vãi ò', '/img/sanpham/cau-lining.png', 320000,NULL , 0.15, 1, '2026-03-20 22:16:21', 45),
-  (10, 'Vợt Pickleball Selkirk Vanguard', 3, 2, 3, 'đắt vãi ò', '/img/sanpham/vot-pickleball-selkirk-luxx-control-air.png', 4500000,NULL , 0.15, 1, '2026-03-20 22:16:21', 5),
-  (11, 'Vợt Pickleball Joola Perseus', 3, 1, 2, 'đắt vãi ò', '/img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000,NULL , 0.15, 1, '2026-03-20 22:16:21', 4),
-  (12, 'Vợt Pickleball JOOLA Ben Johns', 3, 2, 1, 'đắt vãi ò', '/img/sanpham/joola-ben-johns-hyperion.png', 2100000, NULL, 0.15, 1, '2026-03-20 22:16:21', 10),
-  (13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', '/img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000,NULL , 0.15, 1, '2026-03-20 22:16:21', 6);
+  (1, 'Yonex Astrox 100ZZ', 1, 1, 2, 'đắt vãi ò', 'img/sanpham/Vot-cau-long-Yonex-Astrox-100ZZ.png', 3200000, NULL , 0.15, 1, '2026-03-20 22:16:21', 10),
+  (2, 'Li-Ning Halbertec 9000', 1,2, 1, 'đắt vãi ò', 'img/sanpham/vot-cau-long-li-ning-halbertec-9000.png', 2500000, NULL , 0.15, 1, '2026-03-20 22:16:21', 15),
+  (3, 'Victor Thruster F Enhanced', 1, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-cau-long-victor-thruster-ryuga.png', 2800000,NULL, 0.15, 1, '2026-03-20 22:16:21', 8),
+  (4, 'Yonex Nanoflare 1000 game', 1, 3, 2, 'đắt vãi ò', 'img/sanpham/vot-cau-long-yonex-nanoflare-1000-game.png', 3100000, NULL , 0.15, 1, '2026-03-20 22:16:21', 12),
+  (5, 'Li-Ning Aeronaut 9000', 1, 2, 1, 'đắt vãi ò', 'img/sanpham/aeronaut-9000i.png', 2900000, NULL , 0.15, 1, '2026-03-20 22:16:21', 7),
+  (6, 'Quả cầu lông Yonex AS50', 2, 3, 2, 'đắt vãi ò', 'img/sanpham/ong-cau-yonex-as50-speed-2.png', 450000,NULL , 0.15, 1, '2026-03-20 22:16:21', 50),
+  (7, 'Quả cầu lông Hải Yến S70', 2, 1, 3, 'đắt vãi ò', 'img/sanpham/ong-cau-long-hai-yen-s70.png', 180000,NULL , 0.15, 1, '2026-03-20 22:16:21', 100),
+  (8, 'Quả cầu lông vinastar', 2, 2, 1, 'đắt vãi ò', 'img/sanpham/ong-cau-vina-start-xanh.png', 350000,NULL , 0.15, 1, '2026-03-20 22:16:21', 60),
+  (9, 'Quả cầu Li-ning AYQN024-4', 2, 3, 3, 'đắt vãi ò', 'img/sanpham/cau-lining.png', 320000,NULL , 0.15, 1, '2026-03-20 22:16:21', 45),
+  (10, 'Vợt Pickleball Selkirk Vanguard', 3, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-selkirk-luxx-control-air.png', 4500000,NULL , 0.15, 1, '2026-03-20 22:16:21', 5),
+  (11, 'Vợt Pickleball Joola Perseus', 3, 1, 2, 'đắt vãi ò', 'img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000,NULL , 0.15, 1, '2026-03-20 22:16:21', 4),
+  (12, 'Vợt Pickleball JOOLA Ben Johns', 3, 2, 1, 'đắt vãi ò', 'img/sanpham/joola-ben-johns-hyperion.png', 2100000, NULL, 0.15, 1, '2026-03-20 22:16:21', 10),
+  (13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000,NULL , 0.15, 1, '2026-03-20 22:16:21', 6);
 
 
   INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 

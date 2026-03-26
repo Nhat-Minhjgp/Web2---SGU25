@@ -24,12 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_product'])) {
     // Upload hình ảnh
     $imageUrl = '';
     if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === 0) {
-        $uploadDir = __DIR__ . '/../uploads/products/';
+        $uploadDir = __DIR__ . '/../img/sanpham/';
         if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
         $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         $newName = 'PROD-' . date('YmdHis') . '-' . uniqid() . '.' . $ext;
         if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $newName)) {
-            $imageUrl = 'uploads/products/' . $newName;
+            $imageUrl = 'img/sanpham/' . $newName;
         }
     }
 

@@ -1147,7 +1147,7 @@ function getFilterDisplayName($type, $slug)
                                                             hàng</span></div>
                                                 <?php endif; ?>
                                                 <div class="aspect-square bg-gray-100 flex items-center justify-center p-4">
-                                                    <img src="..<?php echo htmlspecialchars($product['image_url']); ?>"
+                                                    <img src="../<?php echo htmlspecialchars($product['image_url']); ?>"
                                                         alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
                                                         class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-300"
                                                         onerror="this.src='../img/sanpham/placeholder.png'">
