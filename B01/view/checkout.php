@@ -84,7 +84,7 @@ if (!empty($active_cart) && is_array($active_cart)) {
 
 $order_total = $cart_total;
 
-$order_total = $cart_total;
+
 
 // === Hàm formatPrice ===
 function formatPrice($price)
