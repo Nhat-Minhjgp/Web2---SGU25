@@ -905,7 +905,7 @@ $categories_result = $conn->query($categories_sql);
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
                     <div class="aspect-square overflow-hidden p-4 bg-gray-50">
                         <?php if (!empty($category['sample_image'])): ?>
-                            <img src=".<?php echo htmlspecialchars($category['sample_image']); ?>"
+                            <img src="./<?php echo htmlspecialchars($category['sample_image']); ?>"
                                  alt="<?php echo htmlspecialchars($category['Ten_danhmuc']); ?>"
                                  class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
                                  onerror="this.src='./img/sanpham/placeholder.png'">
@@ -975,7 +975,7 @@ $categories_result = $conn->query($categories_sql);
                 
                 <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
                     <?php if (!empty($product['image_url'])): ?>
-                        <img src=".<?php echo htmlspecialchars($product['image_url']); ?>"
+                        <img src="./<?php echo htmlspecialchars($product['image_url']); ?>"
                              alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
                              class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                              onerror="this.src='./img/sanpham/placeholder.png'">

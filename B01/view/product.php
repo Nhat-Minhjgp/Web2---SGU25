@@ -740,7 +740,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
         }
 
         function buyNow() {
-           
+
             const form = document.getElementById('addToCartForm');
             if (!form) {
                 alert('Lỗi: Không tìm thấy form!');
@@ -755,7 +755,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             buyBtn.disabled = true;
             buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
 
-            
+
             fetch('cart.php', {
                 method: 'POST',
                 body: formData,
@@ -767,8 +767,9 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.redirect) {
-                        // ✅ Redirect đến checkout.php
-                        window.location.href = data.redirect + '?t=' + Date.now();
+                        const redirectUrl = new URL(data.redirect, window.location.href);
+                        redirectUrl.searchParams.set('t', Date.now());
+                        window.location.href = redirectUrl.toString();
                     } else {
                         throw new Error(data.message || 'Lỗi không xác định');
                     }

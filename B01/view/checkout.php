@@ -56,14 +56,21 @@ $cart_items = [];
 $cart_total = 0;
 $total_items = 0;
 
-// Load cart from session
-if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-	$ids = implode(',', array_map('intval', array_keys($_SESSION['cart'])));
+// Nếu có buy_now_cart thì dùng riêng, không lẫn với cart thường
+$is_buy_now_mode = (
+	(isset($_GET['mode']) && $_GET['mode'] === 'buy_now') ||
+	(isset($_POST['checkout_mode']) && $_POST['checkout_mode'] === 'buy_now')
+) && !empty($_SESSION['buy_now_cart']);
+
+$active_cart = $is_buy_now_mode ? $_SESSION['buy_now_cart'] : ($_SESSION['cart'] ?? []);
+
+// Load cart từ active_cart
+if (!empty($active_cart) && is_array($active_cart)) {
+	$ids = implode(',', array_map('intval', array_keys($active_cart)));
 	if (!empty($ids)) {
 		$products = $conn->query("SELECT * FROM sanpham WHERE SanPham_id IN ($ids) AND TrangThai = 1");
-
 		while ($product = $products->fetch_assoc()) {
-			$qty = $_SESSION['cart'][$product['SanPham_id']] ?? 1;
+			$qty = $active_cart[$product['SanPham_id']] ?? 1;
 			$product['quantity'] = $qty;
 			$gia_ban = (float) ($product['GiaBan'] ?? 0);
 			$product['subtotal'] = $gia_ban * $qty;
@@ -73,6 +80,9 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 		}
 	}
 }
+
+
+$order_total = $cart_total;
 
 $order_total = $cart_total;
 
@@ -84,7 +94,16 @@ function formatPrice($price)
 }
 
 // === XỬ LÝ FORM SUBMIT ===
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
+	//  Xác định mode ngay đầu block POST
+	$is_buy_now_mode = ($_POST['checkout_mode'] ?? '') === 'buy_now'
+		&& !empty($_SESSION['buy_now_cart']);
+	$active_cart = $is_buy_now_mode ? $_SESSION['buy_now_cart'] : ($_SESSION['cart'] ?? []);
+
+
+
 	$payment_method = $_POST['payment_method'] ?? 'cod';
 
 	// Validation
@@ -101,9 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 	if (!preg_match('/^0[0-9]{9}$/', $phone)) {
 		$errors[] = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
 	}
-	if (empty($address) || strlen($address) < 10) {
-		$errors[] = "Địa chỉ không hợp lệ (cần ít nhất 10 ký tự)";
-	}
+
 	if (empty($cart_items)) {
 		$errors[] = "Giỏ hàng trống";
 	}
@@ -135,18 +152,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 			// 🆕 Nếu không có địa chỉ được chọn từ sổ (người dùng nhập tay)
 			if ($selected_address_id === null) {
-				// Xác định tên và SĐT từ form
 				$addr_name = trim($_POST['fullname'] ?? '');
 				$addr_phone = trim($_POST['phone'] ?? '');
 
-				// Tách địa chỉ thành các thành phần
-				$parts = explode(',', $address, 2);
-				$duong = trim($parts[0] ?? '');
-				$chi_tiet = isset($parts[1]) ? trim($parts[1]) : '';
+				// 🆕 Lấy từng phần địa chỉ
+				$tinh_thanhpho = trim($_POST['tinh_thanhpho'] ?? '');
+				$quan_huyen = trim($_POST['quan_huyen'] ?? '');
+				$dia_chi_chitiet = trim($_POST['dia_chi_chitiet'] ?? '');
 
-				// Insert địa chỉ mới
-				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, '', '', ?, 0)");
-				$stmt->bind_param("issss", $user_id, $addr_name, $addr_phone, $duong, $chi_tiet);
+				// Insert địa chỉ mới với cấu trúc đầy đủ
+				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+				$stmt->bind_param("issssss", $user_id, $addr_name, $addr_phone, $dia_chi_chitiet, $quan_huyen, $tinh_thanhpho, $dia_chi_chitiet);
+
 				if (!$stmt->execute()) {
 					throw new Exception("Không thể lưu địa chỉ mới: " . $stmt->error);
 				}
@@ -184,6 +201,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			$stmt_stock->close();
 
 			$conn->commit();
+
+			if ($is_buy_now_mode) {
+				unset($_SESSION['buy_now_cart']);
+			} else {
+				unset($_SESSION['cart']);
+			}
 
 			// Redirect
 			header("Location: order-confirmation.php?order_id=" . $don_hang_id . "&code=" . $tracking_code);
@@ -630,17 +653,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 										10 số</span>
 								</div>
 
-								<!-- Address -->
-								<div>
-									<label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết <span
-											class="text-red-500">*</span></label>
-									<input type="text" name="address" id="address"
-										value="<?php echo htmlspecialchars($default_full_address); ?>"
-										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
-										placeholder="Số nhà, tên đường, phường/xã..." maxlength="255" required>
-									<span class="error-message" id="address_error">Vui lòng nhập địa chỉ chi tiết (ít
-										nhất 10 ký tự)</span>
+								<!-- Address Group -->
+								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+									<!-- Tỉnh/Thành phố -->
+									<input type="hidden" name="checkout_mode"
+										value="<?php echo $is_buy_now_mode ? 'buy_now' : 'cart'; ?>">
+									<div>
+										<label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span
+												class="text-red-500">*</span></label>
+										<input type="text" name="tinh_thanhpho" id="tinh_thanhpho"
+											value="<?php echo htmlspecialchars($default_address['Tinh_thanhpho'] ?? ''); ?>"
+											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
+											placeholder="Ví dụ: Cần Thơ" maxlength="100" required>
+										<span class="error-message" id="tinh_error">Vui lòng nhập tỉnh/thành phố</span>
+									</div>
+
+									<!-- Quận/Huyện -->
+									<div>
+										<label class="block text-sm font-medium text-gray-700 mb-1">Phường<span
+												class="text-red-500">*</span></label>
+										<input type="text" name="quan_huyen" id="quan_huyen"
+											value="<?php echo htmlspecialchars($default_address['Quan'] ?? ''); ?>"
+											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
+											placeholder="Ví dụ: Ninh Kiều" maxlength="100" required>
+										<span class="error-message" id="quan_error">Vui lòng nhập quận/huyện</span>
+									</div>
+
+									<!-- Địa chỉ chi tiết -->
+									<div class="md:col-span-1">
+										<label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết
+											<span class="text-red-500">*</span></label>
+										<input type="text" name="dia_chi_chitiet" id="dia_chi_chitiet"
+											value="<?php echo htmlspecialchars($default_address['Dia_chi_chitiet'] ?? $default_address['Duong'] ?? ''); ?>"
+											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
+											placeholder="Số nhà, tên đường..." maxlength="255" required>
+										<span class="error-message" id="chitiet_error">Vui lòng nhập địa chỉ chi
+											tiết</span>
+									</div>
 								</div>
+
+
 
 								<!-- Hidden: Selected Address ID (có thể rỗng nếu nhập thủ công) -->
 								<input type="hidden" name="selected_address_id" id="selected_address_id"
@@ -671,6 +723,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 										</div>
 									</div>
 								</div>
+
 							</div>
 
 							<!-- Payment Method -->
@@ -1063,7 +1116,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 					if (label) {
 						if (els.fullname) els.fullname.value = label.dataset.name || '';
 						if (els.phone) els.phone.value = label.dataset.phone || '';
-						if (els.address) els.address.value = label.dataset.address || '';
+
+						// 🆕 Tách address string thành các phần (nếu có)
+						const fullAddr = label.dataset.address || '';
+						const parts = fullAddr.split(',').map(p => p.trim());
+
+						// Giả sử format: "chi tiết, quận, tỉnh"
+						if (parts.length >= 3) {
+							document.getElementById('dia_chi_chitiet').value = parts[0] || '';
+							document.getElementById('quan_huyen').value = parts[1] || '';
+							document.getElementById('tinh_thanhpho').value = parts[2] || '';
+						} else {
+							// Fallback: điền vào field chi tiết
+							document.getElementById('dia_chi_chitiet').value = fullAddr;
+						}
+
 						if (els.selectedAddressId) els.selectedAddressId.value = selected.value || '';
 					}
 					closePopup();
@@ -1091,10 +1158,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 						valid = false;
 					}
 
-					const address = els.address?.value.trim();
-					if (!address || address.length < 10) {
-						document.getElementById('address_error').style.display = 'block';
-						els.address.classList.add('error');
+					const tinh = document.getElementById('tinh_thanhpho')?.value.trim();
+					const quan = document.getElementById('quan_huyen')?.value.trim();
+					const chitiet = document.getElementById('dia_chi_chitiet')?.value.trim();
+
+					if (!tinh || tinh.length < 2) {
+						document.getElementById('tinh_error').style.display = 'block';
+						document.getElementById('tinh_thanhpho').classList.add('error');
+						valid = false;
+					}
+					if (!quan || quan.length < 2) {
+						document.getElementById('quan_error').style.display = 'block';
+						document.getElementById('quan_huyen').classList.add('error');
+						valid = false;
+					}
+					if (!chitiet || chitiet.length < 5) {
+						document.getElementById('chitiet_error').style.display = 'block';
+						document.getElementById('dia_chi_chitiet').classList.add('error');
 						valid = false;
 					}
 

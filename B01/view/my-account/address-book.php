@@ -811,19 +811,27 @@ $user_info = [
                                 required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố
+                                <span
+                                    class="text-red-500">*</span>
+                            </label>
                             <input type="text" id="tinh_thanhpho" name="tinh_thanhpho"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                                required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phường<span
+                                    class="text-red-500">*</span></label>
                             <input type="text" id="quan" name="quan"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                                required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Đường</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Đường<span
+                                    class="text-red-500">*</span></label>
                             <input type="text" id="duong" name="duong"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                                required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết <span
