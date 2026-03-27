@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $response = ['success' => false, 'message' => '', 'cart_count' => 0];
 
-    // ✅ 1. XỬ LÝ MUA NGAY (KIỂM TRA TRƯỚC)
+    // ✅ 1. XỬ LÝ MUA NGAY
     if (isset($_POST['buy_now']) && $_POST['buy_now'] == '1') {
         $product_id = (int) ($_POST['product_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
@@ -28,22 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
 
             if ($stock && $quantity <= $stock['SoLuongTon']) {
-                if (isset($_SESSION['cart'][$product_id])) {
-                    $_SESSION['cart'][$product_id] += $quantity;
-                } else {
-                    $_SESSION['cart'][$product_id] = $quantity;
-                }
-
-                $_SESSION['buy_now'] = [
-                    'product_id' => $product_id,
-                    'quantity' => $quantity
+                //  Lưu riêng, KHÔNG đụng vào $_SESSION['cart']
+                $_SESSION['buy_now_cart'] = [
+                    $product_id => $quantity
                 ];
 
                 if ($is_ajax) {
-                    echo json_encode(['success' => true, 'redirect' => 'checkout.php']);
+                    echo json_encode(['success' => true, 'redirect' => 'checkout.php?mode=buy_now']);
                     exit();
                 } else {
-                    header("Location: checkout.php");
+                    header("Location: checkout.php?mode=buy_now");
                     exit();
                 }
             } else {
@@ -789,7 +783,7 @@ $user_info = [
                                                         <div class="flex items-center border border-gray-300 rounded">
                                                             <button type="button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, -1)">-</button>
-                                                            <input type="number" 
+                                                            <input type="number"
                                                                 name="quantity[<?php echo $item['SanPham_id']; ?>]"
                                                                 value="<?php echo $item['SoLuong']; ?>" min="1"
                                                                 max="<?php echo (int) $item['SoLuongTon']; ?>"
