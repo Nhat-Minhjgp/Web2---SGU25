@@ -150,136 +150,136 @@
                 }
             }
 
-           /* Cập nhật CSS cho suggestion item */
-.suggestion-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background 0.2s;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-}
+            /* Cập nhật CSS cho suggestion item */
+            .suggestion-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                border-bottom: 1px solid #f3f4f6;
+                transition: background 0.2s;
+                cursor: pointer;
+                text-decoration: none;
+                color: inherit;
+            }
 
-.suggestion-item:last-child {
-    border-bottom: none;
-}
+            .suggestion-item:last-child {
+                border-bottom: none;
+            }
 
-.suggestion-item:hover {
-    background: #f9fafb;
-}
+            .suggestion-item:hover {
+                background: #f9fafb;
+            }
 
-.suggestion-item img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    background: #f3f4f6;
-    flex-shrink: 0;
-}
+            .suggestion-item img {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 8px;
+                background: #f3f4f6;
+                flex-shrink: 0;
+            }
 
-.suggestion-info {
-    flex: 1;
-    min-width: 0;
-}
+            .suggestion-info {
+                flex: 1;
+                min-width: 0;
+            }
 
-.suggestion-info h4 {
-    font-size: 14px;
-    font-weight: 500;
-    color: #1f2937;
-    margin: 0 0 6px 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.4;
-}
+            .suggestion-info h4 {
+                font-size: 14px;
+                font-weight: 500;
+                color: #1f2937;
+                margin: 0 0 6px 0;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                line-height: 1.4;
+            }
 
-.price-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
-}
+            .price-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 4px;
+            }
 
-.price-wrapper .price {
-    font-size: 15px;
-    font-weight: 600;
-    color: #dc2626;
-}
+            .price-wrapper .price {
+                font-size: 15px;
+                font-weight: 600;
+                color: #dc2626;
+            }
 
-.price-wrapper .old-price {
-    font-size: 13px;
-    color: #9ca3af;
-    text-decoration: line-through;
-}
+            .price-wrapper .old-price {
+                font-size: 13px;
+                color: #9ca3af;
+                text-decoration: line-through;
+            }
 
-.price-wrapper .discount-badge {
-    font-size: 11px;
-    font-weight: 600;
-    color: #dc2626;
-    background: #fef2f2;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
+            .price-wrapper .discount-badge {
+                font-size: 11px;
+                font-weight: 600;
+                color: #dc2626;
+                background: #fef2f2;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
 
-.meta-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #6b7280;
-    margin-bottom: 4px;
-}
+            .meta-info {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                color: #6b7280;
+                margin-bottom: 4px;
+            }
 
-.meta-info .brand {
-    color: #9ca3af;
-}
+            .meta-info .brand {
+                color: #9ca3af;
+            }
 
-.stock-status {
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+            .stock-status {
+                font-size: 11px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
 
-.stock-status.in-stock {
-    color: #10b981;
-}
+            .stock-status.in-stock {
+                color: #10b981;
+            }
 
-.stock-status.out-of-stock {
-    color: #ef4444;
-}
+            .stock-status.out-of-stock {
+                color: #ef4444;
+            }
 
-.view-all-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px;
-    background: #f9fafb;
-    color: #dc2626;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    border-top: 1px solid #f3f4f6;
-    transition: background 0.2s;
-}
+            .view-all-link {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 14px;
+                background: #f9fafb;
+                color: #dc2626;
+                font-size: 14px;
+                font-weight: 500;
+                text-decoration: none;
+                border-top: 1px solid #f3f4f6;
+                transition: background 0.2s;
+            }
 
-.view-all-link:hover {
-    background: #f3f4f6;
-}
+            .view-all-link:hover {
+                background: #f3f4f6;
+            }
 
-.no-results {
-    padding: 32px 24px;
-    text-align: center;
-}
+            .no-results {
+                padding: 32px 24px;
+                text-align: center;
+            }
 
-.no-results p {
-    margin: 0;
-}
+            .no-results p {
+                margin: 0;
+            }
 
             /* === USER DROPDOWN STYLES === */
             .user-dropdown {
@@ -452,321 +452,325 @@
                                     <div class="hidden md:flex items-center ml-0 lg:ml-2">
                                         <ul class="flex items-center space-x-4">
                                             <!-- Mega Menu Trigger (GIỮ NGUYÊN) -->
-<div class="hidden md:flex items-center ml-0 lg:ml-2">
-    <ul class="flex items-center space-x-4">
-        <li class="relative" id="mega-menu-container">
-            <button id="mega-menu-trigger" class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                <img src="./img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
-                <span>Danh mục</span>
-            </button>
-            
-            <!-- Mega Menu Dropdown (CHỈ SỬA PHẦN NÀY) -->
-            <div id="mega-menu-dropdown" class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
-                <div class="flex p-4">
-                    <!-- Left Sidebar - Icon Menu -->
-                    <div class="w-64 border-r border-gray-200 pr-4">
-                        <!-- Cầu Lông - Active -->
-                        <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start" data-menu="badminton">
-                            <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                <img src="./img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
-                            </div>
-                            <div>
-                                <p class="font-bold text-red-600">Cầu Lông</p>
-                                <p class="text-xs text-gray-500">Trang bị cầu lông chuyên nghiệp</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Pickleball -->
-                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="pickleball">
-                            <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                <img src="./img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
-                            </div>
-                            <div>
-                                <p class="font-bold">Pickleball</p>
-                                <p class="text-xs text-gray-500">Trang bị pickleball hàng đầu</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Giày -->
-                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="giay">
-                            <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                <img src="./img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
-                            </div>
-                            <div>
-                                <p class="font-bold">Giày</p>
-                                <p class="text-xs text-gray-500">Giày thể thao tối ưu hoá vận động</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Các mục khác giữ nguyên -->
-                        <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                            <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg" alt="Chăm sóc sức khoẻ" class="w-full h-full">
-                            </div>
-                            <div><p class="font-bold">Chăm sóc sức khoẻ</p></div>
-                        </a>
-                        <a href="https://nvbplay.vn/product-category/dich-vu" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                            <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg" alt="Dịch vụ" class="w-full h-full">
-                            </div>
-                            <div><p class="font-bold">Dịch vụ</p></div>
-                        </a>
-                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="news">
-                            <div class="w-6 h-6 flex-shrink-0 mr-3">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg" alt="Tin Tức" class="w-full h-full">
-                            </div>
-                            <div>
-                                <p class="font-bold">Tin Tức</p>
-                                <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm giá sốc!</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right Content -->
-                    <div class="flex-1 pl-4">
-                        <!-- Content Badminton -->
-                        <div id="content-badminton" class="menu-content">
-                            <!-- Thương hiệu nổi bật - 8 HÃNG -->
-<div class="mb-4">
-    <div class="flex items-center justify-between mb-2">
-        <h3 class="font-bold">Thương hiệu nổi bật</h3>
-        <a href="./view/shop.php" class="text-sm text-red-600 hover:text-red-700 flex items-center">
-            Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
-        </a>
-    </div>
-    <div class="grid grid-cols-4 gap-2">
-        <!-- YONEX -->
-        <a href="./view/shop.php?thuonghieu[]=yonex" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-yonex.webp" alt="Yonex" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">YONEX</span>
-        </a>
-        
-        <!-- ADIDAS -->
-        <a href="./view/shop.php?thuonghieu[]=adidas" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-adidas.webp" alt="Adidas" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">ADIDAS</span>
-        </a>
-        
-        <!-- LI-NING -->
-        <a href="./view/shop.php?thuonghieu[]=li-ning" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/Logo-li-ning.webp" alt="Li-Ning" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">LI-NING</span>
-        </a>
-        
-        <!-- VICTOR -->
-        <a href="./view/shop.php?thuonghieu[]=victor" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-victor.png" alt="Victor" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">VICTOR</span>
-        </a>
-        
-        <!-- KAMITO -->
-        <a href="./view/shop.php?thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">KAMITO</span>
-        </a>
-        
-        <!-- MIZUNO -->
-        <a href="./view/shop.php?thuonghieu[]=mizuno" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-mizuno.png" alt="Mizuno" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">MIZUNO</span>
-        </a>
-        
-        <!-- KUMPOO -->
-        <a href="./view/shop.php?thuonghieu[]=kumpoo" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-kumpoo.png" alt="Kumpoo" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">KUMPOO</span>
-        </a>
-        
-        <!-- VENSON -->
-        <a href="./view/shop.php?thuonghieu[]=venson" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-            <div class="w-10 h-10 flex-shrink-0 mr-2">
-                <img src="./img/icons/logo-venson.png" alt="Venson" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-            </div>
-            <span class="text-sm font-medium">VENSON</span>
-        </a>
-    </div>
-</div>
-                            
-                            <div class="border-t border-gray-200 my-3"></div>
-                            
-                            <!-- Theo sản phẩm - CẦU LÔNG -->
-<div>
-    <div class="flex items-center justify-between mb-2">
-        <h3 class="font-bold">Theo sản phẩm</h3>
-        <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-sm text-red-600 hover:text-red-700 flex items-center">
-            Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
-        </a>
-    </div>
-    <div class="grid grid-cols-3 gap-4">
-        <!-- Vợt cầu lông - 8 thương hiệu + Xem thêm -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="font-semibold text-sm hover:text-red-600">Vợt cầu lông</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Yonex</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Li-Ning</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Adidas</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Victor</a></li>      
-                <li><a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-        
-        <!-- Balo cầu lông - 8 thương hiệu + Xem thêm -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=balo-cau-long" class="font-semibold text-sm hover:text-red-600">Balo cầu lông</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Balo Yonex</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Balo Li-Ning</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Balo Adidas</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Balo Victor</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-        
-        <!-- Phụ kiện cầu lông - Giữ nguyên -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=phu-kien" class="font-semibold text-sm hover:text-red-600">Phụ kiện</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien" class="text-xs text-gray-600 hover:text-red-600">Tất cả phụ kiện</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=quả+cầu" class="text-xs text-gray-600 hover:text-red-600">Quả cầu lông</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=cước+đan" class="text-xs text-gray-600 hover:text-red-600">Cước đan vợt</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=quấn+cán" class="text-xs text-gray-600 hover:text-red-600">Quấn cán</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-                        </div>
-                        
-                        <!-- Content for Pickleball -->
-<div id="content-pickleball" class="menu-content hidden">
-    <!-- Thương hiệu nổi bật - 4 HÃNG (CÂN ĐỐI) -->
-    <div class="mb-4">
-        <div class="flex items-center justify-between mb-2">
-            <h3 class="font-bold">Thương hiệu nổi bật</h3>
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
-                Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
-            </a>
-        </div>
-        <div class="grid grid-cols-4 gap-2">
-            <!-- JOOLA -->
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-                <div class="w-10 h-10 flex-shrink-0 mr-2">
-                    <img src="./img/icons/logo-joola.png" alt="JOOLA" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-                </div>
-                <span class="text-sm font-medium">JOOLA</span>
-            </a>
-            
-            <!-- SELKIRK -->
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-                <div class="w-10 h-10 flex-shrink-0 mr-2">
-                    <img src="./img/icons/logo-selkirk.webp" alt="SELKIRK" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-                </div>
-                <span class="text-sm font-medium">SELKIRK</span>
-            </a>
-            
-            <!-- KAMITO -->
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-                <div class="w-10 h-10 flex-shrink-0 mr-2">
-                    <img src="./img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-                </div>
-                <span class="text-sm font-medium">KAMITO</span>
-            </a>
-            
-            <!-- WIKA -->
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
-                <div class="w-10 h-10 flex-shrink-0 mr-2">
-                    <img src="./img/icons/logo-wika.png" alt="WIKA" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
-                </div>
-                <span class="text-sm font-medium">WIKA</span>
-            </a>
-        </div>
-    </div>
-    
-    <div class="border-t border-gray-200 my-3"></div>
-    
-   <!-- Theo sản phẩm - PICKLEBALL -->
-<div>
-    <div class="flex items-center justify-between mb-2">
-        <h3 class="font-bold">Theo sản phẩm</h3>
-        <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
-            Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
-        </a>
-    </div>
-    <div class="grid grid-cols-3 gap-4">
-        <!-- Vợt Pickleball - 4 thương hiệu + Xem thêm -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="font-semibold text-sm hover:text-red-600">Vợt Pickleball</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Vợt Joola</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Vợt Selkirk</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Vợt Kamito</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Vợt Wika</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-        
-        <!-- Balo/Túi Pickleball - 4 thương hiệu + Xem thêm -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=balo-tui-pickleball" class="font-semibold text-sm hover:text-red-600">Balo - Túi Pickleball</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Balo Joola</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Balo Selkirk</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Balo Kamito</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Balo Wika</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-        
-        <!-- Phụ kiện Pickleball -->
-        <div>
-            <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball" class="font-semibold text-sm hover:text-red-600">Phụ kiện Pickleball</a>
-            <ul class="mt-2 space-y-1">
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=bóng" class="text-xs text-gray-600 hover:text-red-600">Bóng Pickleball</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=lưới" class="text-xs text-gray-600 hover:text-red-600">Lưới Pickleball</a></li>
-                <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-</div>
-                        
-                        <!-- Content Giày -->
-                        <div id="content-giay" class="menu-content hidden">
-                            <div class="text-center py-16">
-                                <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-shoe-prints text-3xl text-gray-400"></i>
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-700 mb-2">Sản Phẩm Sớm Ra Mắt</h3>
-                                <p class="text-gray-500 text-sm">Chúng tôi đang chuẩn bị những mẫu giày thể thao chất lượng nhất. Hãy quay lại sau nhé!</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Content News -->
-                        <div id="content-news" class="menu-content hidden">
-                            <div class="text-center py-10 text-gray-500">
-                                <p>Nội dung Tin Tức sẽ hiển thị ở đây</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </li>
-    </ul>
-</div>
+                                            <div class="hidden md:flex items-center ml-0 lg:ml-2">
+                                                <ul class="flex items-center space-x-4">
+                                                    <li class="relative" id="mega-menu-container">
+                                                        <button id="mega-menu-trigger" class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+                                                            <img src="./img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
+                                                            <span>Danh mục</span>
+                                                        </button>
+
+                                                        <!-- Mega Menu Dropdown (CHỈ SỬA PHẦN NÀY) -->
+                                                        <div id="mega-menu-dropdown" class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
+                                                            <div class="flex p-4">
+                                                                <!-- Left Sidebar - Icon Menu -->
+                                                                <div class="w-64 border-r border-gray-200 pr-4">
+                                                                    <!-- Cầu Lông - Active -->
+                                                                    <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start" data-menu="badminton">
+                                                                        <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                                            <img src="./img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold text-red-600">Cầu Lông</p>
+                                                                            <p class="text-xs text-gray-500">Trang bị cầu lông chuyên nghiệp</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Pickleball -->
+                                                                    <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="pickleball">
+                                                                        <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                                            <img src="./img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Pickleball</p>
+                                                                            <p class="text-xs text-gray-500">Trang bị pickleball hàng đầu</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Giày -->
+                                                                    <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="giay">
+                                                                        <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                                            <img src="./img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Giày</p>
+                                                                            <p class="text-xs text-gray-500">Giày thể thao tối ưu hoá vận động</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Các mục khác giữ nguyên -->
+                                                                    <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
+                                                                        <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                                                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg" alt="Chăm sóc sức khoẻ" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Chăm sóc sức khoẻ</p>
+                                                                        </div>
+                                                                    </a>
+                                                                    <a href="https://nvbplay.vn/product-category/dich-vu" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
+                                                                        <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                                                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg" alt="Dịch vụ" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Dịch vụ</p>
+                                                                        </div>
+                                                                    </a>
+                                                                    <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="news">
+                                                                        <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                                                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg" alt="Tin Tức" class="w-full h-full">
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Tin Tức</p>
+                                                                            <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm giá sốc!</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Right Content -->
+                                                                <div class="flex-1 pl-4">
+                                                                    <!-- Content Badminton -->
+                                                                    <div id="content-badminton" class="menu-content">
+                                                                        <!-- Thương hiệu nổi bật - 8 HÃNG -->
+                                                                        <div class="mb-4">
+                                                                            <div class="flex items-center justify-between mb-2">
+                                                                                <h3 class="font-bold">Thương hiệu nổi bật</h3>
+                                                                                <a href="./view/shop.php" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div class="grid grid-cols-4 gap-2">
+                                                                                <!-- YONEX -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=yonex" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-yonex.webp" alt="Yonex" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">YONEX</span>
+                                                                                </a>
+
+                                                                                <!-- ADIDAS -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=adidas" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-adidas.webp" alt="Adidas" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">ADIDAS</span>
+                                                                                </a>
+
+                                                                                <!-- LI-NING -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=li-ning" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/Logo-li-ning.png" alt="Li-Ning" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">LI-NING</span>
+                                                                                </a>
+
+                                                                                <!-- VICTOR -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=victor" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-victor.png" alt="Victor" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">VICTOR</span>
+                                                                                </a>
+
+                                                                                <!-- KAMITO -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">KAMITO</span>
+                                                                                </a>
+
+                                                                                <!-- MIZUNO -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=mizuno" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-mizuno.png" alt="Mizuno" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">MIZUNO</span>
+                                                                                </a>
+
+                                                                                <!-- KUMPOO -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=kumpoo" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-kumpoo.png" alt="Kumpoo" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">KUMPOO</span>
+                                                                                </a>
+
+                                                                                <!-- VENSON -->
+                                                                                <a href="./view/shop.php?thuonghieu[]=venson" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-venson.png" alt="Venson" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">VENSON</span>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="border-t border-gray-200 my-3"></div>
+
+                                                                        <!-- Theo sản phẩm - CẦU LÔNG -->
+                                                                        <div>
+                                                                            <div class="flex items-center justify-between mb-2">
+                                                                                <h3 class="font-bold">Theo sản phẩm</h3>
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div class="grid grid-cols-3 gap-4">
+                                                                                <!-- Vợt cầu lông - 8 thương hiệu + Xem thêm -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="font-semibold text-sm hover:text-red-600">Vợt cầu lông</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Yonex</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Li-Ning</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Adidas</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Victor</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+
+                                                                                <!-- Balo cầu lông - 8 thương hiệu + Xem thêm -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=balo-cau-long" class="font-semibold text-sm hover:text-red-600">Balo cầu lông</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Balo Yonex</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Balo Li-Ning</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Balo Adidas</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Balo Victor</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+
+                                                                                <!-- Phụ kiện cầu lông - Giữ nguyên -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=phu-kien" class="font-semibold text-sm hover:text-red-600">Phụ kiện</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien" class="text-xs text-gray-600 hover:text-red-600">Tất cả phụ kiện</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=quả+cầu" class="text-xs text-gray-600 hover:text-red-600">Quả cầu lông</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=cước+đan" class="text-xs text-gray-600 hover:text-red-600">Cước đan vợt</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien&search=quấn+cán" class="text-xs text-gray-600 hover:text-red-600">Quấn cán</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Content for Pickleball -->
+                                                                    <div id="content-pickleball" class="menu-content hidden">
+                                                                        <!-- Thương hiệu nổi bật - 4 HÃNG (CÂN ĐỐI) -->
+                                                                        <div class="mb-4">
+                                                                            <div class="flex items-center justify-between mb-2">
+                                                                                <h3 class="font-bold">Thương hiệu nổi bật</h3>
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div class="grid grid-cols-4 gap-2">
+                                                                                <!-- JOOLA -->
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-joola.png" alt="JOOLA" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">JOOLA</span>
+                                                                                </a>
+
+                                                                                <!-- SELKIRK -->
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-selkirk.webp" alt="SELKIRK" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">SELKIRK</span>
+                                                                                </a>
+
+                                                                                <!-- KAMITO -->
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">KAMITO</span>
+                                                                                </a>
+
+                                                                                <!-- WIKA -->
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                                    <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                                        <img src="./img/icons/logo-wika.png" alt="WIKA" class="w-full h-full object-contain" onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                    </div>
+                                                                                    <span class="text-sm font-medium">WIKA</span>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="border-t border-gray-200 my-3"></div>
+
+                                                                        <!-- Theo sản phẩm - PICKLEBALL -->
+                                                                        <div>
+                                                                            <div class="flex items-center justify-between mb-2">
+                                                                                <h3 class="font-bold">Theo sản phẩm</h3>
+                                                                                <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div class="grid grid-cols-3 gap-4">
+                                                                                <!-- Vợt Pickleball - 4 thương hiệu + Xem thêm -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=vot-pickleball" class="font-semibold text-sm hover:text-red-600">Vợt Pickleball</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Vợt Joola</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Vợt Selkirk</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Vợt Kamito</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Vợt Wika</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=vot-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+
+                                                                                <!-- Balo/Túi Pickleball - 4 thương hiệu + Xem thêm -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=balo-tui-pickleball" class="font-semibold text-sm hover:text-red-600">Balo - Túi Pickleball</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Balo Joola</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Balo Selkirk</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Balo Kamito</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Balo Wika</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=balo-tui-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+
+                                                                                <!-- Phụ kiện Pickleball -->
+                                                                                <div>
+                                                                                    <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball" class="font-semibold text-sm hover:text-red-600">Phụ kiện Pickleball</a>
+                                                                                    <ul class="mt-2 space-y-1">
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=bóng" class="text-xs text-gray-600 hover:text-red-600">Bóng Pickleball</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=lưới" class="text-xs text-gray-600 hover:text-red-600">Lưới Pickleball</a></li>
+                                                                                        <li><a href="./view/shop.php?danhmuc[]=phu-kien-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Content Giày -->
+                                                                    <div id="content-giay" class="menu-content hidden">
+                                                                        <div class="text-center py-16">
+                                                                            <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                                                                <i class="fas fa-shoe-prints text-3xl text-gray-400"></i>
+                                                                            </div>
+                                                                            <h3 class="text-lg font-bold text-gray-700 mb-2">Sản Phẩm Sớm Ra Mắt</h3>
+                                                                            <p class="text-gray-500 text-sm">Chúng tôi đang chuẩn bị những mẫu giày thể thao chất lượng nhất. Hãy quay lại sau nhé!</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Content News -->
+                                                                    <div id="content-news" class="menu-content hidden">
+                                                                        <div class="text-center py-10 text-gray-500">
+                                                                            <p>Nội dung Tin Tức sẽ hiển thị ở đây</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                             <li><a href="./view/shop.php"
                                                     class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img
                                                         src="./img/icons/store.svg"
@@ -947,147 +951,147 @@
                         </section>
 
                         <!-- Section Danh Mục - Lấy từ Database -->
-<?php
-// Lấy kết nối database (đảm bảo đã có ở đầu file)
-if (!isset($conn)) {
-    require_once './control/connect.php';
-}
+                        <?php
+                        // Lấy kết nối database (đảm bảo đã có ở đầu file)
+                        if (!isset($conn)) {
+                            require_once './control/connect.php';
+                        }
 
-// Lấy 3 danh mục từ database (ID 1, 2, 3 theo SQL dump)
-$categories_sql = "SELECT d.Danhmuc_id, d.Ten_danhmuc, d.slug,
+                        // Lấy 3 danh mục từ database (ID 1, 2, 3 theo SQL dump)
+                        $categories_sql = "SELECT d.Danhmuc_id, d.Ten_danhmuc, d.slug,
     (SELECT image_url FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1 AND image_url IS NOT NULL LIMIT 1) as sample_image,
     (SELECT COUNT(*) FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1) as product_count
     FROM danhmuc d
     WHERE d.Danhmuc_id IN (1, 2, 3)
     ORDER BY d.Danhmuc_id";
-$categories_result = $conn->query($categories_sql);
-?>
+                        $categories_result = $conn->query($categories_sql);
+                        ?>
 
-<!-- Section Danh Mục -->
-<section class="home-product mb-8">
-    <div class="mb-4">
-        <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-            Danh mục
-        </h2>
-    </div>
-    
-    <!-- Grid 3 cột -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <?php while ($category = $categories_result->fetch_assoc()): ?>
-        <div class="flex-shrink-0">
-            <a href="./view/shop.php?danhmuc[]=<?php echo htmlspecialchars($category['slug']); ?>" class="block group">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                    <div class="aspect-square overflow-hidden p-4 bg-gray-50">
-                        <?php if (!empty($category['sample_image'])): ?>
-                            <img src="./<?php echo htmlspecialchars($category['sample_image']); ?>"
-                                 alt="<?php echo htmlspecialchars($category['Ten_danhmuc']); ?>"
-                                 class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
-                                 onerror="this.src='./img/sanpham/placeholder.png'">
-                        <?php else: ?>
-                            <img src="./img/sanpham/placeholder.png"
-                                 alt="<?php echo htmlspecialchars($category['Ten_danhmuc']); ?>"
-                                 class="w-full h-full object-contain">
-                        <?php endif; ?>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h3 class="font-semibold text-base text-gray-800 group-hover:text-red-600 transition">
-                            <?php echo htmlspecialchars($category['Ten_danhmuc']); ?>
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">
-                            <?php echo $category['product_count']; ?> sản phẩm
-                        </p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <?php endwhile; ?>
-    </div>
-</section>
+                        <!-- Section Danh Mục -->
+                        <section class="home-product mb-8">
+                            <div class="mb-4">
+                                <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
+                                    Danh mục
+                                </h2>
+                            </div>
+
+                            <!-- Grid 3 cột -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <?php while ($category = $categories_result->fetch_assoc()): ?>
+                                    <div class="flex-shrink-0">
+                                        <a href="./view/shop.php?danhmuc[]=<?php echo htmlspecialchars($category['slug']); ?>" class="block group">
+                                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                                                <div class="aspect-square overflow-hidden p-4 bg-gray-50">
+                                                    <?php if (!empty($category['sample_image'])): ?>
+                                                        <img src="./<?php echo htmlspecialchars($category['sample_image']); ?>"
+                                                            alt="<?php echo htmlspecialchars($category['Ten_danhmuc']); ?>"
+                                                            class="w-full h-full object-contain group-hover:scale-105 transition duration-300"
+                                                            onerror="this.src='./img/sanpham/placeholder.png'">
+                                                    <?php else: ?>
+                                                        <img src="./img/sanpham/placeholder.png"
+                                                            alt="<?php echo htmlspecialchars($category['Ten_danhmuc']); ?>"
+                                                            class="w-full h-full object-contain">
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="p-4 text-center">
+                                                    <h3 class="font-semibold text-base text-gray-800 group-hover:text-red-600 transition">
+                                                        <?php echo htmlspecialchars($category['Ten_danhmuc']); ?>
+                                                    </h3>
+                                                    <p class="text-sm text-gray-500 mt-1">
+                                                        <?php echo $category['product_count']; ?> sản phẩm
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                        </section>
 
 
 
                         <!-- Featured Products Section - Áo NVBPLAY -->
                         <!-- Section Vợt Cầu Lông -->
-<section class="home-product mb-8">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-            VỢT CẦU LÔNG NỔI BẬT
-        </h2>
-        <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-red-600 hover:text-red-700 font-medium flex items-center">
-            Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-        </a>
-    </div>
-    
-    <?php
-    // Lấy vợt cầu lông nổi bật từ database (Danhmuc_id = 1)
-    $vot_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
+                        <section class="home-product mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
+                                    VỢT CẦU LÔNG NỔI BẬT
+                                </h2>
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="text-red-600 hover:text-red-700 font-medium flex items-center">
+                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                                </a>
+                            </div>
+
+                            <?php
+                            // Lấy vợt cầu lông nổi bật từ database (Danhmuc_id = 1)
+                            $vot_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
                 FROM sanpham s
                 LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
                 LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
                 WHERE s.Danhmuc_id = 1 AND s.TrangThai = 1
                 ORDER BY s.TaoNgay DESC
                 LIMIT 5";
-    
-    $vot_result = $conn->query($vot_sql);
-    ?>
-    
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <?php while ($product = $vot_result->fetch_assoc()): 
-            // Tính phần trăm giảm giá
-            $discount = 0;
-            if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
-                $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
-            }
-        ?>
-        <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
-            <div class="relative">
-                <?php if ($discount > 0): ?>
-                <div class="absolute top-2 left-2 z-10">
-                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
-                </div>
-                <?php endif; ?>
-                
-                <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
-                    <?php if (!empty($product['image_url'])): ?>
-                        <img src="./<?php echo htmlspecialchars($product['image_url']); ?>"
-                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                             onerror="this.src='./img/sanpham/placeholder.png'">
-                    <?php else: ?>
-                        <img src="./img/sanpham/placeholder.png"
-                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                             class="w-full h-full object-cover">
-                    <?php endif; ?>
-                </a>
-            </div>
-            
-            <div class="p-3">
-                <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                    <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" 
-                       class="hover:text-red-600">
-                        <?php echo htmlspecialchars($product['TenSP']); ?>
-                    </a>
-                </h3>
-                
-                <div class="flex items-center space-x-2">
-                    <span class="text-red-600 font-bold">
-                        <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
-                    </span>
-                    <?php if ($discount > 0): ?>
-                    <span class="text-gray-400 text-sm line-through">
-                        <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
-                    </span>
-                    <?php endif; ?>
-                </div>
-                
-                <?php if ($product['SoLuongTon'] <= 0): ?>
-                <div class="text-xs text-red-500 mt-1">Hết hàng</div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endwhile; ?>
-    </div>
-</section>
+
+                            $vot_result = $conn->query($vot_sql);
+                            ?>
+
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                <?php while ($product = $vot_result->fetch_assoc()):
+                                    // Tính phần trăm giảm giá
+                                    $discount = 0;
+                                    if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
+                                        $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
+                                    }
+                                ?>
+                                    <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
+                                        <div class="relative">
+                                            <?php if ($discount > 0): ?>
+                                                <div class="absolute top-2 left-2 z-10">
+                                                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src="./<?php echo htmlspecialchars($product['image_url']); ?>"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                        onerror="this.src='./img/sanpham/placeholder.png'">
+                                                <?php else: ?>
+                                                    <img src="./img/sanpham/placeholder.png"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover">
+                                                <?php endif; ?>
+                                            </a>
+                                        </div>
+
+                                        <div class="p-3">
+                                            <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                                                <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>"
+                                                    class="hover:text-red-600">
+                                                    <?php echo htmlspecialchars($product['TenSP']); ?>
+                                                </a>
+                                            </h3>
+
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-red-600 font-bold">
+                                                    <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
+                                                </span>
+                                                <?php if ($discount > 0): ?>
+                                                    <span class="text-gray-400 text-sm line-through">
+                                                        <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+
+                                            <?php if ($product['SoLuongTon'] <= 0): ?>
+                                                <div class="text-xs text-red-500 mt-1">Hết hàng</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                        </section>
 
                         <!-- Banner Row -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -1105,93 +1109,93 @@ $categories_result = $conn->query($categories_sql);
                             </div>
                         </div>
 
-                       <!-- Section Phụ Kiện Nổi Bật -->
-<section class="home-product mb-8">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-            PHỤ KIỆN NỔI BẬT
-        </h2>
-        <a href="./view/shop.php?danhmuc[]=phu-kien" class="text-red-600 hover:text-red-700 font-medium flex items-center">
-            Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-        </a>
-    </div>
-    
-    <?php
-    // Lấy phụ kiện từ database (Danhmuc_id = 5)
-    $phukien_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
+                        <!-- Section Phụ Kiện Nổi Bật -->
+                        <section class="home-product mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
+                                    PHỤ KIỆN NỔI BẬT
+                                </h2>
+                                <a href="./view/shop.php?danhmuc[]=phu-kien" class="text-red-600 hover:text-red-700 font-medium flex items-center">
+                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                                </a>
+                            </div>
+
+                            <?php
+                            // Lấy phụ kiện từ database (Danhmuc_id = 5)
+                            $phukien_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
                     FROM sanpham s
                     LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
                     LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
                     WHERE s.Danhmuc_id = 5 AND s.TrangThai = 1
                     ORDER BY s.TaoNgay DESC
                     LIMIT 4";
-    
-    $phukien_result = $conn->query($phukien_sql);
-    ?>
-    
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <?php while ($product = $phukien_result->fetch_assoc()): 
-            // Tính phần trăm giảm giá
-            $discount = 0;
-            if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
-                $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
-            }
-        ?>
-        <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
-            <div class="relative">
-                <?php if ($discount > 0): ?>
-                <div class="absolute top-2 left-2 z-10">
-                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($product['SoLuongTon'] <= 0): ?>
-                <div class="absolute top-2 right-2 z-10">
-                    <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full">Hết hàng</span>
-                </div>
-                <?php endif; ?>
-                
-                <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
-                    <?php if (!empty($product['image_url'])): ?>
-                        <img src=".<?php echo htmlspecialchars($product['image_url']); ?>"
-                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                             onerror="this.src='./img/sanpham/placeholder.png'">
-                    <?php else: ?>
-                        <img src="./img/sanpham/placeholder.png"
-                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                             class="w-full h-full object-cover">
-                    <?php endif; ?>
-                </a>
-            </div>
-            
-            <div class="p-3">
-                <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                    <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" 
-                       class="hover:text-red-600">
-                        <?php echo htmlspecialchars($product['TenSP']); ?>
-                    </a>
-                </h3>
-                
-                <div class="flex items-center space-x-2">
-                    <span class="text-red-600 font-bold">
-                        <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
-                    </span>
-                    <?php if ($discount > 0): ?>
-                    <span class="text-gray-400 text-sm line-through">
-                        <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
-                    </span>
-                    <?php endif; ?>
-                </div>
-                
-                <?php if ($product['SoLuongTon'] <= 0): ?>
-                <div class="text-xs text-red-500 mt-1">Hết hàng</div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endwhile; ?>
-    </div>
-</section>
+
+                            $phukien_result = $conn->query($phukien_sql);
+                            ?>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <?php while ($product = $phukien_result->fetch_assoc()):
+                                    // Tính phần trăm giảm giá
+                                    $discount = 0;
+                                    if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
+                                        $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
+                                    }
+                                ?>
+                                    <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
+                                        <div class="relative">
+                                            <?php if ($discount > 0): ?>
+                                                <div class="absolute top-2 left-2 z-10">
+                                                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <?php if ($product['SoLuongTon'] <= 0): ?>
+                                                <div class="absolute top-2 right-2 z-10">
+                                                    <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full">Hết hàng</span>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src=".<?php echo htmlspecialchars($product['image_url']); ?>"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                        onerror="this.src='./img/sanpham/placeholder.png'">
+                                                <?php else: ?>
+                                                    <img src="./img/sanpham/placeholder.png"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover">
+                                                <?php endif; ?>
+                                            </a>
+                                        </div>
+
+                                        <div class="p-3">
+                                            <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                                                <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>"
+                                                    class="hover:text-red-600">
+                                                    <?php echo htmlspecialchars($product['TenSP']); ?>
+                                                </a>
+                                            </h3>
+
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-red-600 font-bold">
+                                                    <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
+                                                </span>
+                                                <?php if ($discount > 0): ?>
+                                                    <span class="text-gray-400 text-sm line-through">
+                                                        <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+
+                                            <?php if ($product['SoLuongTon'] <= 0): ?>
+                                                <div class="text-xs text-red-500 mt-1">Hết hàng</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                        </section>
 
                         <!-- Sale Products Section -->
                         <section class="mb-8">
@@ -1897,11 +1901,10 @@ $categories_result = $conn->query($categories_sql);
                         suggestionsContainer.classList.remove('active');
                     }
                 });
-                
+
             });
-            
         </script>
-        
+
     </body>
 
     </html>

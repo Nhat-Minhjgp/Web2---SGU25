@@ -568,247 +568,322 @@ function getFilterDisplayName($type, $slug)
                         <!-- Desktop Left Menu -->
                         <div class="hidden md:flex items-center flex-1 ml-6">
                             <ul class="flex items-center space-x-4">
-                                <li class="relative" id="mega-menu-container">
-                                    <button id="mega-menu-trigger"
-                                        class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                                        <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu"><span>Danh
-                                            mục</span>
-                                    </button>
-                                    <div id="mega-menu-dropdown"
-                                        class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
-                                        <div class="flex p-4">
-                                            <div class="w-64 border-r border-gray-200 pr-4">
-                                                <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start"
-                                                    data-menu="badminton">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/badminton-No.svg"
-                                                            alt="Cầu Lông" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold text-red-600">Cầu Lông</p>
-                                                        <p class="text-xs text-gray-500">Trang bị cầu lông
-                                                            chuyên nghiệp</p>
-                                                    </div>
-                                                </div>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="pickleball">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/pickleball-No.svg"
-                                                            alt="Pickleball" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">Pickleball</p>
-                                                        <p class="text-xs text-gray-500">Trang bị pickleball
-                                                            hàng đầu</p>
-                                                    </div>
-                                                </div>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="giay">
-                                                    <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/jogging-No.svg"
-                                                            alt="Giày" class="w-full h-full">
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">Giày</p>
-                                                        <p class="text-xs text-gray-500">Giày thể thao tối ưu
-                                                            hoá vận động</p>
-                                                    </div>
-                                                </div>
-                                                <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
-                                                    class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
-                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Chăm sóc sức khoẻ</p>
-                                                    </div>
-                                                </a>
-                                                <a href="https://nvbplay.vn/product-category/dich-vu"
-                                                    class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
-                                                            alt="Dịch vụ" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Dịch vụ</p>
-                                                    </div>
-                                                </a>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="news">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
-                                                            alt="Tin Tức" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Tin Tức</p>
-                                                        <p class="text-xs text-gray-500">Xu hướng mới, sự kiện
-                                                            hot, giảm giá sốc!</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1 pl-4">
-                                                <div id="content-badminton" class="menu-content">
-                                                    <div class="mb-4">
-                                                        <div class="flex items-center justify-between mb-2">
-                                                            <h3 class="font-bold">Thương hiệu nổi bật</h3><a
-                                                                href="./view/shop.php"
-                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">Xem
-                                                                tất cả <i
-                                                                    class="fas fa-chevron-right ml-1 text-xs"></i></a>
-                                                        </div>
-                                                        <div class="grid grid-cols-4 gap-2">
-                                                            <a href="https://nvbplay.vn/shop?_brand=yonex"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/logo-300x214-1-150x150.webp"
-                                                                        alt="Yonex"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">YONEX</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=adidas"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/ave6by86s-300x300-1-150x150.webp"
-                                                                        alt="Adidas"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">ADIDAS</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=li-ning"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/Logo-li-ning-300x173-1-150x150.webp"
-                                                                        alt="Li-Ning"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">LI-NING</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=ds"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/logo-ds-300x300-1-150x150.jpg"
-                                                                        alt="DS" class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">DS</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=REDSON"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/d464ecc6daed33689bda2bf9a0e93f5e-150x150-1.png"
-                                                                        alt="REDSON"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">REDSON</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=kamito"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/logo-kamito-1-300x150-1-150x150.png"
-                                                                        alt="KAMITO"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">KAMITO</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=toalson"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/Toalson-300x150-1-150x150.png"
-                                                                        alt="TOALSON"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">TOALSON</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=yd-sport"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/YD-Sport-logo-300x61-1-150x61.png"
-                                                                        alt="YD SPORT"
-                                                                        class="w-full h-full object-contain">
-                                                                </div><span class="text-xs">YD SPORT</span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="border-t border-gray-200 my-3"></div>
-                                                    <div>
-                                                        <div class="flex items-center justify-between mb-2">
-                                                            <h3 class="font-bold">Theo sản phẩm</h3><a
-                                                                href="./view/shop"
-                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">Xem
-                                                                tất cả <i
-                                                                    class="fas fa-chevron-right ml-1 text-xs"></i></a>
-                                                        </div>
-                                                        <div class="grid grid-cols-3 gap-4">
-                                                            <div><a href="/product-category/vot-cau-long"
-                                                                    class="font-semibold text-sm hover:text-red-600">Vợt
-                                                                    cầu lông</a>
-                                                                <ul class="mt-2 space-y-1">
-                                                                    <li><a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=yonex"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
-                                                                            cầu lông Yonex</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=adidas"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
-                                                                            cầu lông Adidas</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=li-ning"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
-                                                                            cầu lông Li-ning</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=toalson"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
-                                                                            cầu lông Toalson</a></li>
-                                                                    <li><a href="/product-category/vot-cau-long"
-                                                                            class="text-xs text-red-600 hover:text-red-700">Xem
-                                                                            thêm <i
-                                                                                class="fas fa-chevron-right ml-1 text-xs"></i></a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div><a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
-                                                                    class="font-semibold text-sm hover:text-red-600">Áo
-                                                                    cầu lông</a>
-                                                                <ul class="mt-2 space-y-1">
-                                                                    <li><a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long?_brand=yonex"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Áo
-                                                                            cầu lông Yonex</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long?_brand=ds"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Áo
-                                                                            cầu lông DS</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
-                                                                            class="text-xs text-red-600 hover:text-red-700">Xem
-                                                                            thêm <i
-                                                                                class="fas fa-chevron-right ml-1 text-xs"></i></a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                            <div><a href="https://nvbplay.vn/product-category/quan-cau-long"
-                                                                    class="font-semibold text-sm hover:text-red-600">Quần
-                                                                    cầu lông</a>
-                                                                <ul class="mt-2 space-y-1">
-                                                                    <li><a href="https://nvbplay.vn/product-category/quan-cau-long?_brand=yonex"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Quần
-                                                                            cầu lông Yonex</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/quan-cau-long?_brand=kamito"
-                                                                            class="text-xs text-gray-600 hover:text-red-600">Quần
-                                                                            cầu lông Kamito</a></li>
-                                                                    <li><a href="https://nvbplay.vn/product-category/quan-cau-long"
-                                                                            class="text-xs text-red-600 hover:text-red-700">Xem
-                                                                            thêm <i
-                                                                                class="fas fa-chevron-right ml-1 text-xs"></i></a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="content-pickleball" class="menu-content hidden">
-                                                    <div class="text-center py-10 text-gray-500">
-                                                        <p>Nội dung Pickleball sẽ hiển thị ở đây</p>
-                                                    </div>
-                                                </div>
-                                                <div id="content-giay" class="menu-content hidden">
-                                                    <div class="text-center py-10 text-gray-500">
-                                                        <p>Nội dung Giày sẽ hiển thị ở đây</p>
-                                                    </div>
-                                                </div>
-                                                <div id="content-news" class="menu-content hidden">
-                                                    <div class="text-center py-10 text-gray-500">
-                                                        <p>Nội dung Tin Tức sẽ hiển thị ở đây</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <!-- Mega Menu Trigger (trong shop.php - view/) -->
+<div class="hidden md:flex items-center ml-0 lg:ml-2">
+    <ul class="flex items-center space-x-4">
+        <li class="relative" id="mega-menu-container">
+            <button id="mega-menu-trigger" class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+                <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
+                <span>Danh mục</span>
+            </button>
+            
+            <!-- Mega Menu Dropdown -->
+            <div id="mega-menu-dropdown" class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
+                <div class="flex p-4">
+                    <!-- Left Sidebar - Icon Menu -->
+                    <div class="w-64 border-r border-gray-200 pr-4">
+                        <!-- Cầu Lông - Active -->
+                        <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start" data-menu="badminton">
+                            <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                <img src="../img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+                            </div>
+                            <div>
+                                <p class="font-bold text-red-600">Cầu Lông</p>
+                                <p class="text-xs text-gray-500">Trang bị cầu lông chuyên nghiệp</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Pickleball -->
+                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="pickleball">
+                            <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                <img src="../img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                            </div>
+                            <div>
+                                <p class="font-bold">Pickleball</p>
+                                <p class="text-xs text-gray-500">Trang bị pickleball hàng đầu</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Giày -->
+                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="giay">
+                            <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                <img src="../img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
+                            </div>
+                            <div>
+                                <p class="font-bold">Giày</p>
+                                <p class="text-xs text-gray-500">Giày thể thao tối ưu hoá vận động</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Các mục khác giữ nguyên -->
+                        <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
+                            <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg" alt="Chăm sóc sức khoẻ" class="w-full h-full">
+                            </div>
+                            <div><p class="font-bold">Chăm sóc sức khoẻ</p></div>
+                        </a>
+                        <a href="https://nvbplay.vn/product-category/dich-vu" class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
+                            <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg" alt="Dịch vụ" class="w-full h-full">
+                            </div>
+                            <div><p class="font-bold">Dịch vụ</p></div>
+                        </a>
+                        <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start" data-menu="news">
+                            <div class="w-6 h-6 flex-shrink-0 mr-3">
+                                <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg" alt="Tin Tức" class="w-full h-full">
+                            </div>
+                            <div>
+                                <p class="font-bold">Tin Tức</p>
+                                <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm giá sốc!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Content -->
+                    <div class="flex-1 pl-4">
+                        <!-- Content Badminton -->
+                        <div id="content-badminton" class="menu-content">
+                            <!-- Thương hiệu nổi bật - 8 HÃNG -->
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold">Thương hiệu nổi bật</h3>
+                                    <a href="shop.php" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                        Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <!-- YONEX -->
+                                    <a href="shop.php?thuonghieu[]=yonex" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-yonex.webp" alt="Yonex" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
                                         </div>
+                                        <span class="text-sm font-medium">YONEX</span>
+                                    </a>
+                                    
+                                    <!-- ADIDAS -->
+                                    <a href="shop.php?thuonghieu[]=adidas" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-adidas.webp" alt="Adidas" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">ADIDAS</span>
+                                    </a>
+                                    
+                                    <!-- LI-NING -->
+                                    <a href="shop.php?thuonghieu[]=li-ning" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/Logo-li-ning.png" alt="Li-Ning" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">LI-NING</span>
+                                    </a>
+                                    
+                                    <!-- VICTOR -->
+                                    <a href="shop.php?thuonghieu[]=victor" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-victor.png" alt="Victor" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">VICTOR</span>
+                                    </a>
+                                    
+                                    <!-- KAMITO -->
+                                    <a href="shop.php?thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">KAMITO</span>
+                                    </a>
+                                    
+                                    <!-- MIZUNO -->
+                                    <a href="shop.php?thuonghieu[]=mizuno" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-mizuno.png" alt="Mizuno" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">MIZUNO</span>
+                                    </a>
+                                    
+                                    <!-- KUMPOO -->
+                                    <a href="shop.php?thuonghieu[]=kumpoo" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-kumpoo.png" alt="Kumpoo" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">KUMPOO</span>
+                                    </a>
+                                    
+                                    <!-- VENSON -->
+                                    <a href="shop.php?thuonghieu[]=venson" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-venson.png" alt="Venson" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">VENSON</span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 my-3"></div>
+                            
+                            <!-- Theo sản phẩm - CẦU LÔNG -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold">Theo sản phẩm</h3>
+                                    <a href="shop.php?danhmuc[]=vot-cau-long" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                        Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <!-- Vợt cầu lông -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=vot-cau-long" class="font-semibold text-sm hover:text-red-600">Vợt cầu lông</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Yonex</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Li-Ning</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Adidas</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Vợt cầu lông Victor</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
                                     </div>
-                                </li>
+                                    
+                                    <!-- Balo cầu lông -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=balo-cau-long" class="font-semibold text-sm hover:text-red-600">Balo cầu lông</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=yonex" class="text-xs text-gray-600 hover:text-red-600">Balo Yonex</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=li-ning" class="text-xs text-gray-600 hover:text-red-600">Balo Li-Ning</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=adidas" class="text-xs text-gray-600 hover:text-red-600">Balo Adidas</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=victor" class="text-xs text-gray-600 hover:text-red-600">Balo Victor</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-cau-long" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Phụ kiện cầu lông -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=phu-kien" class="font-semibold text-sm hover:text-red-600">Phụ kiện</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=phu-kien" class="text-xs text-gray-600 hover:text-red-600">Tất cả phụ kiện</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien&search=quả+cầu" class="text-xs text-gray-600 hover:text-red-600">Quả cầu lông</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien&search=cước+đan" class="text-xs text-gray-600 hover:text-red-600">Cước đan vợt</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien&search=quấn+cán" class="text-xs text-gray-600 hover:text-red-600">Quấn cán</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content Pickleball -->
+                        <div id="content-pickleball" class="menu-content hidden">
+                            <!-- Thương hiệu nổi bật - 4 HÃNG -->
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold">Thương hiệu nổi bật</h3>
+                                    <a href="shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                        Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <!-- JOOLA -->
+                                    <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-joola.png" alt="JOOLA" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">JOOLA</span>
+                                    </a>
+                                    
+                                    <!-- SELKIRK -->
+                                    <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-selkirk.webp" alt="SELKIRK" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">SELKIRK</span>
+                                    </a>
+                                    
+                                    <!-- KAMITO -->
+                                    <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-kamito.png" alt="KAMITO" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">KAMITO</span>
+                                    </a>
+                                    
+                                    <!-- WIKA -->
+                                    <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                        <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                            <img src="../img/icons/logo-wika.png" alt="WIKA" class="w-full h-full object-contain" onerror="this.src='../img/icons/placeholder-brand.svg'">
+                                        </div>
+                                        <span class="text-sm font-medium">WIKA</span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 my-3"></div>
+                            
+                            <!-- Theo sản phẩm - PICKLEBALL -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold">Theo sản phẩm</h3>
+                                    <a href="shop.php?danhmuc[]=vot-pickleball" class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                        Xem tất cả <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <!-- Vợt Pickleball -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=vot-pickleball" class="font-semibold text-sm hover:text-red-600">Vợt Pickleball</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Vợt Joola</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Vợt Selkirk</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Vợt Kamito</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Vợt Wika</a></li>
+                                            <li><a href="shop.php?danhmuc[]=vot-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Balo/Túi Pickleball -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=balo-tui-pickleball" class="font-semibold text-sm hover:text-red-600">Balo - Túi Pickleball</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=joola" class="text-xs text-gray-600 hover:text-red-600">Balo Joola</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=selkirk" class="text-xs text-gray-600 hover:text-red-600">Balo Selkirk</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=kamito" class="text-xs text-gray-600 hover:text-red-600">Balo Kamito</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=wika" class="text-xs text-gray-600 hover:text-red-600">Balo Wika</a></li>
+                                            <li><a href="shop.php?danhmuc[]=balo-tui-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Phụ kiện Pickleball -->
+                                    <div>
+                                        <a href="shop.php?danhmuc[]=phu-kien-pickleball" class="font-semibold text-sm hover:text-red-600">Phụ kiện Pickleball</a>
+                                        <ul class="mt-2 space-y-1">
+                                            <li><a href="shop.php?danhmuc[]=phu-kien-pickleball&search=bóng" class="text-xs text-gray-600 hover:text-red-600">Bóng Pickleball</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien-pickleball&search=lưới" class="text-xs text-gray-600 hover:text-red-600">Lưới Pickleball</a></li>
+                                            <li><a href="shop.php?danhmuc[]=phu-kien-pickleball" class="text-xs text-red-600 hover:text-red-700 font-medium">Xem thêm <i class="fas fa-chevron-right ml-1 text-[10px]"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content Giày -->
+                        <div id="content-giay" class="menu-content hidden">
+                            <div class="text-center py-16">
+                                <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shoe-prints text-3xl text-gray-400"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">Sản Phẩm Sớm Ra Mắt</h3>
+                                <p class="text-gray-500 text-sm">Chúng tôi đang chuẩn bị những mẫu giày thể thao chất lượng nhất. Hãy quay lại sau nhé!</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Content News -->
+                        <div id="content-news" class="menu-content hidden">
+                            <div class="text-center py-10 text-gray-500">
+                                <p>Nội dung Tin Tức sẽ hiển thị ở đây</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
 
                                 <li><a href="shop.php"
                                         class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img
