@@ -957,7 +957,7 @@ if ($is_logged_in) {
                                     <!-- Address Book (chỉ hiển thị khi đã đăng nhập) - giả lập biến is_logged_in = false để demo, nếu true sẽ hiện -->
 
 
-                                    <?php if ($is_logged_in): ?>
+                                  
                                         <div class="address-book">
                                             <a href="./view/my-account/address-book.php"
                                                 class="flex items-center text-gray-700 hover:text-red-600">
@@ -967,7 +967,7 @@ if ($is_logged_in) {
                                             </a>
                                         </div>
                                         <div class="h-5 w-px bg-gray-300"></div>
-                                    <?php endif; ?>
+                               
 
                                     <!-- Search button -->
                                     <button id="searchToggle"
@@ -1582,18 +1582,18 @@ if ($is_logged_in) {
                     <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
                         <!-- Vợt cầu lông -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-2 text-gray-700 font-medium">Vợt
+                            <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="block py-2 text-gray-700 font-medium">Vợt
                                 cầu lông</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
                                     class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
                                     class="block py-1 text-sm text-gray-600">Vợt Li-Ning</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
                                     class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
                                     class="block py-1 text-sm text-gray-600">Vợt Victor</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-1 text-sm text-red-600">Xem
+                                <a href="./view/shop.php?danhmuc[]=vot-cau-long" class="block py-1 text-sm text-red-600">Xem
                                     thêm</a>
                             </div>
                         </div>
@@ -1603,55 +1603,55 @@ if ($is_logged_in) {
                             <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-2 text-gray-700 font-medium">Áo
                                 cầu lông</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
+                                <a href="./view/shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
                                     class="block py-1 text-sm text-gray-600">Áo Yonex</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
+                                <a href="./view/shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
                                     class="block py-1 text-sm text-gray-600">Áo DS</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
+                                <a href="./view/shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
                                     class="block py-1 text-sm text-gray-600">Áo Kamito</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-1 text-sm text-red-600">Xem
+                                <a href="./view/shop.php?danhmuc[]=ao-cau-long" class="block py-1 text-sm text-red-600">Xem
                                     thêm</a>
                             </div>
                         </div>
 
                         <!-- Quần cầu lông -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=quan-cau-long"
+                            <a href="./view/shop.php?danhmuc[]=quan-cau-long"
                                 class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
+                                <a href="./view/shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
                                     class="block py-1 text-sm text-gray-600">Quần Yonex</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
+                                <a href="./view/shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
                                     class="block py-1 text-sm text-gray-600">Quần Kamito</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
+                                <a href="./view/shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
                                     class="block py-1 text-sm text-gray-600">Quần Adidas</a>
                             </div>
                         </div>
 
                         <!-- Túi vợt -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=tui-vot-cau-long"
+                            <a href="./view/shop.php?danhmuc[]=tui-vot-cau-long"
                                 class="block py-2 text-gray-700 font-medium">Túi vợt</a>
                         </div>
 
                         <!-- Balo -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=balo-cau-long"
+                            <a href="./view/shop.php?danhmuc[]=balo-cau-long"
                                 class="block py-2 text-gray-700 font-medium">Balo</a>
                         </div>
 
                         <!-- Phụ kiện -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
+                            <a href="./view/shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
                                 kiện</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=cước+đan"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien&search=cước+đan"
                                     class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quấn+cán"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien&search=quấn+cán"
                                     class="block py-1 text-sm text-gray-600">Quấn cán</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quả+cầu"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien&search=quả+cầu"
                                     class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
+                                <a href="./view/shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
                                     thêm</a>
                             </div>
                         </div>
@@ -1673,35 +1673,35 @@ if ($is_logged_in) {
 
                     <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
                         <div>
-                            <a href="./shop.php?danhmuc[]=vot-pickleball"
+                            <a href="./view/shop.php?danhmuc[]=vot-pickleball"
                                 class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
+                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
                                     class="block py-1 text-sm text-gray-600">Vợt Joola</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
+                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
                                     class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
+                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
                                     class="block py-1 text-sm text-gray-600">Vợt Kamito</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
+                                <a href="./view/shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
                                     class="block py-1 text-sm text-gray-600">Vợt Wika</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball"
+                                <a href="./view/shop.php?danhmuc[]=vot-pickleball"
                                     class="block py-1 text-sm text-red-600">Xem thêm</a>
                             </div>
                         </div>
                         <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
+                            <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball"
                                 class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
                             <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
                                     class="block py-1 text-sm text-gray-600">Bóng Pickleball</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
                                     class="block py-1 text-sm text-gray-600">Lưới Pickleball</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
+                                <a href="./view/shop.php?danhmuc[]=phu-kien-pickleball"
                                     class="block py-1 text-sm text-red-600">Xem thêm</a>
                             </div>
                         </div>
                         <div>
-                            <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                            <a href="./view/shop.php?danhmuc[]=balo-tui-pickleball"
                                 class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
                         </div>
                     </div>
@@ -1721,16 +1721,7 @@ if ($is_logged_in) {
                     </button>
 
                     <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=yonex"
-                                class="block py-2 text-gray-700">Giày Yonex</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=adidas"
-                                class="block py-2 text-gray-700">Giày Adidas</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=mizuno"
-                                class="block py-2 text-gray-700">Giày Mizuno</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=asics"
-                                class="block py-2 text-gray-700">Giày Asics</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=kamito"
-                                class="block py-2 text-gray-700">Giày Kamito</a></div>
+                       <p>Sớm ra mắt!!</p>
                     </div>
                 </div>
 
