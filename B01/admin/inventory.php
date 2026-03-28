@@ -20,6 +20,9 @@ if (isset($_POST['update_threshold'])) {
     $product_id = intval($_POST['product_id']);
     $threshold = intval($_POST['threshold']);
     
+    // Thêm cột CanhBaoTon vào bảng sanpham nếu chưa có
+    $conn->query("ALTER TABLE sanpham ADD COLUMN IF NOT EXISTS CanhBaoTon INT DEFAULT 10");
+    
     $sql = "UPDATE sanpham SET CanhBaoTon = ? WHERE SanPham_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $threshold, $product_id);
@@ -31,11 +34,12 @@ if (isset($_POST['update_threshold'])) {
 }
 
 // ============================================
-// LẤY DANH SÁCH SẢN PHẨM
+// LẤY DANH SÁCH SẢN PHẨM VỚI DỮ LIỆU THẬT
 // ============================================
 $sql = "SELECT sp.*, dm.Ten_danhmuc, th.Ten_thuonghieu,
         COALESCE((SELECT SUM(SoLuong) FROM chitietphieunhap WHERE SanPham_id = sp.SanPham_id), 0) as tong_nhap,
-        COALESCE((SELECT SUM(SoLuong) FROM chitiethoadon WHERE SanPham_id = sp.SanPham_id), 0) as tong_xuat
+        COALESCE((SELECT SUM(SoLuong) FROM chitiethoadon WHERE SanPham_id = sp.SanPham_id), 0) as tong_xuat,
+        COALESCE(sp.CanhBaoTon, 10) as canh_bao
         FROM sanpham sp
         LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
         LEFT JOIN thuonghieu th ON sp.Ma_thuonghieu = th.Ma_thuonghieu
@@ -45,6 +49,69 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
 // Lấy danh sách danh mục để lọc
 $categories = getCategories($conn);
+
+// ============================================
+// XỬ LÝ BÁO CÁO NHẬP - XUẤT QUA AJAX
+// ============================================
+if (isset($_GET['get_report'])) {
+    $from_date = $_GET['from'] ?? '';
+    $to_date = $_GET['to'] ?? '';
+    $product_id = $_GET['product'] ?? '';
+    
+    $reports = [];
+    
+    // Lấy dữ liệu nhập hàng
+    $sql_import = "SELECT pn.NgayNhap as date, 'Nhập' as type, 
+                   sp.SanPham_id as product_id, sp.TenSP as product_name,
+                   ct.SoLuong as quantity, ct.Gia_Nhap as price,
+                   (ct.SoLuong * ct.Gia_Nhap) as total
+                   FROM phieunhap pn
+                   JOIN chitietphieunhap ct ON pn.NhapHang_id = ct.PhieuNhap_id
+                   JOIN sanpham sp ON ct.SanPham_id = sp.SanPham_id
+                   WHERE pn.NgayNhap BETWEEN ? AND ?";
+    $params = [$from_date, $to_date];
+    
+    if (!empty($product_id)) {
+        $sql_import .= " AND sp.SanPham_id = ?";
+        $params[] = $product_id;
+    }
+    
+    $stmt = $conn->prepare($sql_import);
+    $types = str_repeat("s", count($params));
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    // Lấy dữ liệu xuất hàng (từ đơn hàng đã giao)
+    $sql_export = "SELECT d.NgayDat as date, 'Xuất' as type,
+                   sp.SanPham_id as product_id, sp.TenSP as product_name,
+                   ctdh.SoLuong as quantity, ctdh.Gia as price,
+                   (ctdh.SoLuong * ctdh.Gia) as total
+                   FROM donhang d
+                   JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id
+                   JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id
+                   WHERE d.NgayDat BETWEEN ? AND ? AND d.TrangThai = 2";
+    $params_export = [$from_date, $to_date];
+    
+    if (!empty($product_id)) {
+        $sql_export .= " AND sp.SanPham_id = ?";
+        $params_export[] = $product_id;
+    }
+    
+    $stmt = $conn->prepare($sql_export);
+    $types = str_repeat("s", count($params_export));
+    $stmt->bind_param($types, ...$params_export);
+    $stmt->execute();
+    $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    $reports = array_merge($imports, $exports);
+    usort($reports, function($a, $b) {
+        return strtotime($a['date']) - strtotime($b['date']);
+    });
+    
+    echo json_encode($reports);
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -217,6 +284,7 @@ $categories = getCategories($conn);
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[900px]" id="inventoryTable">
                             <thead class="bg-gradient-custom text-white">
+                                应
                                     <th class="px-4 py-3 text-left">Mã SP</th>
                                     <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                                     <th class="px-4 py-3 text-left">Danh mục</th>
@@ -231,20 +299,20 @@ $categories = getCategories($conn);
                                 <?php foreach ($products as $p): ?>
                                 <?php 
                                     $ton = $p['SoLuongTon'];
-                                    $nguong = $p['CanhBaoTon'] ?? 10;
+                                    $nguong = $p['canh_bao'];
                                     $rowClass = '';
                                     if ($ton <= $nguong && $ton > 0) $rowClass = 'inventory-row-low';
                                     if ($ton == 0) $rowClass = 'inventory-row-critical';
                                 ?>
                                 <tr class="hover:bg-gray-50 transition <?php echo $rowClass; ?>">
-                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>   </td>
-                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>   </td>
-                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>   </td>
-                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>   </td>
-                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_nhap']; ?>   </td>
-                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_xuat']; ?>   </td>
-                                    <td class="px-4 py-3 text-right"><?php echo number_format($p['GiaNhapTB'], 0, ',', '.'); ?>đ   </td>
-                                    <td class="px-4 py-3 text-right"><?php echo number_format($ton * $p['GiaNhapTB'], 0, ',', '.'); ?>đ   </td>
+                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>    </td>
+                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>    </td>
+                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>    </td>
+                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>    </td>
+                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_nhap']; ?>    </td>
+                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_xuat']; ?>    </td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($p['GiaNhapTB'], 0, ',', '.'); ?>đ    </td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($ton * $p['GiaNhapTB'], 0, ',', '.'); ?>đ    </td>
                                     <td class="px-4 py-3 text-center">
                                         <?php if ($ton == 0): ?>
                                             <span class="badge-danger px-2 py-1 rounded-full text-xs">🔴 Hết hàng</span>
@@ -253,15 +321,14 @@ $categories = getCategories($conn);
                                         <?php else: ?>
                                             <span class="badge-success px-2 py-1 rounded-full text-xs">✅ Còn hàng</span>
                                         <?php endif; ?>
-                                    </td>
-                                </tr>
+                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
-                        </table>
+                         </table>
                     </div>
                 </div>
 
-                <!-- TAB 2: BÁO CÁO NHẬP - XUẤT -->
+                <!-- TAB 2: BÁO CÁO NHẬP - XUẤT (LẤY DỮ LIỆU THẬT) -->
                 <div id="reportTab" class="tab-content hidden">
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -292,6 +359,7 @@ $categories = getCategories($conn);
                     <div id="reportResult" class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[800px]">
                             <thead class="bg-gradient-custom text-white">
+                                应
                                     <th class="px-4 py-3 text-left">Ngày</th>
                                     <th class="px-4 py-3 text-left">Loại</th>
                                     <th class="px-4 py-3 text-left">Mã SP</th>
@@ -301,14 +369,13 @@ $categories = getCategories($conn);
                                     <th class="px-4 py-3 text-right">Thành tiền</th>
                                 </thead>
                             <tbody id="reportTableBody">
-                                <tr>
+                                 <tr>
                                     <td colspan="7" class="text-center py-8 text-gray-500">
                                         <i class="fas fa-chart-line text-4xl mb-2 block"></i>
                                         Chọn khoảng thời gian để xem báo cáo
-                                    </td>
-                                </tr>
+                                     </tr>
                             </tbody>
-                         </table>
+                          </table>
                     </div>
                 </div>
 
@@ -323,8 +390,9 @@ $categories = getCategories($conn);
                     </div>
 
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
-                        <table class="w-full min-w-[800px]" id="warningTable">
+                        <table class="w-full min-w-[800px]">
                             <thead class="bg-gradient-custom text-white">
+                                应
                                     <th class="px-4 py-3 text-left">Mã SP</th>
                                     <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                                     <th class="px-4 py-3 text-left">Danh mục</th>
@@ -337,7 +405,7 @@ $categories = getCategories($conn);
                                 <?php foreach ($products as $p): ?>
                                 <?php 
                                     $ton = $p['SoLuongTon'];
-                                    $nguong = $p['CanhBaoTon'] ?? 10;
+                                    $nguong = $p['canh_bao'];
                                     $statusClass = '';
                                     $statusText = '';
                                     if ($ton == 0) {
@@ -352,10 +420,10 @@ $categories = getCategories($conn);
                                     }
                                 ?>
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>   </td>
-                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>   </td>
-                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>   </td>
-                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>   </td>
+                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>    </td>
+                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>    </td>
+                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>    </td>
+                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>    </td>
                                     <td class="px-4 py-3 text-right">
                                         <form method="POST" class="inline-flex items-center gap-2">
                                             <input type="hidden" name="product_id" value="<?php echo $p['SanPham_id']; ?>">
@@ -398,28 +466,12 @@ $categories = getCategories($conn);
         </main>
     </div>
 
-    <!-- MODAL -->
-    <div id="modal" class="modal">
-        <div class="bg-white rounded-xl w-full max-w-md mx-4 animate-fadeIn">
-            <div class="bg-gradient-custom text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
-                <h3 class="text-lg font-semibold" id="modalTitle"></h3>
-                <button onclick="closeModal()" class="text-white hover:text-gray-200 text-2xl">&times;</button>
-            </div>
-            <div class="p-6" id="modalBody"></div>
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
-                <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Đóng</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         function showTab(tabName) {
-            // Ẩn tất cả tabs
             document.getElementById('inventoryTab').classList.add('hidden');
             document.getElementById('reportTab').classList.add('hidden');
             document.getElementById('warningTab').classList.add('hidden');
             
-            // Reset button styles
             document.getElementById('tabInventoryBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
             document.getElementById('tabReportBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
             document.getElementById('tabWarningBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
@@ -427,26 +479,20 @@ $categories = getCategories($conn);
             document.getElementById('tabReportBtn').classList.add('text-gray-600');
             document.getElementById('tabWarningBtn').classList.add('text-gray-600');
             
-            // Hiển thị tab được chọn
             if (tabName === 'inventory') {
                 document.getElementById('inventoryTab').classList.remove('hidden');
                 document.getElementById('tabInventoryBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabInventoryBtn').classList.remove('text-gray-600');
             } else if (tabName === 'report') {
                 document.getElementById('reportTab').classList.remove('hidden');
                 document.getElementById('tabReportBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabReportBtn').classList.remove('text-gray-600');
             } else if (tabName === 'warning') {
                 document.getElementById('warningTab').classList.remove('hidden');
                 document.getElementById('tabWarningBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabWarningBtn').classList.remove('text-gray-600');
             }
         }
         
         function searchInventory() {
             const category = document.getElementById('filterCategory').value;
-            const date = document.getElementById('inventoryDate').value;
-            
             let rows = document.querySelectorAll('#inventoryTableBody tr');
             let hasResult = false;
             
@@ -461,14 +507,6 @@ $categories = getCategories($conn);
                     row.style.display = 'none';
                 }
             });
-            
-            if (!hasResult && category !== '') {
-                alert('Không tìm thấy sản phẩm trong danh mục này!');
-            }
-            
-            if (date) {
-                alert(`Đã tra cứu tồn kho ngày ${date}`);
-            }
         }
         
         function generateReport() {
@@ -481,55 +519,62 @@ $categories = getCategories($conn);
                 return;
             }
             
-            // Giả lập dữ liệu báo cáo
             const tbody = document.getElementById('reportTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center py-8 text-gray-500">
-                        <i class="fas fa-spinner fa-spin text-2xl"></i>
-                        <p class="mt-2">Đang tạo báo cáo...</p>
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải dữ liệu...</p></td></tr>`;
             
-            // Giả lập gọi API
-            setTimeout(() => {
-                tbody.innerHTML = `
-                    <tr class="border-b">
-                        <td class="px-4 py-3">${fromDate}</td>
-                        <td class="px-4 py-3"><span class="text-green-600">Nhập</span></td>
-                        <td class="px-4 py-3">SP0001</td>
-                        <td class="px-4 py-3">Vợt cầu lông Yonex</td>
-                        <td class="px-4 py-3 text-right">20</td>
-                        <td class="px-4 py-3 text-right">1,500,000đ</td>
-                        <td class="px-4 py-3 text-right">30,000,000đ</td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-3">${toDate}</td>
-                        <td class="px-4 py-3"><span class="text-blue-600">Xuất</span></td>
-                        <td class="px-4 py-3">SP0001</td>
-                        <td class="px-4 py-3">Vợt cầu lông Yonex</td>
-                        <td class="px-4 py-3 text-right">5</td>
-                        <td class="px-4 py-3 text-right">2,200,000đ</td>
-                        <td class="px-4 py-3 text-right">11,000,000đ</td>
-                    </tr>
-                    <tr class="bg-gray-50 font-semibold">
-                        <td colspan="4" class="px-4 py-3 text-right">Tổng nhập: - Tổng xuất: = Chênh lệch:</td>
-                        <td class="px-4 py-3 text-right">20 - 5 = 15</td>
-                        <td class="px-4 py-3 text-right">-</td>
-                        <td class="px-4 py-3 text-right text-indigo-600">30,000,000đ - 11,000,000đ = 19,000,000đ</td>
-                    </tr>
-                `;
-            }, 1000);
+            let url = `?get_report=1&from=${fromDate}&to=${toDate}`;
+            if (productId) url += `&product=${productId}`;
+            
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu trong khoảng thời gian này</td></tr>`;
+                        return;
+                    }
+                    
+                    let html = '';
+                    let totalImport = 0, totalExport = 0, totalImportQty = 0, totalExportQty = 0;
+                    
+                    data.forEach(item => {
+                        const typeClass = item.type === 'Nhập' ? 'text-green-600' : 'text-blue-600';
+                        html += `
+                            <tr class="border-b">
+                                <td class="px-4 py-3">${item.date}</td>
+                                <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type}</span></td>
+                                <td class="px-4 py-3 font-mono">SP${String(item.product_id).padStart(4, '0')}</td>
+                                <td class="px-4 py-3">${item.product_name}</td>
+                                <td class="px-4 py-3 text-right">${item.quantity}</td>
+                                <td class="px-4 py-3 text-right">${new Intl.NumberFormat('vi-VN').format(item.price)}đ</td>
+                                <td class="px-4 py-3 text-right">${new Intl.NumberFormat('vi-VN').format(item.total)}đ</td>
+                            </tr>
+                        `;
+                        if (item.type === 'Nhập') {
+                            totalImport += item.total;
+                            totalImportQty += item.quantity;
+                        } else {
+                            totalExport += item.total;
+                            totalExportQty += item.quantity;
+                        }
+                    });
+                    
+                    html += `
+                        <tr class="bg-gray-50 font-semibold">
+                            <td colspan="4" class="px-4 py-3 text-right">Tổng cộng:</td>
+                            <td class="px-4 py-3 text-right">${totalImportQty} / ${totalExportQty} = ${totalImportQty - totalExportQty}</td>
+                            <td class="px-4 py-3 text-right">-</td>
+                            <td class="px-4 py-3 text-right text-indigo-600">${new Intl.NumberFormat('vi-VN').format(totalImport)} - ${new Intl.NumberFormat('vi-VN').format(totalExport)} = ${new Intl.NumberFormat('vi-VN').format(totalImport - totalExport)}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML = html;
+                })
+                .catch(error => {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-500">Có lỗi xảy ra khi tải dữ liệu!</td></tr>`;
+                });
         }
         
         function exportReport() {
             alert('Đang xuất báo cáo Excel...');
-        }
-        
-        function closeModal() {
-            document.getElementById('modal').classList.remove('show');
-            document.body.style.overflow = 'auto';
         }
         
         function logout() {
@@ -540,7 +585,7 @@ $categories = getCategories($conn);
         
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                closeModal();
+                document.getElementById('modal').classList.remove('show');
             }
         }
     </script>
