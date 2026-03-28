@@ -248,6 +248,153 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
             color: white;
         }
 
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* === SEARCH === */
+        #searchHeader {
+            display: none;
+        }
+
+        body.search-active #defaultHeader {
+            display: none;
+        }
+
+        body.search-active #searchHeader {
+            display: flex;
+        }
+
+        body.search-active #searchOverlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #searchSuggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            overflow-y: auto;
+            max-height: 400px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        #searchSuggestions.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .suggestion-item:hover {
+            background: #f9fafb;
+        }
+
+        .suggestion-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+            flex-shrink: 0;
+        }
+
+        .suggestion-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .suggestion-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-wrapper .price {
+            font-size: 15px;
+            font-weight: 600;
+            color: #dc2626;
+        }
+
+        .price-wrapper .old-price {
+            font-size: 13px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .price-wrapper .discount-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .view-all-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            background: #f9fafb;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .view-all-link:hover {
+            background: #f3f4f6;
+        }
+
+        .no-results {
+            padding: 32px 24px;
+            text-align: center;
+            color: #6b7280;
+        }
+
         button:disabled {
             opacity: 0.7;
             pointer-events: none;
@@ -914,7 +1061,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
 
                                 <!-- Dropdown gợi ý tìm kiếm -->
                                 <div id="searchSuggestions"
-                                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden hidden z-50">
+                                    class="absolute top-full left-0 right-0 z-50">
                                     <div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
                                     </div>
                                 </div>
@@ -1674,7 +1821,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                     });
                 }
 
-                // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA) ==========
+                // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA PATH) ==========
                 const searchToggle = document.getElementById('searchToggle');
                 const searchToggleMobile = document.getElementById('searchToggleMobile');
                 const closeSearchBtn = document.getElementById('closeSearchBtn');
@@ -1697,28 +1844,31 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                         return;
                     }
                     try {
-                        const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
+
+                        const response = await fetch(`../control/search-suggest.php?q=${encodeURIComponent(query)}`);
                         const result = await response.json();
                         if (result.success && result.data.length > 0) {
                             const limitedResults = result.data.slice(0, 8);
                             suggestionsList.innerHTML = limitedResults.map(product => `
-                <a href="${product.url}" class="suggestion-item">
-                    <img src="./${product.image}" alt="${product.name}" loading="lazy"
-                         onerror="this.src='./img/sanpham/placeholder.png'">
-                    <div class="suggestion-info">
-                        <h4>${product.name}</h4>
-                        <div class="price-wrapper">
-                            <span class="price">${product.price}</span>
-                            ${product.old_price ? `<span class="old-price">${product.old_price}</span>` : ''}
-                            ${product.discount > 0 ? `<span class="discount-badge">-${product.discount}%</span>` : ''}
-                        </div>
+            <a href="${product.url}" class="suggestion-item">
+           
+                <img src="../${product.image}" alt="${product.name}" loading="lazy"
+                     onerror="this.src='../img/sanpham/placeholder.png'">
+                <div class="suggestion-info">
+                    <h4>${product.name}</h4>
+                    <div class="price-wrapper">
+                        <span class="price">${product.price}</span>
+                        ${product.old_price ? `<span class="old-price">${product.old_price}</span>` : ''}
+                        ${product.discount > 0 ? `<span class="discount-badge">-${product.discount}%</span>` : ''}
                     </div>
-                </a>`).join('');
+                </div>
+            </a>`).join('');
                             if (result.count > 8) {
+
                                 suggestionsList.innerHTML += `
-                    <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
-                        <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
-                    </a>`;
+                <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
+                    <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
+                </a>`;
                             }
                             suggestionsContainer.classList.add('active');
                         } else {
@@ -1787,7 +1937,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                             e.preventDefault();
                             const query = searchInput.value.trim();
                             if (query) {
-                                // ✅ Sửa path: bỏ "view/" vì đang ở trong view/
+                                // ✅ SỬA: ./shop.php (không có view/)
                                 window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
                             }
                         }

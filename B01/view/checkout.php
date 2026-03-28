@@ -355,133 +355,206 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			margin: -10px;
 		}
 
-		/* === USER DROPDOWN STYLES === */
-		.user-dropdown {
-			position: relative;
-		}
+	 /* === USER DROPDOWN STYLES === */
+        .user-dropdown {
+            position: relative;
+        }
 
-		.user-menu {
-			position: absolute;
-			right: 0;
-			top: 100%;
-			margin-top: 8px;
-			background: white;
-			border-radius: 12px;
-			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-			border: 1px solid #f3f4f6;
-			min-width: 220px;
-			z-index: 50;
-			display: none;
-			animation: slideDown 0.2s ease;
-		}
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            min-width: 220px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
 
-		.user-menu.active {
-			display: block;
-		}
+        .user-menu.active {
+            display: block;
+        }
 
-		.user-menu-item {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			padding: 12px 16px;
-			color: #374151;
-			text-decoration: none;
-			transition: background 0.2s;
-			font-size: 14px;
-		}
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
 
-		.user-menu-item:hover {
-			background: #f9fafb;
-		}
+        .user-menu-item:hover {
+            background: #f9fafb;
+        }
 
-		.user-menu-item i {
-			width: 18px;
-			color: #6b7280;
-		}
+        .user-menu-item i {
+            width: 18px;
+            color: #6b7280;
+        }
 
-		.user-menu-divider {
-			border-top: 1px solid #f3f4f6;
-			margin: 4px 0;
-		}
+        .user-menu-divider {
+            border-top: 1px solid #f3f4f6;
+            margin: 4px 0;
+        }
 
-		.user-menu-item.logout {
-			color: #dc2626;
-		}
+        .user-menu-item.logout {
+            color: #dc2626;
+        }
 
-		.user-menu-item.logout i {
-			color: #dc2626;
-		}
+        .user-menu-item.logout i {
+            color: #dc2626;
+        }
 
-		/* Role badge styles */
-		.role-badge-staff {
-			background: #dc2626;
-		}
+        /* Role badge styles */
+        .role-badge-staff {
+            background: #dc2626;
+        }
 
-		.role-badge-admin {
-			background: #7c3aed;
-		}
+        .role-badge-admin {
+            background: #7c3aed;
+        }
 
-		.role-badge-user {
-			background: #6b7280;
-		}
+        .role-badge-user {
+            background: #6b7280;
+        }
 
-		@media (max-width: 768px) {
-			.suggestion-item img {
-				width: 40px;
-				height: 40px;
-			}
+        @media (max-width: 768px) {
+            .suggestion-item img {
+                width: 40px;
+                height: 40px;
+            }
 
-			.suggestion-info h4 {
-				font-size: 14px;
-			}
+            .suggestion-info h4 {
+                font-size: 14px;
+            }
 
-			.suggestion-info .price {
-				font-size: 13px;
-			}
-		}
+            .suggestion-info .price {
+                font-size: 13px;
+            }
+        }
 
-		/* === CSS CHO SEARCH INPUT  ===*/
-		#searchInput {
-			background-color: #EEEEEE;
-			transition: all 0.2s ease;
-		}
+        /* === CSS CHO SEARCH INPUT  ===*/
+        #searchInput {
+            background-color: #EEEEEE;
+            transition: all 0.2s ease;
+        }
 
-		#searchInput:focus {
-			background-color: #EEEEEE;
-			border-color: #ffffff;
-			box-shadow: 0 0 0 3px rgb(255, 255, 255);
-		}
+        #searchInput:focus {
+            background-color: #EEEEEE;
+            border-color: #ffffff;
+            box-shadow: 0 0 0 3px rgb(255, 255, 255);
+        }
 
-		#searchInput::placeholder {
-			color: #1a1919;
-			font-size: 15px;
-			font-weight: 400;
-		}
+        #searchInput::placeholder {
+            color: #1a1919;
+            font-size: 15px;
+            font-weight: 400;
+        }
 
-		/* Nút search và đóng trong header */
-		.search-action-btn {
-			width: 40px;
-			height: 40px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border-radius: 9999px;
-			transition: all 0.2s;
-			cursor: pointer;
-		}
+        /* Nút search và đóng trong header */
+        .search-action-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
 
-		.search-action-btn:hover {
-			background-color: #ffffff;
-		}
+        .search-action-btn:hover {
+            background-color: #ffffff;
+        }
 
-		.close-btn {
-			color: #ffffff;
-		}
+        .close-btn {
+            color: #ffffff;
+        }
 
-		.close-btn:hover {
-			background-color: #ffffff;
-			color: white;
-		}
+        .close-btn:hover {
+            background-color: #ffffff;
+            color: white;
+        }
+
+  .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+/* === SEARCH === */
+#searchHeader { display: none; }
+body.search-active #defaultHeader { display: none; }
+body.search-active #searchHeader { display: flex; }
+
+body.search-active #searchOverlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#searchSuggestions {
+    position: absolute;
+    left: 0; right: 0;
+    top: 100%;
+    margin-top: 8px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    border: 1px solid #f3f4f6;
+    overflow-y: auto;
+    max-height: 400px;
+    z-index: 50;
+    display: none;
+    animation: slideDown 0.2s ease;
+}
+#searchSuggestions.active { display: block; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.suggestion-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.2s;
+    text-decoration: none; color: inherit;
+}
+.suggestion-item:hover { background: #f9fafb; }
+.suggestion-item img {
+    width: 60px; height: 60px;
+    object-fit: cover; border-radius: 8px;
+    background: #f3f4f6; flex-shrink: 0;
+}
+.suggestion-info { flex: 1; min-width: 0; }
+.suggestion-info h4 {
+    font-size: 14px; font-weight: 500; color: #1f2937;
+    margin: 0 0 4px 0;
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.price-wrapper { display: flex; align-items: center; gap: 8px; }
+.price-wrapper .price { font-size: 15px; font-weight: 600; color: #dc2626; }
+.price-wrapper .old-price { font-size: 13px; color: #9ca3af; text-decoration: line-through; }
+.price-wrapper .discount-badge {
+    font-size: 11px; font-weight: 600; color: #dc2626;
+    background: #fef2f2; padding: 2px 6px; border-radius: 4px;
+}
+.view-all-link {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 14px; background: #f9fafb;
+    color: #dc2626; font-size: 14px; font-weight: 500;
+    text-decoration: none; border-top: 1px solid #f3f4f6;
+}
+.view-all-link:hover { background: #f3f4f6; }
+.no-results { padding: 32px 24px; text-align: center; color: #6b7280; }
 
 		@keyframes spin {
 			to {
@@ -1165,7 +1238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 							<!-- Dropdown gợi ý tìm kiếm -->
 							<div id="searchSuggestions"
-								class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden hidden z-50">
+								class="absolute top-full left-0 right-0 z-50">
 								<div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
 								</div>
 							</div>
@@ -2148,13 +2221,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 						return;
 					}
 					try {
-						const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
+						const response = await fetch(`../control/search-suggest.php?q=${encodeURIComponent(query)}`);
 						const result = await response.json();
 						if (result.success && result.data.length > 0) {
 							const limitedResults = result.data.slice(0, 8);
 							suggestionsList.innerHTML = limitedResults.map(product => `
 				<a href="${product.url}" class="suggestion-item">
-					<img src="./${product.image}" alt="${product.name}" loading="lazy"
+					<img src="../${product.image}" alt="${product.name}" loading="lazy"
 						 onerror="this.src='./img/sanpham/placeholder.png'">
 					<div class="suggestion-info">
 						<h4>${product.name}</h4>
