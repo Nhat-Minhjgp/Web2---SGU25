@@ -774,7 +774,8 @@
 (11, 'Vợt Pickleball Joola Perseus', 3, 1, 2, 'đắt vãi ò', 'img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000, 5980000.00, 0.15, 1, '2026-03-20 22:16:21', 4),
 (12, 'Vợt Pickleball JOOLA Ben Johns', 3, 2, 1, 'đắt vãi ò', 'img/sanpham/joola-ben-johns-hyperion.png', 2100000, 2415000.00, 0.15, 1, '2026-03-20 22:16:21', 10),
 (13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000, 4370000.00, 0.15, 1, '2026-03-20 22:16:21', 6);
-
+(14, 'Vợt cầu lông 1000z', 1, 1, 2, 'Vợt cầu lông Yonex Nanoflare 1000Z có vùng Sweet spot khá rộng, giúp bạn có thể tập trung vào việc tăng cường sức mạnh và độ chính xác của các cú đánh. Điểm nổi bật nhất ở phiên bản mới này nằm ở thiết kế khung vợt khi Yonex tích hợp hai loại Aero Frame và Compact Frame', 'img/sanpham/PROD-20260328130506-69c7c3f2c9cab.webp', NULL, 0.00, 0.13, 0, '2026-03-28 19:05:06', 15, 10),
+(15, 'Vợt cầu lông yonex 100zz VA', 1, 1, 2, 'Vợt cầu lông Yonex Astrox 100ZZ VA là phiên bản đặc biệt “VA Signature” của dòng Astrox 100ZZ từ Yonex - cây vợt chuyên nghiệp này được thiết kế riêng theo phong cách cá nhân của vận động viên Viktor Axelsen. Nó thể hiện rõ phương châm \"Chúng ta cùng nhau phấn đấu\" của nhà vô địch Olympic. Vợt với màu sắc trắng xanh này là phiên bản giới hạn của mẫu vợt chủ lực thuộc dòng Astrox, với độ cân bằng cao ở đầu vợt và cán vợt cực kỳ cứng cáp, lý tưởng cho những người chơi tìm kiếm sức mạnh và độ chính xác tối đa.', 'img/sanpham/PROD-20260328131037-69c7c53d540ea.webp', NULL, 0.00, 0.30, 1, '2026-03-28 19:10:37', 0, 10);
 
 
   INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
