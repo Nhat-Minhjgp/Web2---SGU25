@@ -1109,7 +1109,7 @@
                             </div>
                         </div>
 
-                        <!-- Section Phụ Kiện Nổi Bật -->
+                       <!-- Section Phụ Kiện Nổi Bật -->
 <section class="home-product mb-8">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
@@ -1121,100 +1121,83 @@
     </div>
     
     <?php
-    // ✅ Kiểm tra kết nối database
-    if (!isset($conn) || $conn === null) {
-        require_once './control/connect.php';
-    }
-    
-    // ✅ Query lấy 4 sản phẩm phụ kiện mới nhất (Danhmuc_id = 5)
+    // Lấy phụ kiện từ database (dùng slug để xác định danh mục)
     $phukien_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
                     FROM sanpham s
                     LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
                     LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
-                    WHERE s.Danhmuc_id = 5 AND s.TrangThai = 1
+                    WHERE d.slug = 'phu-kien' AND s.TrangThai = 1
                     ORDER BY s.TaoNgay DESC
                     LIMIT 4";
     
     $phukien_result = $conn->query($phukien_sql);
-    
-    // ✅ Debug: Kiểm tra lỗi query
-    if (!$phukien_result) {
-        error_log("Phụ kiện query error: " . $conn->error);
-    }
     ?>
     
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <?php if ($phukien_result && $phukien_result->num_rows > 0): ?>
-            <?php while ($product = $phukien_result->fetch_assoc()): 
-                // Tính phần trăm giảm giá
-                $discount = 0;
-                if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
-                    $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
-                }
-            ?>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
-                <div class="relative">
-                    <?php if ($discount > 0): ?>
-                    <div class="absolute top-2 left-2 z-10">
-                        <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
-                    </div>
+        <?php while ($product = $phukien_result->fetch_assoc()): 
+            // Tính phần trăm giảm giá
+            $discount = 0;
+            if ($product['GiaNhapTB'] > $product['GiaBan'] && $product['GiaNhapTB'] > 0) {
+                $discount = round(($product['GiaNhapTB'] - $product['GiaBan']) / $product['GiaNhapTB'] * 100);
+            }
+        ?>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
+            <div class="relative">
+                <?php if ($discount > 0): ?>
+                <div class="absolute top-2 left-2 z-10">
+                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-<?php echo $discount; ?>%</span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($product['SoLuongTon'] <= 0): ?>
+                <div class="absolute top-2 right-2 z-10">
+                    <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full">Hết hàng</span>
+                </div>
+                <?php endif; ?>
+                
+                <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
+                    <?php if (!empty($product['image_url'])): ?>
+                        <img src="./<?php echo htmlspecialchars($product['image_url']); ?>"
+                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                             onerror="this.src='./img/sanpham/placeholder.png'">
+                    <?php else: ?>
+                        <img src="./img/sanpham/placeholder.png"
+                             alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                             class="w-full h-full object-cover">
                     <?php endif; ?>
-                    
-                    <?php if ($product['SoLuongTon'] <= 0): ?>
-                    <div class="absolute top-2 right-2 z-10">
-                        <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full">Hết hàng</span>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
-                        <?php if (!empty($product['image_url'])): ?>
-                            <img src=".<?php echo htmlspecialchars($product['image_url']); ?>"
-                                 alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                 onerror="this.src='./img/sanpham/placeholder.png'">
-                        <?php else: ?>
-                            <img src="./img/sanpham/placeholder.png"
-                                 alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                                 class="w-full h-full object-cover">
-                        <?php endif; ?>
+                </a>
+            </div>
+            
+            <div class="p-3">
+                <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                    <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" 
+                       class="hover:text-red-600">
+                        <?php echo htmlspecialchars($product['TenSP']); ?>
                     </a>
+                </h3>
+                
+                <div class="flex items-center space-x-2">
+                    <span class="text-red-600 font-bold">
+                        <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
+                    </span>
+                    <?php if ($discount > 0): ?>
+                    <span class="text-gray-400 text-sm line-through">
+                        <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
+                    </span>
+                    <?php endif; ?>
                 </div>
                 
-                <div class="p-3">
-                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
-                        <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" 
-                           class="hover:text-red-600">
-                            <?php echo htmlspecialchars($product['TenSP']); ?>
-                        </a>
-                    </h3>
-                    
-                    <div class="flex items-center space-x-2">
-                        <span class="text-red-600 font-bold">
-                            <?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>₫
-                        </span>
-                        <?php if ($discount > 0): ?>
-                        <span class="text-gray-400 text-sm line-through">
-                            <?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>₫
-                        </span>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <?php if ($product['SoLuongTon'] <= 0): ?>
-                    <div class="text-xs text-red-500 mt-1">Hết hàng</div>
-                    <?php endif; ?>
-                </div>
+                <?php if ($product['SoLuongTon'] <= 0): ?>
+                <div class="text-xs text-red-500 mt-1">Hết hàng</div>
+                <?php endif; ?>
             </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <!-- Fallback khi không có sản phẩm -->
-            <div class="col-span-4 text-center py-8 text-gray-500">
-                <p>Chưa có phụ kiện nào</p>
-            </div>
-        <?php endif; ?>
+        </div>
+        <?php endwhile; ?>
     </div>
 </section>
 
-                        <!-- Sale Products Section -->
+                        <!-- Sale Products Section 
                         <section class="mb-8">
                             <div class="flex items-center justify-between mb-4">
                                 <h2
@@ -1228,7 +1211,7 @@
                             </div>
 
                             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                <!-- Sale Product 1 -->
+                                <!-- Sale Product 1 
                                 <div class="bg-white rounded-lg shadow-md overflow-hidden group">
                                     <div class="relative">
                                         <div class="absolute top-2 left-2 z-10">
@@ -1255,7 +1238,7 @@
                             </div>
                         </section>
 
-                        <!-- New Arrivals Section -->
+                        <!-- New Arrivals Section 
                         <section class="mb-8">
                             <div class="flex items-center justify-between mb-4">
                                 <h2
@@ -1269,7 +1252,7 @@
                             </div>
 
                             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                <!-- New Product 1 -->
+                                <!-- New Product 1 
                                 <div class="bg-white rounded-lg shadow-md overflow-hidden group">
                                     <div class="relative">
                                         <div class="absolute top-2 left-2 z-10 flex flex-col space-y-1">
@@ -1297,7 +1280,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </section>
+                        </section> -->
                     </div>
                 </div>
             </main>
