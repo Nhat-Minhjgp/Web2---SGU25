@@ -571,7 +571,7 @@
   COMMIT;
 
 
-
+ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
 
 
 
@@ -744,6 +744,31 @@
   END$$
   DELIMITER ;
 
+
+  DELIMITER $$
+
+-- Xóa trigger cũ để thay bằng bản nâng cấp
+DROP TRIGGER IF EXISTS trg_chitietphieunhap_insert$$
+
+CREATE TRIGGER trg_chitietphieunhap_insert
+AFTER INSERT ON chitietphieunhap
+FOR EACH ROW
+BEGIN
+    -- 1. Cập nhật Tồn kho và Giá Nhập TB (Dùng IFNULL để chống lỗi rỗng)
+    UPDATE sanpham 
+    SET 
+        GiaNhapTB = (IFNULL(SoLuongTon, 0) * IFNULL(GiaNhapTB, 0) + NEW.SoLuong * NEW.Gia_Nhap) / (IFNULL(SoLuongTon, 0) + NEW.SoLuong),
+        SoLuongTon = IFNULL(SoLuongTon, 0) + NEW.SoLuong
+    WHERE SanPham_id = NEW.SanPham_id;
+    
+    -- 2. Cập nhật Giá bán (Cũng đề phòng PhanTramLoiNhuan bị NULL)
+    UPDATE sanpham 
+    SET GiaBan = fn_round_500(GiaNhapTB * (1 + IFNULL(PhanTramLoiNhuan, 0.2)))
+    WHERE SanPham_id = NEW.SanPham_id;
+END$$
+
+DELIMITER ;
+
   -- Tính trực tiếp không cần quét lại toàn bộ
 
   INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`) VALUES
@@ -760,22 +785,22 @@
   ('Phụ kiện', 'phu-kien'),
   ('Vợt Pickleball', 'vot-pickleball');
 
-  INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuonghieu`, `MoTa`, `image_url`, `GiaNhapTB`, `GiaBan`, `PhanTramLoiNhuan`, `TrangThai`, `TaoNgay`, `SoLuongTon`) VALUES
-(1, 'Yonex Astrox 100ZZ', 1, 1, 2, 'đắt vãi ò', 'img/sanpham/Vot-cau-long-Yonex-Astrox-100ZZ.png', 3200000, 3680000.00, 0.15, 1, '2026-03-20 22:16:21', 10),
-(2, 'Li-Ning Halbertec 9000', 1, 2, 1, 'đắt vãi ò', 'img/sanpham/vot-cau-long-li-ning-halbertec-9000.png', 2500000, 2875000.00, 0.15, 1, '2026-03-20 22:16:21', 15),
-(3, 'Victor Thruster F Enhanced', 1, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-cau-long-victor-thruster-ryuga.png', 2800000, 3220000.00, 0.15, 1, '2026-03-20 22:16:21', 8),
-(4, 'Yonex Nanoflare 1000 game', 1, 3, 2, 'đắt vãi ò', 'img/sanpham/vot-cau-long-yonex-nanoflare-1000-game.png', 3100000, 3565000.00, 0.15, 1, '2026-03-20 22:16:21', 12),
-(5, 'Li-Ning Aeronaut 9000', 1, 2, 1, 'đắt vãi ò', 'img/sanpham/aeronaut-9000i.png', 2900000, 3335000.00, 0.15, 1, '2026-03-20 22:16:21', 7),
-(6, 'Quả cầu lông Yonex AS50', 2, 3, 2, 'đắt vãi ò', 'img/sanpham/ong-cau-yonex-as50-speed-2.png', 450000, 517000.00, 0.15, 1, '2026-03-20 22:16:21', 50),
-(7, 'Quả cầu lông Hải Yến S70', 2, 1, 3, 'đắt vãi ò', 'img/sanpham/ong-cau-long-hai-yen-s70.png', 180000, 207000.00, 0.15, 1, '2026-03-20 22:16:21', 10),
-(8, 'Quả cầu lông vinastar', 2, 2, 1, 'đắt vãi ò', 'img/sanpham/ong-cau-vina-start-xanh.png', 343802, 395000.00, 0.15, 1, '2026-03-20 22:16:21', 260),
-(9, 'Quả cầu Li-ning AYQN024-4', 2, 3, 3, 'đắt vãi ò', 'img/sanpham/cau-lining.png', 320000, 368000.00, 0.15, 1, '2026-03-20 22:16:21', 45),
-(10, 'Vợt Pickleball Selkirk Vanguard', 3, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-selkirk-luxx-control-air.png', 4500000, 5175000.00, 0.15, 1, '2026-03-20 22:16:21', 5),
-(11, 'Vợt Pickleball Joola Perseus', 3, 1, 2, 'đắt vãi ò', 'img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000, 5980000.00, 0.15, 1, '2026-03-20 22:16:21', 4),
-(12, 'Vợt Pickleball JOOLA Ben Johns', 3, 2, 1, 'đắt vãi ò', 'img/sanpham/joola-ben-johns-hyperion.png', 2100000, 2415000.00, 0.15, 1, '2026-03-20 22:16:21', 10),
-(13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000, 4370000.00, 0.15, 1, '2026-03-20 22:16:21', 6);
-(14, 'Vợt cầu lông 1000z', 1, 1, 2, 'Vợt cầu lông Yonex Nanoflare 1000Z có vùng Sweet spot khá rộng, giúp bạn có thể tập trung vào việc tăng cường sức mạnh và độ chính xác của các cú đánh. Điểm nổi bật nhất ở phiên bản mới này nằm ở thiết kế khung vợt khi Yonex tích hợp hai loại Aero Frame và Compact Frame', 'img/sanpham/PROD-20260328130506-69c7c3f2c9cab.webp', NULL, 0.00, 0.13, 0, '2026-03-28 19:05:06', 15, 10),
-(15, 'Vợt cầu lông yonex 100zz VA', 1, 1, 2, 'Vợt cầu lông Yonex Astrox 100ZZ VA là phiên bản đặc biệt “VA Signature” của dòng Astrox 100ZZ từ Yonex - cây vợt chuyên nghiệp này được thiết kế riêng theo phong cách cá nhân của vận động viên Viktor Axelsen. Nó thể hiện rõ phương châm \"Chúng ta cùng nhau phấn đấu\" của nhà vô địch Olympic. Vợt với màu sắc trắng xanh này là phiên bản giới hạn của mẫu vợt chủ lực thuộc dòng Astrox, với độ cân bằng cao ở đầu vợt và cán vợt cực kỳ cứng cáp, lý tưởng cho những người chơi tìm kiếm sức mạnh và độ chính xác tối đa.', 'img/sanpham/PROD-20260328131037-69c7c53d540ea.webp', NULL, 0.00, 0.30, 1, '2026-03-28 19:10:37', 0, 10);
+  INSERT INTO `sanpham` (`SanPham_id`, `TenSP`, `Danhmuc_id`, `NCC_id`, `Ma_thuonghieu`, `MoTa`, `image_url`, `GiaNhapTB`, `GiaBan`, `PhanTramLoiNhuan`, `TrangThai`, `TaoNgay`, `SoLuongTon`, `CanhBaoTon`) VALUES
+(1, 'Yonex Astrox 100ZZ', 1, 1, 2, 'đắt vãi ò', 'img/sanpham/Vot-cau-long-Yonex-Astrox-100ZZ.png', 3200000, 3680000.00, 0.15, 1, '2026-03-20 22:16:21', 10, 5),
+(2, 'Li-Ning Halbertec 9000', 1, 2, 1, 'đắt vãi ò', 'img/sanpham/vot-cau-long-li-ning-halbertec-9000.png', 2500000, 2875000.00, 0.15, 1, '2026-03-20 22:16:21', 15, 5),
+(3, 'Victor Thruster F Enhanced', 1, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-cau-long-victor-thruster-ryuga.png', 2800000, 3220000.00, 0.15, 1, '2026-03-20 22:16:21', 8, 5),
+(4, 'Yonex Nanoflare 1000 game', 1, 3, 2, 'đắt vãi ò', 'img/sanpham/vot-cau-long-yonex-nanoflare-1000-game.png', 3100000, 3565000.00, 0.15, 1, '2026-03-20 22:16:21', 12, 5),
+(5, 'Li-Ning Aeronaut 9000', 1, 2, 1, 'đắt vãi ò', 'img/sanpham/aeronaut-9000i.png', 2900000, 3335000.00, 0.15, 1, '2026-03-20 22:16:21', 7, 5),
+(6, 'Quả cầu lông Yonex AS50', 2, 3, 2, 'đắt vãi ò', 'img/sanpham/ong-cau-yonex-as50-speed-2.png', 450000, 517000.00, 0.15, 1, '2026-03-20 22:16:21', 50, 5),
+(7, 'Quả cầu lông Hải Yến S70', 2, 1, 3, 'đắt vãi ò', 'img/sanpham/ong-cau-long-hai-yen-s70.png', 180000, 207000.00, 0.15, 1, '2026-03-20 22:16:21', 10, 5),
+(8, 'Quả cầu lông vinastar', 2, 2, 1, 'đắt vãi ò', 'img/sanpham/ong-cau-vina-start-xanh.png', 343802, 395000.00, 0.15, 1, '2026-03-20 22:16:21', 260, 5),
+(9, 'Quả cầu Li-ning AYQN024-4', 2, 3, 3, 'đắt vãi ò', 'img/sanpham/cau-lining.png', 320000, 368000.00, 0.15, 1, '2026-03-20 22:16:21', 45,5),
+(10, 'Vợt Pickleball Selkirk Vanguard', 3, 2, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-selkirk-luxx-control-air.png', 4500000, 5175000.00, 0.15, 1, '2026-03-20 22:16:21', 5,5),
+(11, 'Vợt Pickleball Joola Perseus', 3, 1, 2, 'đắt vãi ò', 'img/sanpham/perseus-pro-v-ben-johns-blaze-red.png', 5200000, 5980000.00, 0.15, 1, '2026-03-20 22:16:21', 4,5),
+(12, 'Vợt Pickleball JOOLA Ben Johns', 3, 2, 1, 'đắt vãi ò', 'img/sanpham/joola-ben-johns-hyperion.png', 2100000, 2415000.00, 0.15, 1, '2026-03-20 22:16:21', 10,5),
+(13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000, 4370000.00, 0.15, 1, '2026-03-20 22:16:21', 6,5),
+(14, 'Vợt cầu lông 1000z', 1, 1, 2, 'Vợt cầu lông Yonex Nanoflare 1000Z có vùng Sweet spot khá rộng, giúp bạn có thể tập trung vào việc tăng cường sức mạnh và độ chính xác của các cú đánh. Điểm nổi bật nhất ở phiên bản mới này nằm ở thiết kế khung vợt khi Yonex tích hợp hai loại Aero Frame và Compact Frame', 'img/sanpham/PROD-20260328130506-69c7c3f2c9cab.webp', NULL, 0.00, 0.13, 0, '2026-03-28 19:05:06', 15,5),
+(15, 'Vợt cầu lông yonex 100zz VA', 1, 1, 2, 'Vợt cầu lông Yonex Astrox 100ZZ VA là phiên bản đặc biệt “VA Signature” của dòng Astrox 100ZZ từ Yonex - cây vợt chuyên nghiệp này được thiết kế riêng theo phong cách cá nhân của vận động viên Viktor Axelsen. Nó thể hiện rõ phương châm \"Chúng ta cùng nhau phấn đấu\" của nhà vô địch Olympic. Vợt với màu sắc trắng xanh này là phiên bản giới hạn của mẫu vợt chủ lực thuộc dòng Astrox, với độ cân bằng cao ở đầu vợt và cán vợt cực kỳ cứng cáp, lý tưởng cho những người chơi tìm kiếm sức mạnh và độ chính xác tối đa.', 'img/sanpham/PROD-20260328131037-69c7c53d540ea.webp', NULL, 0.00, 0.30, 1, '2026-03-28 19:10:37',10,5);
 
 
   INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
@@ -855,4 +880,4 @@
   /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
   /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 -- Thêm cột CanhBaoTon vào bảng sanpham
-ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
+
