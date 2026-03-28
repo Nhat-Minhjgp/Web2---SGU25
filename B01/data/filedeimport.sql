@@ -744,6 +744,31 @@ ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
   END$$
   DELIMITER ;
 
+
+  DELIMITER $$
+
+-- Xóa trigger cũ để thay bằng bản nâng cấp
+DROP TRIGGER IF EXISTS trg_chitietphieunhap_insert$$
+
+CREATE TRIGGER trg_chitietphieunhap_insert
+AFTER INSERT ON chitietphieunhap
+FOR EACH ROW
+BEGIN
+    -- 1. Cập nhật Tồn kho và Giá Nhập TB (Dùng IFNULL để chống lỗi rỗng)
+    UPDATE sanpham 
+    SET 
+        GiaNhapTB = (IFNULL(SoLuongTon, 0) * IFNULL(GiaNhapTB, 0) + NEW.SoLuong * NEW.Gia_Nhap) / (IFNULL(SoLuongTon, 0) + NEW.SoLuong),
+        SoLuongTon = IFNULL(SoLuongTon, 0) + NEW.SoLuong
+    WHERE SanPham_id = NEW.SanPham_id;
+    
+    -- 2. Cập nhật Giá bán (Cũng đề phòng PhanTramLoiNhuan bị NULL)
+    UPDATE sanpham 
+    SET GiaBan = fn_round_500(GiaNhapTB * (1 + IFNULL(PhanTramLoiNhuan, 0.2)))
+    WHERE SanPham_id = NEW.SanPham_id;
+END$$
+
+DELIMITER ;
+
   -- Tính trực tiếp không cần quét lại toàn bộ
 
   INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`) VALUES
