@@ -329,8 +329,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                         <div class="form-group">
                             <label class="form-label">Trạng thái</label>
                             <select name="trang_thai" class="form-control">
-                                <option value="active" <?php echo ($product['TrangThai'] == 'active') ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
-                                <option value="inactive" <?php echo ($product['TrangThai'] == 'inactive') ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
+                                <option value= 1 <?php echo ($product['TrangThai'] == 1) ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
+                                <option value= 0 <?php echo ($product['TrangThai'] == 0) ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
                             </select>
                         </div>
                     </div>
