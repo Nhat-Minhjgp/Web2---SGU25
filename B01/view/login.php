@@ -2,6 +2,13 @@
 session_start();
 // --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
+
+if (isset($_SESSION['user_id'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+
 // Khởi tạo biến tránh warning
 $errors = [];
 $success = '';
@@ -32,9 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
 
-    // === LƯU LẠI DỮ LIỆU ĐỂ HIỂN THỊ KHI CÓ LỖI (Theo yêu cầu) ===
-// Lưu ý bảo mật: Thông thường nên xóa password khi lỗi để tránh lưu cache trình duyệt
-    $form_data['password'] = $password;
+
+
 
     // === SERVER-SIDE SQL INJECTION CHECK ===
     if (checkSQLInjectionServer($raw_username) || checkSQLInjectionServer($password)) {
@@ -62,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $result->fetch_assoc();
                 // Verify password
                 if (password_verify($password, $user['password'])) {
+                    session_regenerate_id(true);
                     // Kiểm tra status
                     if ($user['status'] !== 1) {
                         $errors[] = "Tài khoản của bạn đã bị khóa";
@@ -194,6 +201,79 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             margin-top: 2px;
             display: none;
         }
+
+        /* === USER DROPDOWN STYLES === */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            min-width: 220px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .user-menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .user-menu-item i {
+            width: 18px;
+            color: #6b7280;
+        }
+
+        .user-menu-divider {
+            border-top: 1px solid #f3f4f6;
+            margin: 4px 0;
+        }
+
+        .user-menu-item.logout {
+            color: #dc2626;
+        }
+
+        .user-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        .role-badge-staff {
+            background: #dc2626;
+        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -203,33 +283,40 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
     <div id="popup_overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50"></div>
     <!-- Main Wrapper -->
     <div id="wrapper" class="min-h-screen flex flex-col">
-        <!-- Header (GIỮ NGUYÊN 100%) -->
+        <!-- Header -->
         <header id="header" class="sticky top-0 z-40 bg-white shadow-sm">
             <div class="header-wrapper">
                 <div id="masthead" class="py-2 md:py-3 border-b">
                     <div class="container mx-auto px-4 flex items-center justify-between">
+                        <!-- Mobile Menu Toggle -->
                         <div class="md:hidden">
                             <button class="menu-toggle p-2">
-                                <img src="../img/icons/menu.svg" class="fas fa-bars text-2xl">
+                                <img src="../img/icons/menu.svg" class="w-6 h-6" alt="menu">
                             </button>
                         </div>
+
+                        <!-- Desktop Left Menu -->
                         <div class="hidden md:flex items-center flex-1 ml-6">
                             <ul class="flex items-center space-x-4">
+                                <!-- Mega Menu Trigger -->
                                 <li class="relative" id="mega-menu-container">
                                     <button id="mega-menu-trigger"
                                         class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
                                         <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
                                         <span>Danh mục</span>
                                     </button>
+                                    <!-- Mega Menu Dropdown -->
                                     <div id="mega-menu-dropdown"
                                         class="absolute left-0 top-full mt-2 w-[900px] bg-white rounded-lg shadow-xl hidden z-50">
                                         <div class="flex p-4">
+                                            <!-- Left Sidebar - Icon Menu -->
                                             <div class="w-64 border-r border-gray-200 pr-4">
+                                                <!-- Cầu Lông - Active -->
                                                 <div class="icon-box-menu active bg-red-50 rounded-lg p-3 mb-1 cursor-pointer hover:bg-red-50 transition flex items-start"
                                                     data-menu="badminton">
                                                     <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/badminton-No.svg"
-                                                            alt="Cầu Lông" class="w-full h-full">
+                                                        <img src="../img/icons/logo-caulong.png" alt="Cầu Lông"
+                                                            class="w-full h-full">
                                                     </div>
                                                     <div>
                                                         <p class="font-bold text-red-600">Cầu Lông</p>
@@ -237,11 +324,12 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                         </p>
                                                     </div>
                                                 </div>
+                                                <!-- Pickleball -->
                                                 <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
                                                     data-menu="pickleball">
                                                     <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/pickleball-No.svg"
-                                                            alt="Pickleball" class="w-full h-full">
+                                                        <img src="../img/icons/logo-pickleball.png" alt="Pickleball"
+                                                            class="w-full h-full">
                                                     </div>
                                                     <div>
                                                         <p class="font-bold">Pickleball</p>
@@ -249,11 +337,12 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                         </p>
                                                     </div>
                                                 </div>
+                                                <!-- Giày -->
                                                 <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
                                                     data-menu="giay">
                                                     <div class="w-8 h-8 flex-shrink-0 mr-3">
-                                                        <img src="https://nvbplay.vn/wp-content/uploads/2024/10/jogging-No.svg"
-                                                            alt="Giày" class="w-full h-full">
+                                                        <img src="../img/icons/logo-giay.png" alt="Giày"
+                                                            class="w-full h-full">
                                                     </div>
                                                     <div>
                                                         <p class="font-bold">Giày</p>
@@ -261,125 +350,392 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                             động</p>
                                                     </div>
                                                 </div>
-                                                <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
-                                                    class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
-                                                            alt="Chăm sóc sức khoẻ" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Chăm sóc sức khoẻ</p>
-                                                    </div>
-                                                </a>
-                                                <a href="https://nvbplay.vn/product-category/dich-vu"
-                                                    class="block p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
-                                                            alt="Dịch vụ" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Dịch vụ</p>
-                                                    </div>
-                                                </a>
-                                                <div class="icon-box-menu p-3 mb-1 cursor-pointer hover:bg-gray-50 transition flex items-start"
-                                                    data-menu="news">
-                                                    <div class="w-6 h-6 flex-shrink-0 mr-3"><img
-                                                            src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg"
-                                                            alt="Tin Tức" class="w-full h-full"></div>
-                                                    <div>
-                                                        <p class="font-bold">Tin Tức</p>
-                                                        <p class="text-xs text-gray-500">Xu hướng mới, sự kiện hot, giảm
-                                                            giá sốc!</p>
-                                                    </div>
-                                                </div>
                                             </div>
+                                            <!-- Right Content -->
                                             <div class="flex-1 pl-4">
+                                                <!-- Content Badminton -->
                                                 <div id="content-badminton" class="menu-content">
+                                                    <!-- Thương hiệu nổi bật -->
                                                     <div class="mb-4">
                                                         <div class="flex items-center justify-between mb-2">
                                                             <h3 class="font-bold">Thương hiệu nổi bật</h3>
-                                                            <a href="../view/shop.php"
-                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">Xem
-                                                                tất cả <i
-                                                                    class="fas fa-chevron-right ml-1 text-xs"></i></a>
+                                                            <a href="shop.php"
+                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                Xem tất cả <i
+                                                                    class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                            </a>
                                                         </div>
                                                         <div class="grid grid-cols-4 gap-2">
-                                                            <a href="https://nvbplay.vn/shop?_brand=yonex"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/logo-300x214-1-150x150.webp"
-                                                                        alt="Yonex"
-                                                                        class="w-full h-full object-contain"></div>
-                                                                <span class="text-xs">YONEX</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=adidas"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/ave6by86s-300x300-1-150x150.webp"
-                                                                        alt="Adidas"
-                                                                        class="w-full h-full object-contain"></div>
-                                                                <span class="text-xs">ADIDAS</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=li-ning"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/Logo-li-ning-300x173-1-150x150.webp"
-                                                                        alt="Li-Ning"
-                                                                        class="w-full h-full object-contain"></div>
-                                                                <span class="text-xs">LI-NING</span>
-                                                            </a>
-                                                            <a href="https://nvbplay.vn/shop?_brand=ds"
-                                                                class="flex flex-col items-center text-center group">
-                                                                <div class="w-12 h-12 mb-1"><img
-                                                                        src="https://nvbplay.vn/wp-content/uploads/2024/10/logo-ds-300x300-1-150x150.jpg"
-                                                                        alt="DS" class="w-full h-full object-contain">
+                                                            <a href="shop.php?thuonghieu[]=yonex"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-yonex.webp" alt="Yonex"
+                                                                        class="w-full h-full object-contain">
                                                                 </div>
-                                                                <span class="text-xs">DS</span>
+                                                                <span class="text-sm font-medium">YONEX</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=adidas"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-adidas.webp"
+                                                                        alt="Adidas"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">ADIDAS</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=li-ning"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/Logo-li-ning.png"
+                                                                        alt="Li-Ning"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">LI-NING</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=victor"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-victor.png" alt="Victor"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">VICTOR</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=kamito"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-kamito.png" alt="KAMITO"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">KAMITO</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=mizuno"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-mizuno.png" alt="Mizuno"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">MIZUNO</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=kumpoo"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-kumpoo.png" alt="Kumpoo"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">KUMPOO</span>
+                                                            </a>
+                                                            <a href="shop.php?thuonghieu[]=venson"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-venson.png" alt="Venson"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">VENSON</span>
                                                             </a>
                                                         </div>
                                                     </div>
+                                                    <div class="border-t border-gray-200 my-3"></div>
+                                                    <!-- Theo sản phẩm -->
+                                                    <div>
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <h3 class="font-bold">Theo sản phẩm</h3>
+                                                            <a href="shop.php?danhmuc[]=vot-cau-long"
+                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                Xem tất cả <i
+                                                                    class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="grid grid-cols-3 gap-4">
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=vot-cau-long"
+                                                                    class="font-semibold text-sm hover:text-red-600">Vợt
+                                                                    cầu lông</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            cầu lông Yonex</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            cầu lông Li-Ning</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            cầu lông Adidas</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            cầu lông Victor</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-cau-long"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=balo-cau-long"
+                                                                    class="font-semibold text-sm hover:text-red-600">Balo
+                                                                    cầu lông</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=yonex"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Yonex</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=li-ning"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Li-Ning</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=adidas"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Adidas</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=victor"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Victor</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-cau-long"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=phu-kien"
+                                                                    class="font-semibold text-sm hover:text-red-600">Phụ
+                                                                    kiện</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Tất
+                                                                            cả phụ kiện</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien&search=quả+cầu"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Quả
+                                                                            cầu lông</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien&search=cước+đan"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Cước
+                                                                            đan vợt</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien&search=quấn+cán"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Quấn
+                                                                            cán</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div id="content-pickleball" class="menu-content hidden"></div>
-                                                <div id="content-giay" class="menu-content hidden"></div>
-                                                <div id="content-news" class="menu-content hidden"></div>
+                                                <!-- Content Pickleball -->
+                                                <div id="content-pickleball" class="menu-content hidden">
+                                                    <div class="mb-4">
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <h3 class="font-bold">Thương hiệu nổi bật</h3>
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball"
+                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                Xem tất cả <i
+                                                                    class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="grid grid-cols-4 gap-2">
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-joola.png" alt="JOOLA"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">JOOLA</span>
+                                                            </a>
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-selkirk.webp"
+                                                                        alt="SELKIRK"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">SELKIRK</span>
+                                                            </a>
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-kamito.png" alt="KAMITO"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">KAMITO</span>
+                                                            </a>
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
+                                                                class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
+                                                                <div class="w-10 h-10 flex-shrink-0 mr-2">
+                                                                    <img src="../img/icons/logo-wika.png" alt="WIKA"
+                                                                        class="w-full h-full object-contain">
+                                                                </div>
+                                                                <span class="text-sm font-medium">WIKA</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="border-t border-gray-200 my-3"></div>
+                                                    <div>
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <h3 class="font-bold">Theo sản phẩm</h3>
+                                                            <a href="shop.php?danhmuc[]=vot-pickleball"
+                                                                class="text-sm text-red-600 hover:text-red-700 flex items-center">
+                                                                Xem tất cả <i
+                                                                    class="fas fa-chevron-right ml-1 text-xs"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="grid grid-cols-3 gap-4">
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=vot-pickleball"
+                                                                    class="font-semibold text-sm hover:text-red-600">Vợt
+                                                                    Pickleball</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            Joola</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            Selkirk</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            Kamito</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Vợt
+                                                                            Wika</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=vot-pickleball"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=balo-tui-pickleball"
+                                                                    class="font-semibold text-sm hover:text-red-600">Balo
+                                                                    - Túi Pickleball</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=joola"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Joola</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=selkirk"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Selkirk</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=kamito"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Kamito</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=wika"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Balo
+                                                                            Wika</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=balo-tui-pickleball"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div>
+                                                                <a href="shop.php?danhmuc[]=phu-kien-pickleball"
+                                                                    class="font-semibold text-sm hover:text-red-600">Phụ
+                                                                    kiện Pickleball</a>
+                                                                <ul class="mt-2 space-y-1">
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Bóng
+                                                                            Pickleball</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
+                                                                            class="text-xs text-gray-600 hover:text-red-600">Lưới
+                                                                            Pickleball</a></li>
+                                                                    <li><a href="shop.php?danhmuc[]=phu-kien-pickleball"
+                                                                            class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
+                                                                            thêm <i
+                                                                                class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Content Giày -->
+                                                <div id="content-giay" class="menu-content hidden">
+                                                    <div class="text-center py-16">
+                                                        <div
+                                                            class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                                            <i class="fas fa-shoe-prints text-3xl text-gray-400"></i>
+                                                        </div>
+                                                        <h3 class="text-lg font-bold text-gray-700 mb-2">Sản Phẩm Sớm Ra
+                                                            Mắt</h3>
+                                                        <p class="text-gray-500 text-sm">Chúng tôi đang chuẩn bị những
+                                                            mẫu giày thể thao chất lượng nhất. Hãy quay lại sau nhé!</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-                                <li><a href="../view/shop.php"
-                                        class="flex items-center text-gray-700 hover:text-red-600 font-medium"><img
-                                            src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2"><span>CỬA
-                                            HÀNG</span></a></li>
+                                </li>
+                                <li>
+                                    <a href="./shop.php"
+                                        class="flex items-center text-gray-700 hover:text-red-600 font-medium">
+                                        <img src="../img/icons/store.svg" class="w-5 h-5 flex-shrink-0 mr-2">
+                                        <span>CỬA HÀNG</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
+
+                        <!-- Logo -->
                         <div id="logo" class="flex-shrink-1 absolute left-1/2 transform -translate-x-1/2">
-                            <a href="../index.php" title="NVBPlay" rel="home"><img width="100" height="40"
-                                    src="../img/icons/logonvb.png" alt="NVBPlay"
-                                    class="h-12 md:h-14 w-auto transform scale-75"></a>
+                            <a href="../index.php" title="NVBPlay" rel="home">
+                                <img width="100" height="40" src="../img/icons/logonvb.png" alt="NVBPlay"
+                                    class="h-12 md:h-14 w-auto transform scale-75">
+                            </a>
                         </div>
+
+                        <!-- Desktop Right Elements -->
                         <div class="hidden md:flex items-center space-x-4">
-                            <div class="address-book"><a href="./my-account/address-book.php"
-                                    class="flex items-center text-gray-700 hover:text-red-600"><i
-                                        class="fas fa-map-marker-alt mr-1"></i><span
-                                        class="shipping-address text-sm"><span class="text">Chọn địa
-                                            chỉ</span></span></a></div>
+
+                            <div class="address-book">
+                                <a href="./my-account/address-book.php"
+                                    class="flex items-center text-gray-700 hover:text-red-600">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <span class="shipping-address text-sm"><span class="text">Chọn địa chỉ</span></span>
+                                </a>
+                            </div>
                             <div class="h-5 w-px bg-gray-300"></div>
-                            <div class="search-header relative"><button class="search-toggle p-2"><i
-                                        class="fas fa-search text-gray-700 hover:text-red-600"></i></button></div>
-                            <a href=",/login.php" class="p-2"><i
-                                    class="far fa-user text-gray-700 hover:text-red-600 text-xl"></i></a>
-                            <a href="./cart.php" class="relative p-2"><i
-                                    class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i><span
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span></a>
+
+
+                            <!-- Search -->
+                            <div class="search-header relative">
+                                <button class="search-toggle p-2">
+                                    <i class="fas fa-search text-gray-700 hover:text-red-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Account Dropdown -->
+                            <a href="./login.php" class="flex items-center text-gray-700 hover:text-red-600">
+                                <i class="far fa-user text-xl"></i>
+                                <span class="text-sm ml-1">Đăng nhập</span>
+                            </a>
+                            <!-- Cart -->
+                            <a href="./cart.php" class="relative p-2">
+                                <i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i>
+                                <span
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                            </a>
                         </div>
+
+                        <!-- Mobile Right Elements -->
                         <div class="md:hidden flex items-center space-x-3">
-                            <button class="search-toggle p-1"><i class="fas fa-search text-xl"></i></button>
-                            <a href="./cart.php" class="relative p-1"><i
-                                    class="fas fa-shopping-basket text-xl"></i><span
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span></a>
+                            <button class="search-toggle p-1">
+                                <i class="fas fa-search text-xl"></i>
+                            </button>
+                            <a href="./login.php" class="p-1">
+                                <i class="far fa-user text-xl"></i>
+                            </a>
+                            <a href="./cart.php" class="relative p-1">
+                                <i class="fas fa-shopping-basket text-xl"></i>
+                                <span
+                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
+
         <main id="main" class="bg-white mt-20 mb-20">
             <div class="page-wrapper my-account mb">
                 <div class="container mx-auto px-5" role="main">
@@ -531,27 +887,29 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </footer>
-        <!-- Mobile Menu (GIỮ NGUYÊN 100%) -->
+        <!-- Mobile Menu -->
         <div id="main-menu"
             class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
             <div class="p-4">
                 <div class="flex justify-between items-center mb-6">
                     <img src="../img/icons/logonvb.png" height="30" width="50"
                         class="relative-top-left transform scale-75">
-                    <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition"><i
-                            class="fas fa-times text-2xl text-gray-600"></i></button>
+                    <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition">
+                        <i class="fas fa-times text-2xl text-gray-600"></i>
+                    </button>
                 </div>
                 <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                     <a href="./login.php" class="flex items-center text-gray-700">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3"><i
-                                class="far fa-user text-xl text-gray-600"></i></div>
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                            <i class="far fa-user text-xl text-gray-600"></i>
+                        </div>
                         <div>
-                            <div class="font-medium">Tài khoản</div><span class="text-sm text-gray-500">Đăng nhập / Đăng
-                                ký</span>
+                            <div class="font-medium">Tài khoản</div>
+                            <span class="text-sm text-gray-500">Đăng nhập / Đăng ký</span>
                         </div>
                     </a>
                 </div>
-                <!-- Mobile Menu Items - Danh mục chính -->
+                <!-- Danh mục Mobile -->
                 <div class="mb-4">
                     <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
                     <!-- Cầu Lông -->
@@ -568,13 +926,10 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-                        <!-- Submenu Cầu Lông -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
-                            <!-- Vợt cầu lông -->
                             <div>
                                 <a href="/product-category/vot-cau-long"
-                                    class="block py-2 text-gray-700 font-medium">Vợt
-                                    cầu lông</a>
+                                    class="block py-2 text-gray-700 font-medium">Vợt cầu lông</a>
                                 <div class="pl-4 mt-1 space-y-1">
                                     <a href="https://nvbplay.vn/product-category/vot-cau-long?_brand=yonex"
                                         class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
@@ -588,7 +943,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-red-600">Xem thêm</a>
                                 </div>
                             </div>
-                            <!-- Áo cầu lông -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/ao-the-thao/ao-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Áo cầu lông</a>
@@ -603,7 +957,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-red-600">Xem thêm</a>
                                 </div>
                             </div>
-                            <!-- Quần cầu lông -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/quan-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
@@ -616,17 +969,14 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                         class="block py-1 text-sm text-gray-600">Quần Adidas</a>
                                 </div>
                             </div>
-                            <!-- Túi vợt -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/tui-vot-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Túi vợt</a>
                             </div>
-                            <!-- Balo -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/balo-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Balo</a>
                             </div>
-                            <!-- Phụ kiện -->
                             <div>
                                 <a href="https://nvbplay.vn/product-category/phu-kien-cau-long"
                                     class="block py-2 text-gray-700 font-medium">Phụ kiện</a>
@@ -657,7 +1007,6 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-                        <!-- Submenu Pickleball -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
                             <div>
                                 <a href="https://nvbplay.vn/product-category/pickleball/vot-pickleball"
@@ -697,92 +1046,21 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                             </div>
                             <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
                         </button>
-                        <!-- Submenu Giày -->
                         <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
-                            <div>
-                                <a href="https://nvbplay.vn/product-category/giay?_brand=yonex"
-                                    class="block py-2 text-gray-700">Giày Yonex</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/product-category/giay?_brand=adidas"
-                                    class="block py-2 text-gray-700">Giày Adidas</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/product-category/giay?_brand=mizuno"
-                                    class="block py-2 text-gray-700">Giày Mizuno</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/product-category/giay?_brand=asics"
-                                    class="block py-2 text-gray-700">Giày Asics</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/product-category/giay?_brand=kamito"
-                                    class="block py-2 text-gray-700">Giày Kamito</a>
-                            </div>
+                            <div><a href="https://nvbplay.vn/product-category/giay?_brand=yonex"
+                                    class="block py-2 text-gray-700">Giày Yonex</a></div>
+                            <div><a href="https://nvbplay.vn/product-category/giay?_brand=adidas"
+                                    class="block py-2 text-gray-700">Giày Adidas</a></div>
+                            <div><a href="https://nvbplay.vn/product-category/giay?_brand=mizuno"
+                                    class="block py-2 text-gray-700">Giày Mizuno</a></div>
+                            <div><a href="https://nvbplay.vn/product-category/giay?_brand=asics"
+                                    class="block py-2 text-gray-700">Giày Asics</a></div>
+                            <div><a href="https://nvbplay.vn/product-category/giay?_brand=kamito"
+                                    class="block py-2 text-gray-700">Giày Kamito</a></div>
                         </div>
                     </div>
-                    <!-- Chăm sóc sức khoẻ -->
-                    <a href="https://nvbplay.vn/product-category/san-pham-cham-soc-suc-khoe"
-                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
-                        <div class="w-6 h-6 mr-3 flex-shrink-0">
-                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/healthcare-No.svg"
-                                alt="Chăm sóc sức khoẻ" class="w-full h-full">
-                        </div>
-                        <span class="font-medium">Chăm sóc sức khoẻ</span>
-                    </a>
-                    <!-- Dịch vụ -->
-                    <a href="https://nvbplay.vn/product-category/dich-vu"
-                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
-                        <div class="w-6 h-6 mr-3 flex-shrink-0">
-                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg"
-                                alt="Dịch vụ" class="w-full h-full">
-                        </div>
-                        <span class="font-medium">Dịch vụ</span>
-                    </a>
-                    <!-- Tin Tức -->
-                    <div class="mb-2">
-                        <button
-                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                            data-category="news">
-                            <div class="flex items-center">
-                                <div class="w-6 h-6 mr-3 flex-shrink-0">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2024/10/news-No.svg" alt="Tin Tức"
-                                        class="w-full h-full">
-                                </div>
-                                <span class="font-medium">Tin Tức</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                        </button>
-                        <!-- Submenu Tin Tức -->
-                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-news">
-                            <div>
-                                <a href="https://nvbplay.vn/thong-tin" class="block py-2 text-gray-700">Thông tin</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/cau-long" class="block py-2 text-gray-700">Cầu lông</a>
-                            </div>
-                            <div>
-                                <a href="https://nvbplay.vn/pickleball" class="block py-2 text-gray-700">Pickleball</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Tuyển dụng -->
-                    <a href="https://nvbplay.vn/tuyen-dung"
-                        class="flex items-center p-3 hover:bg-gray-50 rounded-lg mb-2">
-                        <div class="w-6 h-6 mr-3 flex-shrink-0">
-                            <img src="https://nvbplay.vn/wp-content/uploads/2024/10/hiring.svg" alt="Tuyển dụng"
-                                class="w-full h-full">
-                        </div>
-                        <span class="font-medium">Tuyển dụng</span>
-                    </a>
                 </div>
-                <!-- Link phụ -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                    <a href="https://nvbplay.vn/khuyen-mai" class="block py-2 text-gray-600 hover:text-red-600">Khuyến
-                        mãi</a>
-                    <a href="/blogs" class="block py-2 text-gray-600 hover:text-red-600">Blogs</a>
-                </div>
-                <!-- Thông tin liên hệ -->
+                <!-- Thông tin liên hệ Mobile -->
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div class="flex items-center mb-2">
                         <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
@@ -799,177 +1077,296 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    <!-- JavaScript Form Validation & Toggle Password -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('loginForm');
-            const username = document.getElementById('username');
-            const password = document.getElementById('password');
-            const submitBtn = document.getElementById('submitBtn');
-            const togglePasswordBtn = document.getElementById('togglePassword');
-            const toggleIcon = togglePasswordBtn ? togglePasswordBtn.querySelector('i') : null;
+        <!-- JavaScript Form Validation & Toggle Password -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('loginForm');
+                const username = document.getElementById('username');
+                const password = document.getElementById('password');
+                const submitBtn = document.getElementById('submitBtn');
+                const togglePasswordBtn = document.getElementById('togglePassword');
+                const toggleIcon = togglePasswordBtn ? togglePasswordBtn.querySelector('i') : null;
 
-            // === ✅ TOGGLE PASSWORD VISIBILITY ===
-            if (togglePasswordBtn && password && toggleIcon) {
-                togglePasswordBtn.addEventListener('click', function () {
-                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                    password.setAttribute('type', type);
-                    // Toggle icon
-                    toggleIcon.classList.toggle('fa-eye');
-                    toggleIcon.classList.toggle('fa-eye-slash');
-                    // Change color when active
-                    if (type === 'text') {
-                        togglePasswordBtn.style.color = '#FF3F1A';
-                    } else {
-                        togglePasswordBtn.style.color = '#6b7280';
-                    }
-                });
-            }
-
-            // === Validation functions ===
-            function validateUsername() {
-                const value = username.value.trim();
-                const error = document.getElementById('username-error');
-                if (value.length === 0) {
-                    username.classList.add('input-invalid');
-                    username.classList.remove('input-valid');
-                    if (error) error.style.display = 'block';
-                    return false;
-                }
-                username.classList.add('input-valid');
-                username.classList.remove('input-invalid');
-                if (error) error.style.display = 'none';
-                return true;
-            }
-            function validatePassword() {
-                const value = password.value;
-                const error = document.getElementById('password-error');
-                if (value.length === 0) {
-                    password.classList.add('input-invalid');
-                    password.classList.remove('input-valid');
-                    if (error) error.style.display = 'block';
-                    return false;
-                }
-                password.classList.add('input-valid');
-                password.classList.remove('input-invalid');
-                if (error) error.style.display = 'none';
-                return true;
-            }
-            function checkFormValidity() {
-                const isValid = validateUsername() && validatePassword();
-                if (submitBtn) {
-                    submitBtn.disabled = !isValid;
-                    submitBtn.classList.toggle('opacity-50', !isValid);
-                    submitBtn.classList.toggle('cursor-not-allowed', !isValid);
-                }
-                return isValid;
-            }
-            // Event listeners
-            if (username) {
-                username.addEventListener('blur', validateUsername);
-                username.addEventListener('input', checkFormValidity);
-            }
-            if (password) {
-                password.addEventListener('blur', validatePassword);
-                password.addEventListener('input', checkFormValidity);
-            }
-            // Form submit
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    if (!checkFormValidity()) {
-                        e.preventDefault();
-                        const firstError = form.querySelector('.input-invalid');
-                        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-            }
-            // Initial check
-            checkFormValidity();
-        });
-    </script>
-    <!-- JavaScript Menu  -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuToggle = document.querySelector('.menu-toggle');
-            const closeMenu = document.querySelector('.close-menu');
-            const mobileMenu = document.getElementById('main-menu');
-            if (menuToggle) {
-                menuToggle.addEventListener('click', function () {
-                    mobileMenu.classList.remove('-translate-x-full');
-                    document.body.style.overflow = 'hidden';
-                });
-            }
-            if (closeMenu) {
-                closeMenu.addEventListener('click', function () {
-                    mobileMenu.classList.add('-translate-x-full');
-                    document.body.style.overflow = '';
-                });
-            }
-            const categoryButton = document.querySelector('.relative button');
-            if (categoryButton) {
-                categoryButton.addEventListener('click', function () {
-                    const subMenu = this.nextElementSibling;
-                    subMenu.classList.toggle('hidden');
-                    this.querySelector('i').classList.toggle('fa-chevron-down');
-                    this.querySelector('i').classList.toggle('fa-chevron-up');
-                });
-            }
-        });
-    </script>
-    <!-- JavaScript Desktop Menu  -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuTrigger = document.getElementById('mega-menu-trigger');
-            const menuDropdown = document.getElementById('mega-menu-dropdown');
-            const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-            const menuContents = document.querySelectorAll('.menu-content');
-            if (menuTrigger) {
-                menuTrigger.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    menuDropdown.classList.toggle('hidden');
-                });
-            }
-            menuItems.forEach(item => {
-                item.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const menuId = this.getAttribute('data-menu');
-                    menuItems.forEach(el => {
-                        el.classList.remove('active', 'bg-red-50');
-                        const titleEl = el.querySelector('.font-bold');
-                        if (titleEl) titleEl.classList.remove('text-red-600');
+                // ===  TOGGLE PASSWORD VISIBILITY ===
+                if (togglePasswordBtn && password && toggleIcon) {
+                    togglePasswordBtn.addEventListener('click', function () {
+                        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                        password.setAttribute('type', type);
+                        // Toggle icon
+                        toggleIcon.classList.toggle('fa-eye');
+                        toggleIcon.classList.toggle('fa-eye-slash');
+                        // Change color when active
+                        if (type === 'text') {
+                            togglePasswordBtn.style.color = '#FF3F1A';
+                        } else {
+                            togglePasswordBtn.style.color = '#6b7280';
+                        }
                     });
-                    this.classList.add('active', 'bg-red-50');
-                    const activeTitle = this.querySelector('.font-bold');
-                    if (activeTitle) activeTitle.classList.add('text-red-600');
-                    menuContents.forEach(content => { content.classList.add('hidden'); });
-                    const activeContent = document.getElementById(`content-${menuId}`);
-                    if (activeContent) { activeContent.classList.remove('hidden'); }
-                });
-            });
-            document.addEventListener('click', function (e) {
-                if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                    menuDropdown.classList.add('hidden');
                 }
+
+                // === Validation functions ===
+                function validateUsername() {
+                    const value = username.value.trim();
+                    const error = document.getElementById('username-error');
+                    if (value.length === 0) {
+                        username.classList.add('input-invalid');
+                        username.classList.remove('input-valid');
+                        if (error) error.style.display = 'block';
+                        return false;
+                    }
+                    username.classList.add('input-valid');
+                    username.classList.remove('input-invalid');
+                    if (error) error.style.display = 'none';
+                    return true;
+                }
+                function validatePassword() {
+                    const value = password.value;
+                    const error = document.getElementById('password-error');
+                    if (value.length === 0) {
+                        password.classList.add('input-invalid');
+                        password.classList.remove('input-valid');
+                        if (error) error.style.display = 'block';
+                        return false;
+                    }
+                    password.classList.add('input-valid');
+                    password.classList.remove('input-invalid');
+                    if (error) error.style.display = 'none';
+                    return true;
+                }
+                function checkFormValidity() {
+                    const isValid = validateUsername() && validatePassword();
+                    if (submitBtn) {
+                        submitBtn.disabled = !isValid;
+                        submitBtn.classList.toggle('opacity-50', !isValid);
+                        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                    }
+                    return isValid;
+                }
+                // Event listeners
+                if (username) {
+                    username.addEventListener('blur', validateUsername);
+                    username.addEventListener('input', checkFormValidity);
+                }
+                if (password) {
+                    password.addEventListener('blur', validatePassword);
+                    password.addEventListener('input', checkFormValidity);
+                }
+                // Form submit
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        if (!checkFormValidity()) {
+                            e.preventDefault();
+                            const firstError = form.querySelector('.input-invalid');
+                            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                }
+                // Initial check
+                checkFormValidity();
             });
-            menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-            const menuToggle = document.querySelector('.menu-toggle');
-            const closeMenu = document.querySelector('.close-menu');
-            const mobileMenu = document.getElementById('main-menu');
-            if (menuToggle) { menuToggle.addEventListener('click', function () { mobileMenu.classList.remove('-translate-x-full'); }); }
-            if (closeMenu) { closeMenu.addEventListener('click', function () { mobileMenu.classList.add('-translate-x-full'); }); }
-            const categoryButton = document.querySelector('.relative button');
-            if (categoryButton) {
-                categoryButton.addEventListener('click', function () {
-                    const subMenu = this.nextElementSibling;
-                    subMenu.classList.toggle('hidden');
-                    this.querySelector('i').classList.toggle('fa-chevron-down');
-                    this.querySelector('i').classList.toggle('fa-chevron-up');
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                // === USER DROPDOWN TOGGLE ===
+                const userToggle = document.getElementById('userToggle');
+                const userMenu = document.getElementById('userMenu');
+                if (userToggle && userMenu) {
+                    userToggle.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        userMenu.classList.toggle('active');
+                    });
+                    document.addEventListener('click', function (e) {
+                        if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+                            userMenu.classList.remove('active');
+                        }
+                    });
+                }
+
+                // === MEGA MENU ===
+                const menuTrigger = document.getElementById('mega-menu-trigger');
+                const menuDropdown = document.getElementById('mega-menu-dropdown');
+                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+                const menuContents = document.querySelectorAll('.menu-content');
+
+                if (menuTrigger) {
+                    menuTrigger.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        menuDropdown.classList.toggle('hidden');
+                    });
+                }
+
+                menuItems.forEach(item => {
+                    item.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const menuId = this.getAttribute('data-menu');
+                        menuItems.forEach(el => {
+                            el.classList.remove('active', 'bg-red-50');
+                            const titleEl = el.querySelector('.font-bold');
+                            if (titleEl) titleEl.classList.remove('text-red-600');
+                        });
+                        this.classList.add('active', 'bg-red-50');
+                        const activeTitle = this.querySelector('.font-bold');
+                        if (activeTitle) activeTitle.classList.add('text-red-600');
+                        menuContents.forEach(content => { content.classList.add('hidden'); });
+                        const activeContent = document.getElementById(`content-${menuId}`);
+                        if (activeContent) { activeContent.classList.remove('hidden'); }
+                    });
                 });
-            }
-        });
-    </script>
+
+                document.addEventListener('click', function (e) {
+                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
+                        menuDropdown.classList.add('hidden');
+                    }
+                });
+                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+                // === MOBILE MENU TOGGLE ===
+                const menuToggle = document.querySelector('.menu-toggle');
+                const closeMenu = document.querySelector('.close-menu');
+                const mobileMenu = document.getElementById('main-menu');
+
+                if (menuToggle) {
+                    menuToggle.addEventListener('click', function () {
+                        mobileMenu.classList.remove('-translate-x-full');
+                        document.body.style.overflow = 'hidden';
+                    });
+                }
+                if (closeMenu) {
+                    closeMenu.addEventListener('click', function () {
+                        mobileMenu.classList.add('-translate-x-full');
+                        document.body.style.overflow = '';
+                    });
+                }
+
+                // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA) ==========
+                const searchToggle = document.getElementById('searchToggle');
+                const searchToggleMobile = document.getElementById('searchToggleMobile');
+                const closeSearchBtn = document.getElementById('closeSearchBtn');
+                const searchOverlay = document.getElementById('searchOverlay');
+                const searchInput = document.getElementById('searchInput');
+                const suggestionsContainer = document.getElementById('searchSuggestions');
+                const suggestionsList = document.getElementById('suggestionsList');
+
+                function debounce(func, delay) {
+                    let timeoutId;
+                    return function (...args) {
+                        clearTimeout(timeoutId);
+                        timeoutId = setTimeout(() => func.apply(this, args), delay);
+                    };
+                }
+
+                async function fetchSearchSuggestions(query) {
+                    if (!query || query.length < 1) {
+                        suggestionsContainer?.classList.remove('active');
+                        return;
+                    }
+                    try {
+                        const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
+                        const result = await response.json();
+                        if (result.success && result.data.length > 0) {
+                            const limitedResults = result.data.slice(0, 8);
+                            suggestionsList.innerHTML = limitedResults.map(product => `
+                <a href="${product.url}" class="suggestion-item">
+                    <img src="./${product.image}" alt="${product.name}" loading="lazy"
+                         onerror="this.src='./img/sanpham/placeholder.png'">
+                    <div class="suggestion-info">
+                        <h4>${product.name}</h4>
+                        <div class="price-wrapper">
+                            <span class="price">${product.price}</span>
+                            ${product.old_price ? `<span class="old-price">${product.old_price}</span>` : ''}
+                            ${product.discount > 0 ? `<span class="discount-badge">-${product.discount}%</span>` : ''}
+                        </div>
+                    </div>
+                </a>`).join('');
+                            if (result.count > 8) {
+                                suggestionsList.innerHTML += `
+                    <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
+                        <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
+                    </a>`;
+                            }
+                            suggestionsContainer.classList.add('active');
+                        } else {
+                            suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
+                            suggestionsContainer.classList.add('active');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi tìm kiếm:', error);
+                    }
+                }
+
+                const debouncedSearch = debounce(fetchSearchSuggestions, 300);
+
+                function enableSearch() {
+                    document.body.classList.add('search-active');
+                    const defaultHeader = document.getElementById('defaultHeader');
+                    const searchHeader = document.getElementById('searchHeader');
+                    if (defaultHeader) defaultHeader.classList.add('hidden');
+                    if (searchHeader) {
+                        searchHeader.classList.remove('hidden');
+                        searchHeader.classList.add('flex');
+                    }
+                    const searchOverlay = document.getElementById('searchOverlay');
+                    if (searchOverlay) {
+                        searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                        searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
+                    }
+                    setTimeout(() => searchInput?.focus(), 100);
+                }
+
+                function disableSearch() {
+                    document.body.classList.remove('search-active');
+                    suggestionsContainer?.classList.remove('active');
+                    const defaultHeader = document.getElementById('defaultHeader');
+                    const searchHeader = document.getElementById('searchHeader');
+                    if (defaultHeader) defaultHeader.classList.remove('hidden');
+                    if (searchHeader) {
+                        searchHeader.classList.add('hidden');
+                        searchHeader.classList.remove('flex');
+                    }
+                    const searchOverlay = document.getElementById('searchOverlay');
+                    if (searchOverlay) {
+                        searchOverlay.classList.add('opacity-0', 'pointer-events-none');
+                        searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+                    }
+                    if (searchInput) searchInput.value = '';
+                }
+
+                if (searchToggle) searchToggle.addEventListener('click', enableSearch);
+                if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
+                if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
+                if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
+                        disableSearch();
+                    }
+                });
+
+                if (searchInput) {
+                    searchInput.addEventListener('input', function (e) {
+                        debouncedSearch(e.target.value.trim());
+                    });
+                    searchInput.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const query = searchInput.value.trim();
+                            if (query) {
+                                window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
+                            }
+                        }
+                    });
+                }
+
+                document.addEventListener('click', function (e) {
+                    if (searchInput && suggestionsContainer &&
+                        !searchInput.contains(e.target) &&
+                        !suggestionsContainer.contains(e.target)) {
+                        suggestionsContainer.classList.remove('active');
+                    }
+                });
+
+            });</script>
 </body>
 
 </html>

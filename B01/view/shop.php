@@ -773,7 +773,7 @@ function getFilterDisplayName($type, $slug)
                                                                             </a>
 
                                                                             <!-- KAMITO -->
-                                                                            <a href=".shop.php?thuonghieu[]=kamito"
+                                                                            <a href="./shop.php?thuonghieu[]=kamito"
                                                                                 class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
                                                                                 <div
                                                                                     class="w-10 h-10 flex-shrink-0 mr-2">
@@ -787,7 +787,7 @@ function getFilterDisplayName($type, $slug)
                                                                             </a>
 
                                                                             <!-- MIZUNO -->
-                                                                            <a href=".shop.php?thuonghieu[]=mizuno"
+                                                                            <a href="./shop.php?thuonghieu[]=mizuno"
                                                                                 class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
                                                                                 <div
                                                                                     class="w-10 h-10 flex-shrink-0 mr-2">
