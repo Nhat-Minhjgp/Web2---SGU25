@@ -80,79 +80,95 @@ $categories = getCategories($conn);
     <title>Quản lý giá bán - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#667eea', secondary: '#764ba2' },
+                    backgroundImage: { 'gradient-custom': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
+                }
+            }
+        }
+    </script>
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        
+        .detail-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease-out;
+        }
+        .detail-content.open {
+            grid-template-rows: 1fr;
+        }
+        .detail-inner {
+            overflow: hidden;
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen">
+<body class="bg-gray-50 font-sans text-gray-800">
 
     <!-- HEADER -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">NVBPlay Admin Panel</h1>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
+                    <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm text-gray-800">
-                            <?php echo htmlspecialchars($admin_username); ?>
-                        </p>
-                        <p class="text-xs text-gray-500">Quản trị viên</p>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
-                <a href="logout.php" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
+                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                </a>
+                </button>
             </div>
         </div>
     </header>
 
-    <div class="flex">
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-white shadow-lg min-h-screen">
-            <div class="p-4 border-b border-gray-200">
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Danh mục chức năng</h3>
+    <div class="flex w-full min-h-[calc(100vh-70px)]">
+        <!-- SIDEBAR - GIỐNG IMPORT.PHP -->
+        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
             </div>
-            <nav class="p-2 space-y-1">
-                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-home w-5 text-gray-400"></i> Dashboard
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-home w-5"></i> Dashboard
                 </a>
-                <a href="users.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-users w-5 text-gray-400"></i> Quản lý người dùng
+                <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-users w-5"></i> Quản lý người dùng
                 </a>
-                <a href="categories.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-tags w-5 text-gray-400"></i> Quản lý danh mục
+                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-box w-5"></i> Quản lý sản phẩm
                 </a>
-                <a href="product.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-box w-5 text-gray-400"></i> Quản lý sản phẩm
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-arrow-down w-5"></i> Quản lý nhập hàng
                 </a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-arrow-down w-5 text-gray-400"></i> Quản lý nhập hàng
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md">
+                    <i class="fas fa-tag w-5"></i> Quản lý giá bán
                 </a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md transition">
-                    <i class="fas fa-tag w-5 text-white"></i> Quản lý giá bán
+                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-receipt w-5"></i> Quản lý đơn hàng
                 </a>
-                <a href="orders.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-receipt w-5 text-gray-400"></i> Quản lý đơn hàng
-                </a>
-                <a href="inventory.php" class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition">
-                    <i class="fas fa-warehouse w-5 text-gray-400"></i> Tồn kho & Báo cáo
+                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-warehouse w-5"></i> Tồn kho & Báo cáo
                 </a>
             </nav>
         </aside>
 
         <!-- MAIN CONTENT -->
-        <main class="flex-1 p-8">
-            <div class="bg-white rounded-xl shadow-lg p-6 animate-fadeIn">
+        <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
+            <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b">
                     <h2 class="text-2xl font-bold text-gray-800">
-                        <i class="fas fa-tag text-indigo-600 mr-2"></i>Quản lý giá bán
+                        <i class="fas fa-tag text-primary mr-2"></i>Quản lý giá bán
                     </h2>
                 </div>
 
@@ -177,8 +193,8 @@ $categories = getCategories($conn);
                     
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[900px]">
-                            <thead class="bg-gradient-to-r from-indigo-600 to-purple-600">
-                                <tr>
+                            <thead class="bg-gradient-custom text-white">
+                                应
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Hình</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Mã SP</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Tên sản phẩm</th>
@@ -187,8 +203,7 @@ $categories = getCategories($conn);
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Tỷ lệ LN (%)</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá bán</th>
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Thao tác</th>
-                                </tr>
-                            </thead>
+                                </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <?php if ($products && $products->num_rows > 0): ?>
                                     <?php while($row = $products->fetch_assoc()): ?>
@@ -203,10 +218,10 @@ $categories = getCategories($conn);
                                                     <i class="fas fa-image text-gray-400 text-xl"></i>
                                                 </div>
                                             <?php endif; ?>
-                                        </td>
-                                        <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
-                                        <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?></td>
-                                        <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                         </td>
+                                        <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> </td>
+                                        <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?> </td>
+                                        <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
                                         <td class="px-4 py-3 text-right font-mono text-sm"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                         <td class="px-4 py-3 text-right">
                                             <span class="font-semibold text-indigo-600"><?php echo $row['PhanTramLoiNhuan']; ?>%</span>
@@ -284,15 +299,15 @@ $categories = getCategories($conn);
                                 <option value="<?php echo $cat['Danhmuc_id']; ?>"><?php echo htmlspecialchars($cat['Ten_danhmuc']); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <button onclick="searchPrice()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                        <button onclick="searchPrice()" class="bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
                             <i class="fas fa-search mr-2"></i>Tra cứu
                         </button>
                     </div>
                     
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[800px]" id="searchTable">
-                            <thead class="bg-gradient-to-r from-indigo-600 to-purple-600">
-                                <tr>
+                            <thead class="bg-gradient-custom text-white">
+                                应
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Hình</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Mã SP</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Tên sản phẩm</th>
@@ -300,8 +315,7 @@ $categories = getCategories($conn);
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá vốn</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Tỷ lệ LN</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá bán</th>
-                                </tr>
-                            </thead>
+                                </thead>
                             <tbody id="searchTableBody" class="divide-y divide-gray-200">
                                 <?php
                                 $all_sql = "SELECT sp.*, dm.Ten_danhmuc FROM sanpham sp LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id ORDER BY sp.SanPham_id DESC";
@@ -319,10 +333,10 @@ $categories = getCategories($conn);
                                                 <i class="fas fa-image text-gray-400 text-xl"></i>
                                             </div>
                                         <?php endif; ?>
-                                    </td>
-                                    <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
-                                    <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?></td>
-                                    <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                     </td>
+                                    <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> </td>
+                                    <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?> </td>
+                                    <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
                                     <td class="px-4 py-3 text-right font-mono text-sm"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                     <td class="px-4 py-3 text-right"><?php echo $row['PhanTramLoiNhuan']; ?>%</td>
                                     <td class="px-4 py-3 text-right font-semibold text-indigo-600 text-sm"><?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ</td>
@@ -339,7 +353,7 @@ $categories = getCategories($conn);
     <!-- MODAL CẬP NHẬT TỶ LỆ LỢI NHUẬN THEO SẢN PHẨM -->
     <div id="profitModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 animate-fadeIn">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
+            <div class="bg-gradient-custom text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Cập nhật tỷ lệ lợi nhuận</h3>
                 <button onclick="closeModal('profitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
@@ -358,7 +372,7 @@ $categories = getCategories($conn);
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('profitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:opacity-90">Cập nhật</button>
+                    <button type="submit" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Cập nhật</button>
                 </div>
             </form>
         </div>
@@ -367,7 +381,7 @@ $categories = getCategories($conn);
     <!-- MODAL CẬP NHẬT TỶ LỆ LỢI NHUẬN THEO LOẠI -->
     <div id="categoryProfitModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 animate-fadeIn">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
+            <div class="bg-gradient-custom text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Áp dụng tỷ lệ lợi nhuận cho loại sản phẩm</h3>
                 <button onclick="closeModal('categoryProfitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
@@ -386,7 +400,7 @@ $categories = getCategories($conn);
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('categoryProfitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:opacity-90">Áp dụng</button>
+                    <button type="submit" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Áp dụng</button>
                 </div>
             </form>
         </div>
