@@ -1297,13 +1297,13 @@ if ($is_logged_in) {
                             </a>
                         </div>
 
-                        <?php
-                        // Lấy phụ kiện từ database (Danhmuc_id = 5)
-                        $phukien_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
+                            <?php
+                            // Lấy phụ kiện từ database (dùng slug để xác định danh mục)
+                            $phukien_sql = "SELECT s.*, d.Ten_danhmuc, th.Ten_thuonghieu
                     FROM sanpham s
                     LEFT JOIN danhmuc d ON s.Danhmuc_id = d.Danhmuc_id
                     LEFT JOIN thuonghieu th ON s.Ma_thuonghieu = th.Ma_thuonghieu
-                    WHERE s.Danhmuc_id = 5 AND s.TrangThai = 1
+                    WHERE d.slug = 'phu-kien' AND s.TrangThai = 1
                     ORDER BY s.TaoNgay DESC
                     LIMIT 4";
 
@@ -1335,20 +1335,19 @@ if ($is_logged_in) {
                                             </div>
                                         <?php endif; ?>
 
-                                        <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>"
-                                            class="block aspect-square overflow-hidden">
-                                            <?php if (!empty($product['image_url'])): ?>
-                                                <img src=".<?php echo htmlspecialchars($product['image_url']); ?>"
-                                                    alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                                    onerror="this.src='./img/sanpham/placeholder.png'">
-                                            <?php else: ?>
-                                                <img src="./img/sanpham/placeholder.png"
-                                                    alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
-                                                    class="w-full h-full object-cover">
-                                            <?php endif; ?>
-                                        </a>
-                                    </div>
+                                            <a href="./view/product.php?id=<?php echo $product['SanPham_id']; ?>" class="block aspect-square overflow-hidden">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src="./<?php echo htmlspecialchars($product['image_url']); ?>"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                        onerror="this.src='./img/sanpham/placeholder.png'">
+                                                <?php else: ?>
+                                                    <img src="./img/sanpham/placeholder.png"
+                                                        alt="<?php echo htmlspecialchars($product['TenSP']); ?>"
+                                                        class="w-full h-full object-cover">
+                                                <?php endif; ?>
+                                            </a>
+                                        </div>
 
                                     <div class="p-3">
                                         <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
@@ -1378,93 +1377,93 @@ if ($is_logged_in) {
                         </div>
                     </section>
 
-                    <!-- Sale Products Section -->
-                    <section class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                GIẢM GIÁ LÊN ĐẾN 45%
-                            </h2>
-                            <a href="https://nvbplay.vn/product-tag/top-sale"
-                                class="text-red-600 hover:text-red-700 font-medium flex items-center">
-                                Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-                            </a>
-                        </div>
+                        <!-- Sale Products Section 
+                        <section class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2
+                                    class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
+                                    GIẢM GIÁ LÊN ĐẾN 45%
+                                </h2>
+                                <a href="https://nvbplay.vn/product-tag/top-sale"
+                                    class="text-red-600 hover:text-red-700 font-medium flex items-center">
+                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                                </a>
+                            </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <!-- Sale Product 1 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10">
-                                        <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-50%</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-boost-your-power"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2025/01/ao-the-thao-nvbplay-boost-your-power-768x768.jpg"
-                                            alt="Áo thể thao NVBPlay Boost Your Power"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                <!-- Sale Product 1 
+                                <div class="bg-white rounded-lg shadow-md overflow-hidden group">
+                                    <div class="relative">
+                                        <div class="absolute top-2 left-2 z-10">
+                                            <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-50%</span>
+                                        </div>
                                         <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-boost-your-power"
-                                            class="hover:text-red-600">Áo thể thao NVBPlay Boost Your Power</a>
-                                    </h3>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-red-600 font-bold">99.000₫</span>
-                                        <span class="text-gray-400 text-sm line-through">199.000₫</span>
+                                            class="block aspect-square overflow-hidden">
+                                            <img src="https://nvbplay.vn/wp-content/uploads/2025/01/ao-the-thao-nvbplay-boost-your-power-768x768.jpg"
+                                                alt="Áo thể thao NVBPlay Boost Your Power"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </a>
+                                    </div>
+                                    <div class="p-3">
+                                        <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                                            <a href="https://nvbplay.vn/product/ao-the-thao-nvbplay-boost-your-power"
+                                                class="hover:text-red-600">Áo thể thao NVBPlay Boost Your Power</a>
+                                        </h3>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-red-600 font-bold">99.000₫</span>
+                                            <span class="text-gray-400 text-sm line-through">199.000₫</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <!-- New Arrivals Section -->
-                    <section class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2
-                                class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
-                                Hàng mới đổ bộ
-                            </h2>
-                            <a href="./view/shop.php"
-                                class="text-red-600 hover:text-red-700 font-medium flex items-center">
-                                Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
-                            </a>
-                        </div>
+                        <!-- New Arrivals Section 
+                        <section class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2
+                                    class="text-xl md:text-2xl font-bold relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-red-600 pb-2">
+                                    Hàng mới đổ bộ
+                                </h2>
+                                <a href="./view/shop.php"
+                                    class="text-red-600 hover:text-red-700 font-medium flex items-center">
+                                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                                </a>
+                            </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <!-- New Product 1 -->
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden group">
-                                <div class="relative">
-                                    <div class="absolute top-2 left-2 z-10 flex flex-col space-y-1">
-                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
-                                            về</span>
-                                        <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-10%</span>
-                                    </div>
-                                    <a href="https://nvbplay.vn/product/sypik-triton-5-pro-ultimate-tim"
-                                        class="block aspect-square overflow-hidden">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/03/vot-pickleball-sypik-triton-5-pro-ultimate-3-768x768.jpg"
-                                            alt="Vợt Pickleball Sypik Triton"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                    </a>
-                                </div>
-                                <div class="p-3">
-                                    <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                <!-- New Product 1 
+                                <div class="bg-white rounded-lg shadow-md overflow-hidden group">
+                                    <div class="relative">
+                                        <div class="absolute top-2 left-2 z-10 flex flex-col space-y-1">
+                                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Hàng mới
+                                                về</span>
+                                            <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full">-10%</span>
+                                        </div>
                                         <a href="https://nvbplay.vn/product/sypik-triton-5-pro-ultimate-tim"
-                                            class="hover:text-red-600">Vợt Pickleball Sypik Triton 5 Pro Ultimate –
-                                            Tím</a>
-                                    </h3>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-red-600 font-bold">3.590.000₫</span>
-                                        <span class="text-gray-400 text-sm line-through">3.990.000₫</span>
+                                            class="block aspect-square overflow-hidden">
+                                            <img src="https://nvbplay.vn/wp-content/uploads/2026/03/vot-pickleball-sypik-triton-5-pro-ultimate-3-768x768.jpg"
+                                                alt="Vợt Pickleball Sypik Triton"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </a>
+                                    </div>
+                                    <div class="p-3">
+                                        <h3 class="font-medium text-sm mb-2 line-clamp-2 h-10">
+                                            <a href="https://nvbplay.vn/product/sypik-triton-5-pro-ultimate-tim"
+                                                class="hover:text-red-600">Vợt Pickleball Sypik Triton 5 Pro Ultimate –
+                                                Tím</a>
+                                        </h3>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-red-600 font-bold">3.590.000₫</span>
+                                            <span class="text-gray-400 text-sm line-through">3.990.000₫</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
+                        </section> -->
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
 
         <!-- Footer -->
         <footer id="footer" class="bg-black text-white">

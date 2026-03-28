@@ -884,3 +884,61 @@ DELIMITER ;
   /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 -- Thêm cột CanhBaoTon vào bảng sanpham
 
+-- =====================================
+-- 1. THÊM CỘT image_url VÀO BẢNG danhmuc
+-- =====================================
+ALTER TABLE `danhmuc` 
+ADD COLUMN `image_url` varchar(255) DEFAULT NULL 
+COMMENT 'Đường dẫn hình danh mục' 
+AFTER `slug`;
+
+-- =====================================
+-- 2. THÊM CỘT image_url VÀO BẢNG thuonghieu
+-- =====================================
+ALTER TABLE `thuonghieu` 
+ADD COLUMN `image_url` varchar(255) DEFAULT NULL 
+COMMENT 'Đường dẫn logo thương hiệu' 
+AFTER `slug`;
+
+-- =====================================
+-- 3. CẬP NHẬT image_url CHO DANH MỤC
+-- =====================================
+UPDATE `danhmuc` SET `image_url` = 'img/icons/logo-caulong.png' WHERE `slug` = 'vot-cau-long';
+UPDATE `danhmuc` SET `image_url` = 'img/icons/logo-pickleball.png' WHERE `slug` = 'vot-pickleball';
+UPDATE `danhmuc` SET `image_url` = 'img/icons/logo-phukien.png' WHERE `slug` = 'phu-kien';
+
+-- =====================================
+-- 4. CẬP NHẬT image_url CHO THƯƠNG HIỆU
+-- =====================================
+-- Cầu lông brands
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-yonex.webp' WHERE `slug` = 'yonex';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/Logo-li-ning.webp' WHERE `slug` = 'li-ning';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-victor.png' WHERE `slug` = 'victor';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-adidas.webp' WHERE `slug` = 'adidas';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-kamito.png' WHERE `slug` = 'kamito';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-mizuno.png' WHERE `slug` = 'mizuno';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-kumpoo.png' WHERE `slug` = 'kumpoo';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-venson.png' WHERE `slug` = 'venson';
+
+-- Pickleball brands
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-joola.png' WHERE `slug` = 'joola';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-selkirk.webp' WHERE `slug` = 'selkirk';
+UPDATE `thuonghieu` SET `image_url` = 'img/icons/logo-wika.png' WHERE `slug` = 'wika';
+
+-- =====================================
+-- 5. THÊM THƯƠNG HIỆU MỚI (NẾU CHƯA CÓ)
+-- =====================================
+INSERT INTO `thuonghieu` (`Ten_thuonghieu`, `slug`, `image_url`) 
+VALUES 
+('Adidas', 'adidas', 'img/icons/logo-adidas.webp'),
+('Kamito', 'kamito', 'img/icons/logo-kamito.png'),
+('Mizuno', 'mizuno', 'img/icons/logo-mizuno.png'),
+('Kumpoo', 'kumpoo', 'img/icons/logo-kumpoo.png'),
+('Venson', 'venson', 'img/icons/logo-venson.png'),
+('Joola', 'joola', 'img/icons/logo-joola.png'),
+('Selkirk', 'selkirk', 'img/icons/logo-selkirk.webp'),
+('Wika', 'wika', 'img/icons/logo-wika.png')
+ON DUPLICATE KEY UPDATE 
+    `slug` = VALUES(`slug`),
+    `image_url` = VALUES(`image_url`);
+    
