@@ -224,7 +224,7 @@ $categories = getCategories($conn);
                                         <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
                                         <td class="px-4 py-3 text-right font-mono text-sm"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                         <td class="px-4 py-3 text-right">
-                                            <span class="font-semibold text-indigo-600"><?php echo $row['PhanTramLoiNhuan']; ?>%</span>
+                                        <span class="font-semibold text-indigo-600"><?php echo ($row['PhanTramLoiNhuan'] * 100); ?>%</span>
                                         </td>
                                         <td class="px-4 py-3 text-right font-semibold text-indigo-600 text-sm">
                                             <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ

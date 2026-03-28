@@ -390,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             
             if (giaNhapGoc > 0) {
                 // Công thức tính giá bán: Giá nhập × (1 + % lợi nhuận/100)
-                let giaBan = giaNhapGoc * (1 + phanTram / 100);
+                let giaBan = giaNhapGoc * (1 + phanTram );
                 // Làm tròn và hiển thị
                 document.getElementById('gia_ban').value = Math.round(giaBan).toLocaleString('vi-VN') + 'đ';
             } else {

@@ -14,7 +14,7 @@ $message = '';
 $messageType = '';
 
 // Lấy danh sách sản phẩm
-$sanphams = $conn->query("SELECT SanPham_id, TenSP, GiaNhapTB, GiaBan, SoLuongTon, PhanTramLoiNhuan, NCC_id FROM sanpham WHERE TrangThai = 1 ORDER BY TenSP");
+$sanphams = $conn->query("SELECT SanPham_id, TenSP, GiaNhapTB, GiaBan, SoLuongTon, PhanTramLoiNhuan, NCC_id FROM sanpham WHERE TrangThai = 1 OR Trangthai = 0 ORDER BY TenSP");
 
 // Tự động tạo mã phiếu nhập
 $ngayHienTai = date('Ymd');
@@ -339,7 +339,7 @@ function onProductSelect(select) {
         const giaNhap = option.getAttribute('data-gianhap');
         const profit = option.getAttribute('data-loi'); // Profit dạng thập phân (ví dụ 0.15)
         
-        if(giaNhap && giaNhap !== '0') card.querySelector('.price-input').value = giaNhap;
+        if(giaNhap && giaNhap !== '0' ) card.querySelector('.price-input').value = giaNhap;
         
         if(profit) {
             const displayProfit = (parseFloat(profit) * 100).toFixed(0) + '%';
