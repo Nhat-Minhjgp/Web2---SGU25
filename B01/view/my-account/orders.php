@@ -12,7 +12,7 @@ ini_set('display_errors', 1);
 
 // === 1. KIỂM TRA ĐĂNG NHẬP ===
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? 0) != 0) {
-    header("Location: ../../login.php?redirect=orders");
+    header("Location: ../login.php?redirect=orders");
     exit();
 }
 
