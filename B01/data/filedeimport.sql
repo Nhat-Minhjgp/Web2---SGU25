@@ -975,4 +975,33 @@ ON DUPLICATE KEY UPDATE
     `image_url` = VALUES(`image_url`);
 
 
+-- =============================================
+-- XÓA CÁC THƯƠNG HIỆU CŨ (NẾU CÓ) ĐỂ ĐẢM BẢO CHỈ CÒN 11 BRAND
+-- =============================================
+DELETE FROM `thuonghieu` 
+WHERE `Ma_thuonghieu` NOT IN (1,2,3,4,5,6,7,8,12,13,14);
 
+-- =============================================
+-- RESET AUTO_INCREMENT (TUỲ CHỌN, ĐỂ TRÁNH ID BỊ NHẢY)
+-- =============================================
+ALTER TABLE `thuonghieu` AUTO_INCREMENT = 15;
+
+-- =============================================
+-- INSERT / CẬP NHẬT 11 THƯƠNG HIỆU CHÍNH XÁC
+-- =============================================
+INSERT INTO `thuonghieu` (`Ma_thuonghieu`, `Ten_thuonghieu`, `slug`, `image_url`) VALUES
+(1, 'Li-Ning',   'li-ning',   'img/icons/Logo-li-ning.webp'),
+(2, 'Yonex',     'yonex',     'img/icons/logo-yonex.webp'),
+(3, 'Victor',    'victor',    'img/icons/logo-victor.png'),
+(4, 'Venson',    'venson',    'img/icons/logo-venson.png'),
+(5, 'Mizuno',    'mizuno',    'img/icons/logo-mizuno.png'),
+(6, 'Kumpoo',    'kumpoo',    'img/icons/logo-kumpoo.png'),
+(7, 'Adidas',    'adidas',    'img/icons/logo-adidas.webp'),
+(8, 'Kamito',    'kamito',    'img/icons/logo-kamito.png'),
+(12,'Joola',     'joola',     'img/icons/logo-joola.png'),
+(13,'Selkirk',   'selkirk',   'img/icons/logo-selkirk.webp'),
+(14,'Wika',      'wika',      'img/icons/logo-wika.png')
+ON DUPLICATE KEY UPDATE
+    `Ten_thuonghieu` = VALUES(`Ten_thuonghieu`),
+    `slug`           = VALUES(`slug`),
+    `image_url`      = VALUES(`image_url`);
