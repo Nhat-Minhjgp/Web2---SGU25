@@ -640,52 +640,9 @@ ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
 
   DELIMITER ;
 
-  -- 3. Trigger INSERT
-  DELIMITER $$
+ 
 
-  CREATE TRIGGER trg_chitietphieunhap_insert
-  AFTER INSERT ON chitietphieunhap
-  FOR EACH ROW
-  BEGIN
-      UPDATE sanpham 
-      SET 
-          SoLuongTon = SoLuongTon + NEW.SoLuong,
-          GiaNhapTB = (SoLuongTon * GiaNhapTB + NEW.SoLuong * NEW.Gia_Nhap) / (SoLuongTon + NEW.SoLuong)
-      WHERE SanPham_id = NEW.SanPham_id;
-      
-      -- Cập nhật giá bán đã làm tròn
-      UPDATE sanpham 
-      SET GiaBan = fn_round_500(GiaNhapTB * (1 + PhanTramLoiNhuan))
-      WHERE SanPham_id = NEW.SanPham_id;
-  END$$
 
-  DELIMITER ;
-
-  -- 4. Trigger UPDATE (khi sửa chi tiết phiếu nhập)
-  DELIMITER $$
-
-  CREATE TRIGGER trg_chitietphieunhap_update
-  AFTER UPDATE ON chitietphieunhap
-  FOR EACH ROW
-  BEGIN
-      DECLARE new_avg DECIMAL(15,2);
-      DECLARE new_total_qty INT;
-
-      SELECT IFNULL(SUM(SoLuong), 0) INTO new_total_qty
-      FROM chitietphieunhap
-      WHERE SanPham_id = NEW.SanPham_id;
-
-      SET new_avg = fn_GiaNhapTB(NEW.SanPham_id);
-
-      UPDATE sanpham 
-      SET 
-          GiaNhapTB = new_avg,
-          SoLuongTon = new_total_qty,
-          GiaBan = fn_round_500(new_avg * (1 + PhanTramLoiNhuan))
-      WHERE SanPham_id = NEW.SanPham_id;
-  END$$
-
-  DELIMITER ;
 
   -- 6. Trigger khi thay đổi PhanTramLoiNhuan (nếu có cập nhật thủ công)
   DELIMITER $$
@@ -701,73 +658,148 @@ ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
 
   DELIMITER ;
 
+    -- ============================================
+-- THÊM CỘT TRẠNG THÁI CHO BẢNG phieunhap
+-- ============================================
+ALTER TABLE `phieunhap` 
+ADD COLUMN IF NOT EXISTS `TrangThai` ENUM('pending', 'completed') DEFAULT 'pending' AFTER `SoLuong`;
 
-  DELIMITER $$
-  CREATE TRIGGER trg_chitietphieunhap_insert_update_phieu
-  AFTER INSERT ON chitietphieunhap
-  FOR EACH ROW
-  BEGIN
-      UPDATE phieunhap
-      SET SoLuong = (
-          SELECT IFNULL(SUM(SoLuong), 0)
-          FROM chitietphieunhap
-          WHERE PhieuNhap_id = NEW.PhieuNhap_id
-      )
-      WHERE NhapHang_id = NEW.PhieuNhap_id;
-  END$$
-  DELIMITER ;
+-- ============================================
+-- TRIGGER MỚI - CHỈ CẬP NHẬT SỐ LƯỢNG TRONG PHIẾU
+-- ============================================
 
-  DELIMITER $$
-  CREATE TRIGGER trg_chitietphieunhap_update_update_phieu
-  AFTER UPDATE ON chitietphieunhap
-  FOR EACH ROW
-  BEGIN
-      -- Cập nhật cho phiếu cũ nếu thay đổi PhieuNhap_id
-      IF OLD.PhieuNhap_id != NEW.PhieuNhap_id THEN
-          UPDATE phieunhap
-          SET SoLuong = (
-              SELECT IFNULL(SUM(SoLuong), 0)
-              FROM chitietphieunhap
-              WHERE PhieuNhap_id = OLD.PhieuNhap_id
-          )
-          WHERE NhapHang_id = OLD.PhieuNhap_id;
-      END IF;
-      
-      -- Cập nhật cho phiếu mới
-      UPDATE phieunhap
-      SET SoLuong = (
-          SELECT IFNULL(SUM(SoLuong), 0)
-          FROM chitietphieunhap
-          WHERE PhieuNhap_id = NEW.PhieuNhap_id
-      )
-      WHERE NhapHang_id = NEW.PhieuNhap_id;
-  END$$
-  DELIMITER ;
-
-
-  DELIMITER $$
-
--- Xóa trigger cũ để thay bằng bản nâng cấp
-DROP TRIGGER IF EXISTS trg_chitietphieunhap_insert$$
-
+-- Trigger INSERT
+DELIMITER $$
 CREATE TRIGGER trg_chitietphieunhap_insert
 AFTER INSERT ON chitietphieunhap
 FOR EACH ROW
 BEGIN
-    -- 1. Cập nhật Tồn kho và Giá Nhập TB (Dùng IFNULL để chống lỗi rỗng)
-    UPDATE sanpham 
-    SET 
-        GiaNhapTB = (IFNULL(SoLuongTon, 0) * IFNULL(GiaNhapTB, 0) + NEW.SoLuong * NEW.Gia_Nhap) / (IFNULL(SoLuongTon, 0) + NEW.SoLuong),
-        SoLuongTon = IFNULL(SoLuongTon, 0) + NEW.SoLuong
-    WHERE SanPham_id = NEW.SanPham_id;
+    UPDATE phieunhap
+    SET SoLuong = (
+        SELECT IFNULL(SUM(SoLuong), 0)
+        FROM chitietphieunhap
+        WHERE PhieuNhap_id = NEW.PhieuNhap_id
+    )
+    WHERE NhapHang_id = NEW.PhieuNhap_id;
+END$$
+DELIMITER ;
+
+-- Trigger UPDATE
+DELIMITER $$
+CREATE TRIGGER trg_chitietphieunhap_update
+AFTER UPDATE ON chitietphieunhap
+FOR EACH ROW
+BEGIN
+    IF OLD.PhieuNhap_id != NEW.PhieuNhap_id THEN
+        UPDATE phieunhap
+        SET SoLuong = (
+            SELECT IFNULL(SUM(SoLuong), 0)
+            FROM chitietphieunhap
+            WHERE PhieuNhap_id = OLD.PhieuNhap_id
+        )
+        WHERE NhapHang_id = OLD.PhieuNhap_id;
+    END IF;
     
-    -- 2. Cập nhật Giá bán (Cũng đề phòng PhanTramLoiNhuan bị NULL)
-    UPDATE sanpham 
-    SET GiaBan = fn_round_500(GiaNhapTB * (1 + IFNULL(PhanTramLoiNhuan, 0.2)))
-    WHERE SanPham_id = NEW.SanPham_id;
+    UPDATE phieunhap
+    SET SoLuong = (
+        SELECT IFNULL(SUM(SoLuong), 0)
+        FROM chitietphieunhap
+        WHERE PhieuNhap_id = NEW.PhieuNhap_id
+    )
+    WHERE NhapHang_id = NEW.PhieuNhap_id;
+END$$
+DELIMITER ;
+
+-- Trigger DELETE
+DELIMITER $$
+CREATE TRIGGER trg_chitietphieunhap_delete
+AFTER DELETE ON chitietphieunhap
+FOR EACH ROW
+BEGIN
+    UPDATE phieunhap
+    SET SoLuong = (
+        SELECT IFNULL(SUM(SoLuong), 0)
+        FROM chitietphieunhap
+        WHERE PhieuNhap_id = OLD.PhieuNhap_id
+    )
+    WHERE NhapHang_id = OLD.PhieuNhap_id;
+END$$
+DELIMITER ;
+    
+-- ============================================
+-- TẠO TRIGGER CHO ĐƠN HÀNG
+-- ============================================
+
+DROP TRIGGER IF EXISTS trg_donhang_confirmed;
+DROP TRIGGER IF EXISTS trg_donhang_cancelled;
+DROP TRIGGER IF EXISTS trg_donhang_delivered;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_donhang_confirmed
+AFTER UPDATE ON donhang
+FOR EACH ROW
+BEGIN
+    DECLARE v_phieu_xuat_id INT;
+    
+    IF OLD.TrangThai = 0 AND NEW.TrangThai = 1 THEN
+        
+        INSERT INTO phieuxuat (DonHang_id, NgayXuat, NguoiXuat_id)
+        VALUES (NEW.DonHang_id, NOW(), 1);
+        
+        SET v_phieu_xuat_id = LAST_INSERT_ID();
+        
+        INSERT INTO chitietphieuxuat (PhieuXuat_id, SP_id, SoLuong, GiaNhap)
+        SELECT v_phieu_xuat_id, ct.SanPham_id, ct.SoLuong, sp.GiaNhapTB
+        FROM chitiethoadon ct
+        JOIN sanpham sp ON ct.SanPham_id = sp.SanPham_id
+        WHERE ct.DonHang_id = NEW.DonHang_id;
+        
+        UPDATE sanpham sp
+        JOIN chitiethoadon ct ON sp.SanPham_id = ct.SanPham_id
+        SET sp.SoLuongTon = sp.SoLuongTon - ct.SoLuong
+        WHERE ct.DonHang_id = NEW.DonHang_id;
+        
+    END IF;
+END$$
+
+CREATE TRIGGER trg_donhang_cancelled
+AFTER UPDATE ON donhang
+FOR EACH ROW
+BEGIN
+    IF NEW.TrangThai = 3 AND OLD.TrangThai != 3 THEN
+        
+        DELETE FROM chitietphieuxuat 
+        WHERE PhieuXuat_id IN (
+            SELECT PhieuXuat_id FROM phieuxuat WHERE DonHang_id = NEW.DonHang_id
+        );
+        DELETE FROM phieuxuat WHERE DonHang_id = NEW.DonHang_id;
+        
+        UPDATE sanpham sp
+        JOIN chitiethoadon ct ON sp.SanPham_id = ct.SanPham_id
+        SET sp.SoLuongTon = sp.SoLuongTon + ct.SoLuong
+        WHERE ct.DonHang_id = NEW.DonHang_id;
+        
+    END IF;
+END$$
+
+CREATE TRIGGER trg_donhang_delivered
+AFTER UPDATE ON donhang
+FOR EACH ROW
+BEGIN
+    IF NEW.TrangThai = 2 AND OLD.TrangThai != 2 THEN
+        UPDATE phieuxuat 
+        SET NgayXuat = NOW()
+        WHERE DonHang_id = NEW.DonHang_id;
+    END IF;
 END$$
 
 DELIMITER ;
+
+
+
+
+
 
   -- Tính trực tiếp không cần quét lại toàn bộ
 
@@ -941,4 +973,6 @@ VALUES
 ON DUPLICATE KEY UPDATE 
     `slug` = VALUES(`slug`),
     `image_url` = VALUES(`image_url`);
-    
+
+
+

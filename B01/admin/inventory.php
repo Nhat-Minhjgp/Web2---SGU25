@@ -20,8 +20,11 @@ if (isset($_POST['update_threshold'])) {
     $product_id = intval($_POST['product_id']);
     $threshold = intval($_POST['threshold']);
     
-    // Thêm cột CanhBaoTon vào bảng sanpham nếu chưa có
-    $conn->query("ALTER TABLE sanpham ADD COLUMN IF NOT EXISTS CanhBaoTon INT DEFAULT 10");
+    // Kiểm tra cột CanhBaoTon
+    $check_column = $conn->query("SHOW COLUMNS FROM sanpham LIKE 'CanhBaoTon'");
+    if ($check_column->num_rows == 0) {
+        $conn->query("ALTER TABLE sanpham ADD COLUMN CanhBaoTon INT DEFAULT 10 AFTER SoLuongTon");
+    }
     
     $sql = "UPDATE sanpham SET CanhBaoTon = ? WHERE SanPham_id = ?";
     $stmt = $conn->prepare($sql);
@@ -39,7 +42,8 @@ if (isset($_POST['update_threshold'])) {
 $sql = "SELECT sp.*, dm.Ten_danhmuc, th.Ten_thuonghieu,
         COALESCE((SELECT SUM(SoLuong) FROM chitietphieunhap WHERE SanPham_id = sp.SanPham_id), 0) as tong_nhap,
         COALESCE((SELECT SUM(SoLuong) FROM chitiethoadon WHERE SanPham_id = sp.SanPham_id), 0) as tong_xuat,
-        COALESCE(sp.CanhBaoTon, 10) as canh_bao
+        COALESCE(sp.CanhBaoTon, 10) as canh_bao,
+        COALESCE(sp.GiaNhapTB, 0) as GiaNhapTB
         FROM sanpham sp
         LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
         LEFT JOIN thuonghieu th ON sp.Ma_thuonghieu = th.Ma_thuonghieu
@@ -51,7 +55,7 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 $categories = getCategories($conn);
 
 // ============================================
-// XỬ LÝ BÁO CÁO NHẬP - XUẤT QUA AJAX
+// XỬ LÝ BÁO CÁO NHẬP - XUẤT QUA AJAX (NGÀY OPTIONAL)
 // ============================================
 if (isset($_GET['get_report'])) {
     $from_date = $_GET['from'] ?? '';
@@ -60,55 +64,132 @@ if (isset($_GET['get_report'])) {
     
     $reports = [];
     
-    // Lấy dữ liệu nhập hàng
+    // XÂY DỰNG CÂU SQL NHẬP HÀNG VỚI NGÀY OPTIONAL
     $sql_import = "SELECT pn.NgayNhap as date, 'Nhập' as type, 
                    sp.SanPham_id as product_id, sp.TenSP as product_name,
-                   ct.SoLuong as quantity, ct.Gia_Nhap as price,
-                   (ct.SoLuong * ct.Gia_Nhap) as total
+                   COALESCE(ct.SoLuong, 0) as quantity, 
+                   COALESCE(ct.Gia_Nhap, 0) as price,
+                   COALESCE(ct.SoLuong * ct.Gia_Nhap, 0) as total
                    FROM phieunhap pn
                    JOIN chitietphieunhap ct ON pn.NhapHang_id = ct.PhieuNhap_id
                    JOIN sanpham sp ON ct.SanPham_id = sp.SanPham_id
-                   WHERE pn.NgayNhap BETWEEN ? AND ?";
-    $params = [$from_date, $to_date];
+                   WHERE 1=1";
     
-    if (!empty($product_id)) {
-        $sql_import .= " AND sp.SanPham_id = ?";
-        $params[] = $product_id;
+    $params_import = [];
+    $types_import = "";
+    
+    // Thêm điều kiện ngày nếu có
+    if (!empty($from_date) && !empty($to_date)) {
+        $sql_import .= " AND pn.NgayNhap BETWEEN ? AND ?";
+        $params_import[] = $from_date;
+        $params_import[] = $to_date;
+        $types_import .= "ss";
+    } elseif (!empty($from_date)) {
+        $sql_import .= " AND pn.NgayNhap >= ?";
+        $params_import[] = $from_date;
+        $types_import .= "s";
+    } elseif (!empty($to_date)) {
+        $sql_import .= " AND pn.NgayNhap <= ?";
+        $params_import[] = $to_date;
+        $types_import .= "s";
     }
     
-    $stmt = $conn->prepare($sql_import);
-    $types = str_repeat("s", count($params));
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    // Thêm điều kiện sản phẩm nếu có
+    if (!empty($product_id)) {
+        $sql_import .= " AND sp.SanPham_id = ?";
+        $params_import[] = $product_id;
+        $types_import .= "i";
+    }
     
-    // Lấy dữ liệu xuất hàng (từ đơn hàng đã giao)
-    $sql_export = "SELECT d.NgayDat as date, 'Xuất' as type,
+    // Thực thi câu lệnh nhập hàng
+    $imports = [];
+    if (!empty($params_import)) {
+        $stmt = $conn->prepare($sql_import);
+        if ($stmt) {
+            $stmt->bind_param($types_import, ...$params_import);
+            $stmt->execute();
+            $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
+    } else {
+        // Nếu không có tham số nào, lấy tất cả
+        $stmt = $conn->prepare($sql_import);
+        if ($stmt) {
+            $stmt->execute();
+            $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
+    }
+    
+    // XÂY DỰNG CÂU SQL XUẤT HÀNG VỚI NGÀY OPTIONAL
+    $sql_export = "SELECT d.NgayDat as date, 
+                   CASE 
+                       WHEN d.TrangThai = 1 THEN 'Đã xác nhận'
+                       WHEN d.TrangThai = 2 THEN 'Đã giao'
+                       ELSE 'Xuất kho'
+                   END as type,
                    sp.SanPham_id as product_id, sp.TenSP as product_name,
-                   ctdh.SoLuong as quantity, ctdh.Gia as price,
-                   (ctdh.SoLuong * ctdh.Gia) as total
+                   COALESCE(ctdh.SoLuong, 0) as quantity, 
+                   COALESCE(ctdh.Gia, 0) as price,
+                   COALESCE(ctdh.SoLuong * ctdh.Gia, 0) as total
                    FROM donhang d
                    JOIN chitiethoadon ctdh ON d.DonHang_id = ctdh.DonHang_id
                    JOIN sanpham sp ON ctdh.SanPham_id = sp.SanPham_id
-                   WHERE d.NgayDat BETWEEN ? AND ? AND d.TrangThai = 2";
-    $params_export = [$from_date, $to_date];
+                   WHERE d.TrangThai IN (1, 2)";
     
+    $params_export = [];
+    $types_export = "";
+    
+    // Thêm điều kiện ngày nếu có
+    if (!empty($from_date) && !empty($to_date)) {
+        $sql_export .= " AND d.NgayDat BETWEEN ? AND ?";
+        $params_export[] = $from_date;
+        $params_export[] = $to_date;
+        $types_export .= "ss";
+    } elseif (!empty($from_date)) {
+        $sql_export .= " AND d.NgayDat >= ?";
+        $params_export[] = $from_date;
+        $types_export .= "s";
+    } elseif (!empty($to_date)) {
+        $sql_export .= " AND d.NgayDat <= ?";
+        $params_export[] = $to_date;
+        $types_export .= "s";
+    }
+    
+    // Thêm điều kiện sản phẩm nếu có
     if (!empty($product_id)) {
         $sql_export .= " AND sp.SanPham_id = ?";
         $params_export[] = $product_id;
+        $types_export .= "i";
     }
     
-    $stmt = $conn->prepare($sql_export);
-    $types = str_repeat("s", count($params_export));
-    $stmt->bind_param($types, ...$params_export);
-    $stmt->execute();
-    $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    // Thực thi câu lệnh xuất hàng
+    $exports = [];
+    if (!empty($params_export)) {
+        $stmt = $conn->prepare($sql_export);
+        if ($stmt) {
+            $stmt->bind_param($types_export, ...$params_export);
+            $stmt->execute();
+            $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
+    } else {
+        // Nếu không có tham số nào, lấy tất cả
+        $stmt = $conn->prepare($sql_export);
+        if ($stmt) {
+            $stmt->execute();
+            $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
+    }
     
+    // Gộp và sắp xếp dữ liệu
     $reports = array_merge($imports, $exports);
     usort($reports, function($a, $b) {
         return strtotime($a['date']) - strtotime($b['date']);
     });
     
+    header('Content-Type: application/json');
     echo json_encode($reports);
     exit();
 }
@@ -138,30 +219,37 @@ if (isset($_GET['get_report'])) {
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal.show { display: flex; }
-        
         .badge-warning {
             background: #fef3c7;
             color: #92400e;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
         .badge-danger {
             background: #fee2e2;
             color: #991b1b;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
         .badge-success {
             background: #d1fae5;
             color: #065f46;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
         
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
         .tab-btn.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -171,6 +259,61 @@ if (isset($_GET['get_report'])) {
         }
         .inventory-row-critical {
             background-color: #fee2e2;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .menu-btn i {
+            width: 20px;
+            color: #9ca3af;
+        }
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: #667eea;
+        }
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .menu-btn.active i {
+            color: white;
+        }
+        
+        /* Animation cho bảng */
+        .table-row-hover:hover {
+            background-color: #f9fafb;
+            transition: all 0.2s;
         }
     </style>
 </head>
@@ -189,7 +332,7 @@ if (isset($_GET['get_report'])) {
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
-                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
+                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
                     <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                 </button>
             </div>
@@ -198,32 +341,18 @@ if (isset($_GET['get_report'])) {
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Danh mục chức năng</h3>
             </div>
-            <nav class="p-4 space-y-2">
-                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-home w-5"></i> Dashboard
-                </a>
-                <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-users w-5"></i> Quản lý người dùng
-                </a>
-                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-box w-5"></i> Quản lý sản phẩm
-                </a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-arrow-down w-5"></i> Quản lý nhập hàng
-                </a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tag w-5"></i> Quản lý giá bán
-                </a>
-                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-receipt w-5"></i> Quản lý đơn hàng
-                </a>
-                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md">
-                    <i class="fas fa-warehouse w-5"></i> Tồn kho & Báo cáo
-                </a>
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="menu-btn"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="users.php" class="menu-btn"><i class="fas fa-users"></i> Quản lý người dùng</a>
+                <a href="product.php" class="menu-btn"><i class="fas fa-box"></i> Quản lý sản phẩm</a>
+                <a href="import.php" class="menu-btn"><i class="fas fa-arrow-down"></i> Quản lý nhập hàng</a>
+                <a href="price.php" class="menu-btn"><i class="fas fa-tag"></i> Quản lý giá bán</a>
+                <a href="orders.php" class="menu-btn"><i class="fas fa-receipt"></i> Quản lý đơn hàng</a>
+                <a href="inventory.php" class="menu-btn active"><i class="fas fa-warehouse"></i> Tồn kho & Báo cáo</a>
             </nav>
         </aside>
 
@@ -249,13 +378,13 @@ if (isset($_GET['get_report'])) {
 
                 <!-- Tabs -->
                 <div class="flex border-b border-gray-200 mb-6">
-                    <button onclick="showTab('inventory')" id="tabInventoryBtn" class="tab-btn px-5 py-2.5 rounded-t-lg font-medium transition active bg-gradient-custom text-white">
+                    <button onclick="showTab('inventory')" id="tabInventoryBtn" class="tab-btn active bg-gradient-custom text-white">
                         <i class="fas fa-boxes mr-2"></i>Tồn kho
                     </button>
-                    <button onclick="showTab('report')" id="tabReportBtn" class="tab-btn px-5 py-2.5 rounded-t-lg font-medium transition text-gray-600 hover:text-primary">
+                    <button onclick="showTab('report')" id="tabReportBtn" class="tab-btn text-gray-600 hover:text-primary">
                         <i class="fas fa-chart-line mr-2"></i>Báo cáo nhập - xuất
                     </button>
-                    <button onclick="showTab('warning')" id="tabWarningBtn" class="tab-btn px-5 py-2.5 rounded-t-lg font-medium transition text-gray-600 hover:text-primary">
+                    <button onclick="showTab('warning')" id="tabWarningBtn" class="tab-btn text-gray-600 hover:text-primary">
                         <i class="fas fa-exclamation-triangle mr-2"></i>Cảnh báo
                     </button>
                 </div>
@@ -284,7 +413,7 @@ if (isset($_GET['get_report'])) {
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[900px]" id="inventoryTable">
                             <thead class="bg-gradient-custom text-white">
-                                应
+                                <tr>
                                     <th class="px-4 py-3 text-left">Mã SP</th>
                                     <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                                     <th class="px-4 py-3 text-left">Danh mục</th>
@@ -294,54 +423,62 @@ if (isset($_GET['get_report'])) {
                                     <th class="px-4 py-3 text-right">Giá vốn TB</th>
                                     <th class="px-4 py-3 text-right">Tổng giá trị</th>
                                     <th class="px-4 py-3 text-center">Trạng thái</th>
-                                </thead>
+                                </tr>
+                            </thead>
                             <tbody id="inventoryTableBody">
                                 <?php foreach ($products as $p): ?>
                                 <?php 
                                     $ton = $p['SoLuongTon'];
                                     $nguong = $p['canh_bao'];
+                                    $giavon = $p['GiaNhapTB'] ?? 0;
+                                    $tonggiatri = $ton * $giavon;
                                     $rowClass = '';
                                     if ($ton <= $nguong && $ton > 0) $rowClass = 'inventory-row-low';
                                     if ($ton == 0) $rowClass = 'inventory-row-critical';
                                 ?>
                                 <tr class="hover:bg-gray-50 transition <?php echo $rowClass; ?>">
-                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>    </td>
-                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>    </td>
-                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>    </td>
-                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>    </td>
-                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_nhap']; ?>    </td>
-                                    <td class="px-4 py-3 text-right"><?php echo $p['tong_xuat']; ?>    </td>
-                                    <td class="px-4 py-3 text-right"><?php echo number_format($p['GiaNhapTB'], 0, ',', '.'); ?>đ    </td>
-                                    <td class="px-4 py-3 text-right"><?php echo number_format($ton * $p['GiaNhapTB'], 0, ',', '.'); ?>đ    </td>
+                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?></td>
+                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo number_format($ton); ?></td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($p['tong_nhap']); ?></td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($p['tong_xuat']); ?></td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($giavon, 0, ',', '.'); ?>đ</td>
+                                    <td class="px-4 py-3 text-right"><?php echo number_format($tonggiatri, 0, ',', '.'); ?>đ</td>
                                     <td class="px-4 py-3 text-center">
                                         <?php if ($ton == 0): ?>
-                                            <span class="badge-danger px-2 py-1 rounded-full text-xs">🔴 Hết hàng</span>
+                                            <span class="badge-danger">🔴 Hết hàng</span>
                                         <?php elseif ($ton <= $nguong): ?>
-                                            <span class="badge-warning px-2 py-1 rounded-full text-xs">⚠️ Sắp hết (<?php echo $ton; ?>/<?php echo $nguong; ?>)</span>
+                                            <span class="badge-warning">⚠️ Sắp hết (<?php echo $ton; ?>/<?php echo $nguong; ?>)</span>
                                         <?php else: ?>
-                                            <span class="badge-success px-2 py-1 rounded-full text-xs">✅ Còn hàng</span>
+                                            <span class="badge-success">✅ Còn hàng</span>
                                         <?php endif; ?>
-                                     </tr>
+                                    </td>
+                                </tr>
                                 <?php endforeach; ?>
                             </tbody>
-                         </table>
+                        </table>
                     </div>
                 </div>
 
-                <!-- TAB 2: BÁO CÁO NHẬP - XUẤT (LẤY DỮ LIỆU THẬT) -->
+                <!-- TAB 2: BÁO CÁO NHẬP - XUẤT (NGÀY OPTIONAL) -->
                 <div id="reportTab" class="tab-content hidden">
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-chart-line text-primary mr-2"></i>
                             Báo cáo nhập - xuất theo thời gian
                         </h3>
+                        <p class="text-sm text-blue-600 mb-3">
+                            <i class="fas fa-info-circle mr-1"></i> 
+                            <strong>Lưu ý:</strong> Bạn có thể để trống ngày để xem tất cả dữ liệu, hoặc chỉ chọn 1 ngày (từ ngày hoặc đến ngày)
+                        </p>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                             <div class="flex gap-2">
-                                <input type="date" id="reportFromDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none flex-1">
+                                <input type="date" id="reportFromDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary flex-1" placeholder="Từ ngày">
                                 <span class="self-center text-gray-400">-</span>
-                                <input type="date" id="reportToDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none flex-1">
+                                <input type="date" id="reportToDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary flex-1" placeholder="Đến ngày">
                             </div>
-                            <select id="reportProduct" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <select id="reportProduct" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
                                 <option value="">-- Tất cả sản phẩm --</option>
                                 <?php foreach ($products as $p): ?>
                                     <option value="<?php echo $p['SanPham_id']; ?>">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> - <?php echo htmlspecialchars($p['TenSP']); ?></option>
@@ -359,7 +496,7 @@ if (isset($_GET['get_report'])) {
                     <div id="reportResult" class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[800px]">
                             <thead class="bg-gradient-custom text-white">
-                                应
+                                <tr>
                                     <th class="px-4 py-3 text-left">Ngày</th>
                                     <th class="px-4 py-3 text-left">Loại</th>
                                     <th class="px-4 py-3 text-left">Mã SP</th>
@@ -367,15 +504,17 @@ if (isset($_GET['get_report'])) {
                                     <th class="px-4 py-3 text-right">SL</th>
                                     <th class="px-4 py-3 text-right">Đơn giá</th>
                                     <th class="px-4 py-3 text-right">Thành tiền</th>
-                                </thead>
+                                </tr>
+                            </thead>
                             <tbody id="reportTableBody">
-                                 <tr>
+                                <tr>
                                     <td colspan="7" class="text-center py-8 text-gray-500">
                                         <i class="fas fa-chart-line text-4xl mb-2 block"></i>
-                                        Chọn khoảng thời gian để xem báo cáo
-                                     </tr>
+                                        Chọn khoảng thời gian (hoặc để trống) để xem báo cáo
+                                    </td>
+                                </tr>
                             </tbody>
-                          </table>
+                        </table>
                     </div>
                 </div>
 
@@ -392,7 +531,7 @@ if (isset($_GET['get_report'])) {
                     <div class="overflow-x-auto border border-gray-200 rounded-xl">
                         <table class="w-full min-w-[800px]">
                             <thead class="bg-gradient-custom text-white">
-                                应
+                                <tr>
                                     <th class="px-4 py-3 text-left">Mã SP</th>
                                     <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                                     <th class="px-4 py-3 text-left">Danh mục</th>
@@ -400,7 +539,8 @@ if (isset($_GET['get_report'])) {
                                     <th class="px-4 py-3 text-right">Ngưỡng cảnh báo</th>
                                     <th class="px-4 py-3 text-center">Trạng thái</th>
                                     <th class="px-4 py-3 text-center">Thao tác</th>
-                                </thead>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php foreach ($products as $p): ?>
                                 <?php 
@@ -420,15 +560,14 @@ if (isset($_GET['get_report'])) {
                                     }
                                 ?>
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>    </td>
-                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>    </td>
-                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>    </td>
-                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo $ton; ?>    </td>
+                                    <td class="px-4 py-3 font-mono">SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?></td>
+                                    <td class="px-4 py-3"><?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                    <td class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>"><?php echo number_format($ton); ?></td>
                                     <td class="px-4 py-3 text-right">
                                         <form method="POST" class="inline-flex items-center gap-2">
                                             <input type="hidden" name="product_id" value="<?php echo $p['SanPham_id']; ?>">
-                                            <input type="number" name="threshold" value="<?php echo $nguong; ?>" 
-                                                   class="w-20 px-2 py-1 border border-gray-300 rounded-lg text-center text-sm">
+                                            <input type="number" name="threshold" value="<?php echo $nguong; ?>" class="w-20 px-2 py-1 border border-gray-300 rounded-lg text-center text-sm">
                                             <button type="submit" name="update_threshold" class="text-blue-500 hover:text-blue-700 text-sm">
                                                 <i class="fas fa-save"></i>
                                             </button>
@@ -494,18 +633,12 @@ if (isset($_GET['get_report'])) {
         function searchInventory() {
             const category = document.getElementById('filterCategory').value;
             let rows = document.querySelectorAll('#inventoryTableBody tr');
-            let hasResult = false;
             
             rows.forEach(row => {
                 const rowCategory = row.cells[2]?.textContent.trim() || '';
-                const categoryMatch = category === '' || rowCategory === document.querySelector(`#filterCategory option[value="${category}"]`)?.textContent;
-                
-                if (categoryMatch) {
-                    row.style.display = '';
-                    hasResult = true;
-                } else {
-                    row.style.display = 'none';
-                }
+                const selectedCategory = document.querySelector(`#filterCategory option[value="${category}"]`)?.textContent || '';
+                const categoryMatch = category === '' || rowCategory === selectedCategory;
+                row.style.display = categoryMatch ? '' : 'none';
             });
         }
         
@@ -514,22 +647,24 @@ if (isset($_GET['get_report'])) {
             const toDate = document.getElementById('reportToDate').value;
             const productId = document.getElementById('reportProduct').value;
             
-            if (!fromDate || !toDate) {
-                alert('Vui lòng chọn khoảng thời gian!');
-                return;
-            }
-            
             const tbody = document.getElementById('reportTableBody');
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải dữ liệu...</p></td></tr>`;
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải dữ liệu...</p></td></tr>';
             
-            let url = `?get_report=1&from=${fromDate}&to=${toDate}`;
+            let url = `?get_report=1`;
+            if (fromDate) url += `&from=${fromDate}`;
+            if (toDate) url += `&to=${toDate}`;
             if (productId) url += `&product=${productId}`;
             
             fetch(url)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return res.json();
+                })
                 .then(data => {
-                    if (data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu trong khoảng thời gian này</td></tr>`;
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu</td></tr>';
                         return;
                     }
                     
@@ -537,44 +672,65 @@ if (isset($_GET['get_report'])) {
                     let totalImport = 0, totalExport = 0, totalImportQty = 0, totalExportQty = 0;
                     
                     data.forEach(item => {
+                        // Đảm bảo các giá trị là số
+                        const quantity = parseFloat(item.quantity) || 0;
+                        const price = parseFloat(item.price) || 0;
+                        const total = parseFloat(item.total) || 0;
                         const typeClass = item.type === 'Nhập' ? 'text-green-600' : 'text-blue-600';
+                        
                         html += `
-                            <tr class="border-b">
-                                <td class="px-4 py-3">${item.date}</td>
-                                <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type}</span></td>
-                                <td class="px-4 py-3 font-mono">SP${String(item.product_id).padStart(4, '0')}</td>
-                                <td class="px-4 py-3">${item.product_name}</td>
-                                <td class="px-4 py-3 text-right">${item.quantity}</td>
-                                <td class="px-4 py-3 text-right">${new Intl.NumberFormat('vi-VN').format(item.price)}đ</td>
-                                <td class="px-4 py-3 text-right">${new Intl.NumberFormat('vi-VN').format(item.total)}đ</td>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-3">${item.date || ''}</td>
+                                <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type || ''}</span></td>
+                                <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
+                                <td class="px-4 py-3">${item.product_name || ''}</td>
+                                <td class="px-4 py-3 text-right">${quantity.toLocaleString('vi-VN')}</td>
+                                <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
+                                <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
                             </tr>
                         `;
+                        
                         if (item.type === 'Nhập') {
-                            totalImport += item.total;
-                            totalImportQty += item.quantity;
+                            totalImport += total;
+                            totalImportQty += quantity;
                         } else {
-                            totalExport += item.total;
-                            totalExportQty += item.quantity;
+                            totalExport += total;
+                            totalExportQty += quantity;
                         }
                     });
                     
+                    const chenhLech = totalImport - totalExport;
+                    const chenhLechQty = totalImportQty - totalExportQty;
+                    
                     html += `
-                        <tr class="bg-gray-50 font-semibold">
-                            <td colspan="4" class="px-4 py-3 text-right">Tổng cộng:</td>
-                            <td class="px-4 py-3 text-right">${totalImportQty} / ${totalExportQty} = ${totalImportQty - totalExportQty}</td>
+                        <tr class="bg-gray-100 font-bold">
+                            <td colspan="4" class="px-4 py-3 text-right">TỔNG CỘNG:</td>
+                            <td class="px-4 py-3 text-right text-red-600">${totalImportQty.toLocaleString('vi-VN')} / ${totalExportQty.toLocaleString('vi-VN')}</td>
                             <td class="px-4 py-3 text-right">-</td>
-                            <td class="px-4 py-3 text-right text-indigo-600">${new Intl.NumberFormat('vi-VN').format(totalImport)} - ${new Intl.NumberFormat('vi-VN').format(totalExport)} = ${new Intl.NumberFormat('vi-VN').format(totalImport - totalExport)}</td>
+                            <td class="px-4 py-3 text-right text-indigo-700">${totalImport.toLocaleString('vi-VN')}đ / ${totalExport.toLocaleString('vi-VN')}đ</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-semibold">
+                            <td colspan="6" class="px-4 py-3 text-right">CHÊNH LỆCH (Nhập - Xuất):</td>
+                            <td class="px-4 py-3 text-right ${chenhLech >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${chenhLech.toLocaleString('vi-VN')}đ (SL: ${chenhLechQty.toLocaleString('vi-VN')})
+                            </td>
                         </tr>
                     `;
                     tbody.innerHTML = html;
                 })
                 .catch(error => {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-500">Có lỗi xảy ra khi tải dữ liệu!</td></tr>`;
+                    console.error('Error:', error);
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
                 });
         }
         
         function exportReport() {
-            alert('Đang xuất báo cáo Excel...');
+            const fromDate = document.getElementById('reportFromDate').value;
+            const toDate = document.getElementById('reportToDate').value;
+            const productId = document.getElementById('reportProduct').value;
+            
+            let url = `export_report.php?from=${fromDate}&to=${toDate}&product=${productId}`;
+            window.open(url, '_blank');
         }
         
         function logout() {
@@ -583,11 +739,22 @@ if (isset($_GET['get_report'])) {
             }
         }
         
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                document.getElementById('modal').classList.remove('show');
+        // Cho phép Enter để tìm kiếm
+        document.addEventListener('DOMContentLoaded', function() {
+            const fromDate = document.getElementById('reportFromDate');
+            const toDate = document.getElementById('reportToDate');
+            
+            if (fromDate) {
+                fromDate.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') generateReport();
+                });
             }
-        }
+            if (toDate) {
+                toDate.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') generateReport();
+                });
+            }
+        });
     </script>
 </body>
 </html>
