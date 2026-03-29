@@ -62,14 +62,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit
     }
 }
 
-// Lấy danh sách sản phẩm
-$sql = "SELECT sp.*, dm.Ten_danhmuc 
-        FROM sanpham sp
-        LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
-        ORDER BY sp.SanPham_id DESC";
-$products = $conn->query($sql);
+// ==========================================
+// XỬ LÝ TÌM KIẾM SẢN PHẨM BẰNG SQL
+// ==========================================
+$search_keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+$search_category = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
 
-// Lấy danh sách danh mục
+// Câu truy vấn mặc định
+$sql_products = "SELECT sp.*, dm.Ten_danhmuc 
+                 FROM sanpham sp
+                 LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
+                 WHERE 1=1"; // Trick nhỏ để dễ dàng nối thêm điều kiện AND
+
+$params = [];
+$types = "";
+
+// 1. Nếu có tìm kiếm bằng từ khóa (Tên SP hoặc Mã SP)
+if (!empty($search_keyword)) {
+    // Nếu người dùng gõ "SP0005", ta cắt chữ "SP" ra để lấy số 5 tìm theo ID
+    $search_id = preg_replace('/[^0-9]/', '', $search_keyword); 
+    
+    if (!empty($search_id)) {
+        $sql_products .= " AND (sp.TenSP LIKE ? OR sp.SanPham_id = ?)";
+        $search_term = "%" . $search_keyword . "%";
+        $params[] = $search_term;
+        $params[] = $search_id;
+        $types .= "si";
+    } else {
+        $sql_products .= " AND sp.TenSP LIKE ?";
+        $search_term = "%" . $search_keyword . "%";
+        $params[] = $search_term;
+        $types .= "s";
+    }
+}
+
+// 2. Nếu có lọc theo Danh mục
+if ($search_category > 0) {
+    $sql_products .= " AND sp.Danhmuc_id = ?";
+    $params[] = $search_category;
+    $types .= "i";
+}
+
+$sql_products .= " ORDER BY sp.SanPham_id DESC";
+
+// Thực thi truy vấn
+$stmt = $conn->prepare($sql_products);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$products = $stmt->get_result();
+
+// Lấy danh sách danh mục cho các Dropdown
 $categories = getCategories($conn);
 ?>
 <!DOCTYPE html>
@@ -206,21 +250,34 @@ $categories = getCategories($conn);
                         Quản lý chi tiết từng sản phẩm
                     </h3>
                     
-                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <form method="GET" action="price.php" class="flex flex-col sm:flex-row gap-4 mb-6">
                         <div class="relative w-full sm:w-1/2">
-                            <input type="text" id="searchName" placeholder="🔍 Nhập mã hoặc tên sản phẩm..." 
+                            <input type="text" name="keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="🔍 Nhập mã hoặc tên sản phẩm..." 
                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm">
                             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
                         </div>
                         <div class="w-full sm:w-1/3">
-                            <select id="searchCategory" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white shadow-sm cursor-pointer">
-                                <option value="">-- Tất cả danh mục --</option>
+                            <select name="category_id" onchange="this.form.submit()" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white shadow-sm cursor-pointer">
+                                <option value="0">-- Tất cả danh mục --</option>
                                 <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>"><?php echo htmlspecialchars($cat['Ten_danhmuc']); ?></option>
+                                    <option value="<?php echo $cat['Danhmuc_id']; ?>" <?php echo ($search_category == $cat['Danhmuc_id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                    </div>
+                        <div class="w-full sm:w-auto flex gap-2">
+                            <button type="submit" class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition shadow-sm font-medium w-full sm:w-auto">
+                                Tìm kiếm
+                            </button>
+                            <?php if(!empty($search_keyword) || $search_category > 0): ?>
+                                <a href="price.php" class="bg-gray-500 text-white px-4 py-2.5 rounded-lg hover:bg-gray-600 transition shadow-sm flex items-center justify-center" title="Xóa bộ lọc">
+                                    <i class="fas fa-times"></i>
+                                </a>
+
+                            <?php endif; ?>
+                        </div>
+                    </form>
                     
                     <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                         <table class="w-full min-w-[900px]">
@@ -262,18 +319,18 @@ $categories = getCategories($conn);
                                             <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ
                                         </td>
                                         <td class="px-4 py-3 text-center">
-                                            <button onclick="openProfitModal(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>', <?php echo ($row['PhanTramLoiNhuan'] * 100); ?>)" 
-                                                    class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition" title="Cập nhật tỷ lệ lợi nhuận">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
+                                            <button onclick="openProfitModal(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>', <?php echo ($row['PhanTramLoiNhuan'] * 100); ?>, <?php echo $row['GiaNhapTB']; ?>)" 
+        class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition" title="Cập nhật tỷ lệ lợi nhuận">
+    <i class="fas fa-edit"></i>
+</button>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="8" class="text-center py-12 text-gray-400">
-                                            <i class="fas fa-box-open text-4xl mb-2 block"></i>
-                                            Chưa có sản phẩm nào.
+                                            <i class="fas fa-search text-4xl mb-3 block text-gray-300"></i>
+                                            Không tìm thấy sản phẩm nào phù hợp với bộ lọc.
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -292,6 +349,12 @@ $categories = getCategories($conn);
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Cập nhật tỷ lệ lợi nhuận</h3>
                 <button onclick="closeModal('profitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
+            <input type="hidden" id="profit_base_price" value="0">
+
+<div class="mb-4">
+    <label class="block text-gray-700 font-medium mb-2">Giá bán dự kiến</label>
+    <input type="text" id="profit_expected_price" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-indigo-600 font-bold text-lg">
+</div>
             <form method="POST" class="p-6">
                 <input type="hidden" name="update_product_profit" value="1">
                 <input type="hidden" name="product_id" id="profit_product_id">
@@ -349,14 +412,31 @@ $categories = getCategories($conn);
     </div>
 
     <script>
-        function openProfitModal(productId, productName, currentProfit) {
-            document.getElementById('profit_product_id').value = productId;
-            document.getElementById('profit_product_name').value = productName;
-            document.getElementById('profit_percent').value = currentProfit;
-            document.getElementById('profitModal').classList.remove('hidden');
-            document.getElementById('profitModal').classList.add('flex');
-        }
-        
+        // Thay thế hàm cũ bằng hàm mới có thêm biến basePrice
+function openProfitModal(productId, productName, currentProfit, basePrice) {
+    document.getElementById('profit_product_id').value = productId;
+    document.getElementById('profit_product_name').value = productName;
+    document.getElementById('profit_percent').value = currentProfit;
+    document.getElementById('profit_base_price').value = basePrice; // Lưu giá vốn
+    
+    calcExpectedPrice(); // Gọi hàm tính ngay khi mở form
+    
+    document.getElementById('profitModal').classList.remove('hidden');
+    document.getElementById('profitModal').classList.add('flex');
+}
+
+// Hàm tính toán giá dự kiến và format tiền Việt Nam
+function calcExpectedPrice() {
+    let basePrice = parseFloat(document.getElementById('profit_base_price').value) || 0;
+    let profitPercent = parseFloat(document.getElementById('profit_percent').value) || 0;
+    
+    let expectedPrice = basePrice * (1 + (profitPercent / 100));
+    
+    document.getElementById('profit_expected_price').value = new Intl.NumberFormat('vi-VN').format(expectedPrice) + 'đ';
+}
+
+// Lắng nghe sự kiện người dùng gõ phím vào ô Tỷ lệ lợi nhuận thì sẽ tính lại giá
+document.getElementById('profit_percent').addEventListener('input', calcExpectedPrice);
         function openCategoryProfitModal(categoryId, categoryName) {
             document.getElementById('category_id').value = categoryId;
             document.getElementById('category_name').value = categoryName;
@@ -388,30 +468,6 @@ $categories = getCategories($conn);
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-        
-        // HÀM TÌM KIẾM ĐÃ ĐƯỢC TỐI ƯU
-        function searchProducts() {
-            let nameKeyword = document.getElementById('searchName').value.toLowerCase();
-            let categoryKeyword = document.getElementById('searchCategory').value.toLowerCase();
-            let rows = document.querySelectorAll('#productTableBody tr');
-            
-            rows.forEach(row => {
-                if(row.cells.length > 1) { // Bỏ qua dòng "Chưa có sản phẩm nào"
-                    let productCode = row.cells[1].textContent.toLowerCase();
-                    let productName = row.cells[2].textContent.toLowerCase();
-                    let productCategory = row.cells[3].textContent.toLowerCase();
-                    
-                    let matchName = nameKeyword === '' || productName.includes(nameKeyword) || productCode.includes(nameKeyword);
-                    let matchCategory = categoryKeyword === '' || productCategory === categoryKeyword;
-                    
-                    row.style.display = (matchName && matchCategory) ? '' : 'none';
-                }
-            });
-        }
-        
-        // Gắn event listener để tự động lọc
-        document.getElementById('searchName').addEventListener('keyup', searchProducts);
-        document.getElementById('searchCategory').addEventListener('change', searchProducts);
         
         window.onclick = function(event) {
             if (event.target.id && (event.target.id === 'profitModal' || event.target.id === 'categoryProfitModal')) {
