@@ -65,7 +65,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'complete' && isset($_GET['id']
                     
                     // Cập nhật giá bán dựa trên giá nhập mới và tỷ lệ lợi nhuận
                     $phan_tram_loi_nhuan = $sp['PhanTramLoiNhuan'] ?? 0;
-                    $gia_ban_moi = round($gia_nhap_moi * (1 + $phan_tram_loi_nhuan / 100));
+                    $gia_ban_moi = round($gia_nhap_moi * (1 + $phan_tram_loi_nhuan ));
                     $update_gia = $conn->prepare("UPDATE sanpham SET GiaBan = ? WHERE SanPham_id = ?");
                     $update_gia->bind_param("di", $gia_ban_moi, $sanpham_id);
                     $update_gia->execute();
