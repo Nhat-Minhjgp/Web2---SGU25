@@ -26,12 +26,9 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm - Admin</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Cấu hình màu sắc -->
     <script>
         tailwind.config = {
             theme: {
@@ -60,10 +57,9 @@ $result = $conn->query($sql);
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-   <!-- HEADER -->
    <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
@@ -71,7 +67,7 @@ $result = $conn->query($sql);
                     </div>
                     <div>
                         <p class="font-semibold text-sm text-gray-800">
-                           
+                           <?php echo htmlspecialchars($admin_name); ?>
                         </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
@@ -83,10 +79,8 @@ $result = $conn->query($sql);
         </div>
     </header>
 
-    <!-- CONTAINER CHÍNH -->
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
@@ -118,21 +112,17 @@ $result = $conn->query($sql);
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
-                <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
                         <i class="fas fa-box text-primary"></i> Quản lý sản phẩm
                     </h2>
-                    <!-- Nút thêm sản phẩm -->
                     <a href="add_product.php" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-plus"></i> Thêm sản phẩm
                     </a>
                 </div>
 
-                <!-- Action Bar (Search) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                     <div class="relative w-full sm:max-w-md">
                         <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()"
@@ -141,7 +131,6 @@ $result = $conn->query($sql);
                     </div>
                 </div>
 
-                <!-- Products Table -->
                 <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table class="w-full text-left border-collapse" id="myTable">
                         <thead>
@@ -151,7 +140,8 @@ $result = $conn->query($sql);
                                 <th class="p-4 font-medium text-sm">Danh mục</th>
                                 <th class="p-4 font-medium text-sm">Thương hiệu</th>
                                 <th class="p-4 font-medium text-sm">Giá bán</th>
-                                <th class="p-4 font-medium text-sm">Tồn kho</th>
+                                <th class="p-4 font-medium text-sm text-center">Tồn kho</th>
+                                <th class="p-4 font-medium text-sm text-center">Trạng thái</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
                             </tr>
                         </thead>
@@ -176,14 +166,25 @@ $result = $conn->query($sql);
                                     <td class="p-4 font-medium text-gray-700">
                                         <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ
                                     </td>
-                                    <td class="p-4">
+                                    <td class="p-4 text-center">
                                         <?php if($row['SoLuongTon'] > 0): ?>
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                                <?php echo $row['SoLuongTon']; ?> sản phẩm
+                                                <?php echo $row['SoLuongTon']; ?> 
                                             </span>
                                         <?php else: ?>
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                                                 Hết hàng
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <?php if(isset($row['TrangThai']) && $row['TrangThai'] == 1): ?>
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                                <i class="fas fa-check-circle mr-1"></i>Đang bán
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                                <i class="fas fa-eye-slash mr-1"></i>Đã ẩn
                                             </span>
                                         <?php endif; ?>
                                     </td>
@@ -203,7 +204,7 @@ $result = $conn->query($sql);
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-12 text-gray-500">
+                                    <td colspan="8" class="text-center py-12 text-gray-500">
                                         <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
                                         <p class="text-lg">Chưa có sản phẩm nào.</p>
                                     </td>
@@ -216,7 +217,6 @@ $result = $conn->query($sql);
         </main>
     </div>
 
-    <!-- MODAL XÁC NHẬN XÓA -->
     <div id="deleteModal" class="modal fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="modal-content bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
             <div class="modal-header bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
@@ -238,9 +238,8 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-    <!-- JavaScript GIỐNG FILE BẠN GỬI - KHÔNG ĐỔI GÌ -->
     <script>
-        // Hàm lọc tìm kiếm nhanh (GIỮ NGUYÊN)
+        // Hàm lọc tìm kiếm nhanh
         function filterProducts() {
             let input = document.getElementById("productSearch");
             let filter = input.value.toUpperCase();
@@ -256,7 +255,7 @@ $result = $conn->query($sql);
             }
         }
 
-        // Hàm xóa sản phẩm (GIỮ NGUYÊN)
+        // Hàm xóa sản phẩm
         let deleteId = null;
 
         function deleteProduct(id) {
@@ -281,7 +280,7 @@ $result = $conn->query($sql);
             }
         });
 
-        // Hàm logout (GIỮ NGUYÊN)
+        // Hàm logout
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
                 window.location.href = 'logout.php';
