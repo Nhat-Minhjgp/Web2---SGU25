@@ -213,7 +213,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             display: none;
         }
 
-         /* === USER DROPDOWN STYLES === */
+        /* === USER DROPDOWN STYLES === */
         .user-dropdown {
             position: relative;
         }
@@ -341,78 +341,152 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             color: white;
         }
 
-  .scrollbar-hide {
+        .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
 
-/* === SEARCH === */
-#searchHeader { display: none; }
-body.search-active #defaultHeader { display: none; }
-body.search-active #searchHeader { display: flex; }
+        /* === SEARCH === */
+        #searchHeader {
+            display: none;
+        }
 
-body.search-active #searchOverlay {
-    opacity: 1;
-    pointer-events: auto;
-}
+        body.search-active #defaultHeader {
+            display: none;
+        }
 
-#searchSuggestions {
-    position: absolute;
-    left: 0; right: 0;
-    top: 100%;
-    margin-top: 8px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    border: 1px solid #f3f4f6;
-    overflow-y: auto;
-    max-height: 400px;
-    z-index: 50;
-    display: none;
-    animation: slideDown 0.2s ease;
-}
-#searchSuggestions.active { display: block; }
+        body.search-active #searchHeader {
+            display: flex;
+        }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+        body.search-active #searchOverlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-.suggestion-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background 0.2s;
-    text-decoration: none; color: inherit;
-}
-.suggestion-item:hover { background: #f9fafb; }
-.suggestion-item img {
-    width: 60px; height: 60px;
-    object-fit: cover; border-radius: 8px;
-    background: #f3f4f6; flex-shrink: 0;
-}
-.suggestion-info { flex: 1; min-width: 0; }
-.suggestion-info h4 {
-    font-size: 14px; font-weight: 500; color: #1f2937;
-    margin: 0 0 4px 0;
-    overflow: hidden; display: -webkit-box;
-    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-}
-.price-wrapper { display: flex; align-items: center; gap: 8px; }
-.price-wrapper .price { font-size: 15px; font-weight: 600; color: #dc2626; }
-.price-wrapper .old-price { font-size: 13px; color: #9ca3af; text-decoration: line-through; }
-.price-wrapper .discount-badge {
-    font-size: 11px; font-weight: 600; color: #dc2626;
-    background: #fef2f2; padding: 2px 6px; border-radius: 4px;
-}
-.view-all-link {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 14px; background: #f9fafb;
-    color: #dc2626; font-size: 14px; font-weight: 500;
-    text-decoration: none; border-top: 1px solid #f3f4f6;
-}
-.view-all-link:hover { background: #f3f4f6; }
-.no-results { padding: 32px 24px; text-align: center; color: #6b7280; }
+        #searchSuggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            overflow-y: auto;
+            max-height: 400px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        #searchSuggestions.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .suggestion-item:hover {
+            background: #f9fafb;
+        }
+
+        .suggestion-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+            flex-shrink: 0;
+        }
+
+        .suggestion-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .suggestion-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-wrapper .price {
+            font-size: 15px;
+            font-weight: 600;
+            color: #dc2626;
+        }
+
+        .price-wrapper .old-price {
+            font-size: 13px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .price-wrapper .discount-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .view-all-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            background: #f9fafb;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .view-all-link:hover {
+            background: #f3f4f6;
+        }
+
+        .no-results {
+            padding: 32px 24px;
+            text-align: center;
+            color: #6b7280;
+        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -461,7 +535,8 @@ body.search-active #searchOverlay {
                                                 <li class="relative" id="mega-menu-container">
                                                     <button id="mega-menu-trigger"
                                                         class="button-menu flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                                                        <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2" alt="menu">
+                                                        <img src="../img/icons/menu.svg" class="w-5 h-5 mr-2"
+                                                            alt="menu">
                                                         <span>Danh mục</span>
                                                     </button>
 
@@ -972,14 +1047,14 @@ body.search-active #searchOverlay {
 
                                     <!-- Account Dropdown -->
                                     <div class="user-dropdown relative">
-                                       
-                                      
-                                            <a href="./login.php"
-                                                class="flex items-center text-gray-700 hover:text-red-600">
-                                                <i class="far fa-user text-xl"></i>
-                                                <span class="text-sm ml-1">Đăng nhập</span>
-                                            </a>
-                                  
+
+
+                                        <a href="./login.php"
+                                            class="flex items-center text-gray-700 hover:text-red-600">
+                                            <i class="far fa-user text-xl"></i>
+                                            <span class="text-sm ml-1">Đăng nhập</span>
+                                        </a>
+
                                     </div>
 
                                     <!-- Cart -->
@@ -997,12 +1072,12 @@ body.search-active #searchOverlay {
                                     <button id="searchToggleMobile" class="search-toggle p-1">
                                         <i class="fas fa-search text-xl text-gray-700"></i>
                                     </button>
-                                   
-                               
-                                        <a href="./login.php" class="p-1">
-                                            <i class="far fa-user text-xl text-gray-700"></i>
-                                        </a>
-                                   
+
+
+                                    <a href="./login.php" class="p-1">
+                                        <i class="far fa-user text-xl text-gray-700"></i>
+                                    </a>
+
 
                                     <!-- Cart Mobile với badge động -->
                                     <a href="./cart.php" class="relative p-1">
@@ -1033,8 +1108,7 @@ body.search-active #searchOverlay {
                                 </button>
 
                                 <!-- Dropdown gợi ý tìm kiếm -->
-                                <div id="searchSuggestions"
-                                    class="absolute top-full left-0 right-0 z-50">
+                                <div id="searchSuggestions" class="absolute top-full left-0 right-0 z-50">
                                     <div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
                                     </div>
                                 </div>
@@ -1199,17 +1273,18 @@ body.search-active #searchOverlay {
                 </div>
             </div>
         </footer>
-            <!-- Mobile Menu -->
-    <div id="main-menu"
-        class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-6">
-                <img src="../img/icons/logonvb.png" height="30" width="50" class="relative-top-left transform scale-75">
-                <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition"><i
-                        class="fas fa-times text-2xl text-gray-600"></i></button>
-            </div>
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              
+        <!-- Mobile Menu -->
+        <div id="main-menu"
+            class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <img src="../img/icons/logonvb.png" height="30" width="50"
+                        class="relative-top-left transform scale-75">
+                    <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition"><i
+                            class="fas fa-times text-2xl text-gray-600"></i></button>
+                </div>
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+
                     <a href="./login.php" class="flex items-center text-gray-700">
                         <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3"><i
                                 class="far fa-user text-xl text-gray-600"></i></div>
@@ -1218,594 +1293,398 @@ body.search-active #searchOverlay {
                                 ký</span>
                         </div>
                     </a>
-             
-            </div>
-            <!-- Mobile Menu Items - Danh mục chính -->
-            <div class="mb-4">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
 
-                <!-- Cầu Lông -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="badminton">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+                </div>
+                <!-- Mobile Menu Items - Danh mục chính -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
+
+                    <!-- Cầu Lông -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="badminton">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Cầu Lông</span>
                             </div>
-                            <span class="font-medium">Cầu Lông</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
 
-                    <!-- Submenu Cầu Lông -->
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
-                        <!-- Vợt cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-2 text-gray-700 font-medium">Vợt
-                                cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
-                                    class="block py-1 text-sm text-gray-600">Vợt Li-Ning</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
-                                    class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
-                                    class="block py-1 text-sm text-gray-600">Vợt Victor</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                        <!-- Submenu Cầu Lông -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
+                            <!-- Vợt cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Vợt
+                                    cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
+                                        class="block py-1 text-sm text-gray-600">Vợt Li-Ning</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
+                                        class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
+                                        class="block py-1 text-sm text-gray-600">Vợt Victor</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Áo cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-2 text-gray-700 font-medium">Áo
-                                cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Áo Yonex</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
-                                    class="block py-1 text-sm text-gray-600">Áo DS</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Áo Kamito</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                            <!-- Áo cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=ao-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Áo
+                                    cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Áo Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
+                                        class="block py-1 text-sm text-gray-600">Áo DS</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Áo Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Quần cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=quan-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Quần Yonex</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Quần Kamito</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
-                                    class="block py-1 text-sm text-gray-600">Quần Adidas</a>
+                            <!-- Quần cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=quan-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Quần Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Quần Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
+                                        class="block py-1 text-sm text-gray-600">Quần Adidas</a>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Túi vợt -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=tui-vot-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Túi vợt</a>
-                        </div>
+                            <!-- Túi vợt -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=tui-vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Túi vợt</a>
+                            </div>
 
-                        <!-- Balo -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=balo-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
-                        </div>
+                            <!-- Balo -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=balo-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Balo</a>
+                            </div>
 
-                        <!-- Phụ kiện -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
-                                kiện</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=cước+đan"
-                                    class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quấn+cán"
-                                    class="block py-1 text-sm text-gray-600">Quấn cán</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quả+cầu"
-                                    class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                            <!-- Phụ kiện -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
+                                    kiện</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=cước+đan"
+                                        class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=quấn+cán"
+                                        class="block py-1 text-sm text-gray-600">Quấn cán</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=quả+cầu"
+                                        class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Pickleball -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="pickleball">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                    <!-- Pickleball -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="pickleball">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Pickleball</span>
                             </div>
-                            <span class="font-medium">Pickleball</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
 
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
-                        <div>
-                            <a href="./shop.php?danhmuc[]=vot-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
-                                    class="block py-1 text-sm text-gray-600">Vợt Joola</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
-                                    class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Vợt Kamito</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
-                                    class="block py-1 text-sm text-gray-600">Vợt Wika</a>
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
+                            <div>
                                 <a href="./shop.php?danhmuc[]=vot-pickleball"
-                                    class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                    class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
+                                        class="block py-1 text-sm text-gray-600">Vợt Joola</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
+                                        class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Vợt Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
+                                        class="block py-1 text-sm text-gray-600">Vợt Wika</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
-                                    class="block py-1 text-sm text-gray-600">Bóng Pickleball</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
-                                    class="block py-1 text-sm text-gray-600">Lưới Pickleball</a>
+                            <div>
                                 <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
-                                    class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                    class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
+                                        class="block py-1 text-sm text-gray-600">Bóng Pickleball</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
+                                        class="block py-1 text-sm text-gray-600">Lưới Pickleball</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                                    class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
                             </div>
                         </div>
-                        <div>
-                            <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
-                        </div>
                     </div>
-                </div>
 
-                <!-- Giày -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="giay">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
+                    <!-- Giày -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="giay">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Giày</span>
                             </div>
-                            <span class="font-medium">Giày</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
 
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=yonex"
-                                class="block py-2 text-gray-700">Giày Yonex</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=adidas"
-                                class="block py-2 text-gray-700">Giày Adidas</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=mizuno"
-                                class="block py-2 text-gray-700">Giày Mizuno</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=asics"
-                                class="block py-2 text-gray-700">Giày Asics</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=kamito"
-                                class="block py-2 text-gray-700">Giày Kamito</a></div>
-                    </div>
-                </div>
-
-
-
-            </div>
-
-            <!-- Thông tin liên hệ Mobile -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center mb-2">
-                    <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
-                    <span class="text-sm text-gray-600">62 Lê Bình, Tân An, Cần Thơ</span>
-                </div>
-                <div class="flex items-center mb-2">
-                    <i class="fas fa-phone-alt text-red-600 w-5 mr-2"></i>
-                    <a href="tel:0987.879.243" class="text-sm text-gray-600">0987.879.243</a>
-                </div>
-                <div class="flex items-center">
-                    <i class="far fa-clock text-red-600 w-5 mr-2"></i>
-                    <span class="text-sm text-gray-600">08:00 - 21:00</span>
-                </div>
-            </div>
-    </div>
-        <!-- JavaScript Form Validation & Toggle Password -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const form = document.getElementById('loginForm');
-                const username = document.getElementById('username');
-                const password = document.getElementById('password');
-                const submitBtn = document.getElementById('submitBtn');
-                const togglePasswordBtn = document.getElementById('togglePassword');
-                const toggleIcon = togglePasswordBtn ? togglePasswordBtn.querySelector('i') : null;
-
-                // ===  TOGGLE PASSWORD VISIBILITY ===
-                if (togglePasswordBtn && password && toggleIcon) {
-                    togglePasswordBtn.addEventListener('click', function () {
-                        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                        password.setAttribute('type', type);
-                        // Toggle icon
-                        toggleIcon.classList.toggle('fa-eye');
-                        toggleIcon.classList.toggle('fa-eye-slash');
-                        // Change color when active
-                        if (type === 'text') {
-                            togglePasswordBtn.style.color = '#FF3F1A';
-                        } else {
-                            togglePasswordBtn.style.color = '#6b7280';
-                        }
-                    });
-                }
-
-                // === Validation functions ===
-                function validateUsername() {
-                    const value = username.value.trim();
-                    const error = document.getElementById('username-error');
-                    if (value.length === 0) {
-                        username.classList.add('input-invalid');
-                        username.classList.remove('input-valid');
-                        if (error) error.style.display = 'block';
-                        return false;
-                    }
-                    username.classList.add('input-valid');
-                    username.classList.remove('input-invalid');
-                    if (error) error.style.display = 'none';
-                    return true;
-                }
-                function validatePassword() {
-                    const value = password.value;
-                    const error = document.getElementById('password-error');
-                    if (value.length === 0) {
-                        password.classList.add('input-invalid');
-                        password.classList.remove('input-valid');
-                        if (error) error.style.display = 'block';
-                        return false;
-                    }
-                    password.classList.add('input-valid');
-                    password.classList.remove('input-invalid');
-                    if (error) error.style.display = 'none';
-                    return true;
-                }
-                function checkFormValidity() {
-                    const isValid = validateUsername() && validatePassword();
-                    if (submitBtn) {
-                        submitBtn.disabled = !isValid;
-                        submitBtn.classList.toggle('opacity-50', !isValid);
-                        submitBtn.classList.toggle('cursor-not-allowed', !isValid);
-                    }
-                    return isValid;
-                }
-                // Event listeners
-                if (username) {
-                    username.addEventListener('blur', validateUsername);
-                    username.addEventListener('input', checkFormValidity);
-                }
-                if (password) {
-                    password.addEventListener('blur', validatePassword);
-                    password.addEventListener('input', checkFormValidity);
-                }
-                // Form submit
-                if (form) {
-                    form.addEventListener('submit', function (e) {
-                        if (!checkFormValidity()) {
-                            e.preventDefault();
-                            const firstError = form.querySelector('.input-invalid');
-                            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    });
-                }
-                // Initial check
-                checkFormValidity();
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-
-                // === USER DROPDOWN TOGGLE ===
-                const userToggle = document.getElementById('userToggle');
-                const userMenu = document.getElementById('userMenu');
-                if (userToggle && userMenu) {
-                    userToggle.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        userMenu.classList.toggle('active');
-                    });
-                    document.addEventListener('click', function (e) {
-                        if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                            userMenu.classList.remove('active');
-                        }
-                    });
-                }
-
-                // === MEGA MENU ===
-                const menuTrigger = document.getElementById('mega-menu-trigger');
-                const menuDropdown = document.getElementById('mega-menu-dropdown');
-                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-                const menuContents = document.querySelectorAll('.menu-content');
-
-                if (menuTrigger) {
-                    menuTrigger.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        menuDropdown.classList.toggle('hidden');
-                    });
-                }
-
-                menuItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const menuId = this.getAttribute('data-menu');
-                        menuItems.forEach(el => {
-                            el.classList.remove('active', 'bg-red-50');
-                            const titleEl = el.querySelector('.font-bold');
-                            if (titleEl) titleEl.classList.remove('text-red-600');
-                        });
-                        this.classList.add('active', 'bg-red-50');
-                        const activeTitle = this.querySelector('.font-bold');
-                        if (activeTitle) activeTitle.classList.add('text-red-600');
-                        menuContents.forEach(content => { content.classList.add('hidden'); });
-                        const activeContent = document.getElementById(`content-${menuId}`);
-                        if (activeContent) { activeContent.classList.remove('hidden'); }
-                    });
-                });
-
-                document.addEventListener('click', function (e) {
-                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                        menuDropdown.classList.add('hidden');
-                    }
-                });
-                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-
-                // === MOBILE MENU TOGGLE ===
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-
-                if (menuToggle) {
-                    menuToggle.addEventListener('click', function () {
-                        mobileMenu.classList.remove('-translate-x-full');
-                        document.body.style.overflow = 'hidden';
-                    });
-                }
-                if (closeMenu) {
-                    closeMenu.addEventListener('click', function () {
-                        mobileMenu.classList.add('-translate-x-full');
-                        document.body.style.overflow = '';
-                    });
-                }
-
-                // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA) ==========
-                const searchToggle = document.getElementById('searchToggle');
-                const searchToggleMobile = document.getElementById('searchToggleMobile');
-                const closeSearchBtn = document.getElementById('closeSearchBtn');
-                const searchOverlay = document.getElementById('searchOverlay');
-                const searchInput = document.getElementById('searchInput');
-                const suggestionsContainer = document.getElementById('searchSuggestions');
-                const suggestionsList = document.getElementById('suggestionsList');
-
-                function debounce(func, delay) {
-                    let timeoutId;
-                    return function (...args) {
-                        clearTimeout(timeoutId);
-                        timeoutId = setTimeout(() => func.apply(this, args), delay);
-                    };
-                }
-
-                async function fetchSearchSuggestions(query) {
-                    if (!query || query.length < 1) {
-                        suggestionsContainer?.classList.remove('active');
-                        return;
-                    }
-                    try {
-                        const response = await fetch(`../control/search-suggest.php?q=${encodeURIComponent(query)}`);
-                        const result = await response.json();
-                        if (result.success && result.data.length > 0) {
-                            const limitedResults = result.data.slice(0, 8);
-                            suggestionsList.innerHTML = limitedResults.map(product => `
-                <a href="${product.url}" class="suggestion-item">
-                    <img src="../${product.image}" alt="${product.name}" loading="lazy"
-                         onerror="this.src='./img/sanpham/placeholder.png'">
-                    <div class="suggestion-info">
-                        <h4>${product.name}</h4>
-                        <div class="price-wrapper">
-                            <span class="price">${product.price}</span>
-                            ${product.old_price ? `<span class="old-price">${product.old_price}</span>` : ''}
-                            ${product.discount > 0 ? `<span class="discount-badge">-${product.discount}%</span>` : ''}
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=yonex"
+                                    class="block py-2 text-gray-700">Giày Yonex</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=adidas"
+                                    class="block py-2 text-gray-700">Giày Adidas</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=mizuno"
+                                    class="block py-2 text-gray-700">Giày Mizuno</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=asics"
+                                    class="block py-2 text-gray-700">Giày Asics</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=kamito"
+                                    class="block py-2 text-gray-700">Giày Kamito</a></div>
                         </div>
                     </div>
-                </a>`).join('');
-                            if (result.count > 8) {
-                                suggestionsList.innerHTML += `
-                    <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
-                        <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
-                    </a>`;
-                            }
-                            suggestionsContainer.classList.add('active');
-                        } else {
-                            suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
-                            suggestionsContainer.classList.add('active');
-                        }
-                    } catch (error) {
-                        console.error('Lỗi tìm kiếm:', error);
-                    }
-                }
 
-                const debouncedSearch = debounce(fetchSearchSuggestions, 300);
 
-                function enableSearch() {
-                    document.body.classList.add('search-active');
-                    const defaultHeader = document.getElementById('defaultHeader');
-                    const searchHeader = document.getElementById('searchHeader');
-                    if (defaultHeader) defaultHeader.classList.add('hidden');
-                    if (searchHeader) {
-                        searchHeader.classList.remove('hidden');
-                        searchHeader.classList.add('flex');
-                    }
-                    const searchOverlay = document.getElementById('searchOverlay');
-                    if (searchOverlay) {
-                        searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                        searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
-                    }
-                    setTimeout(() => searchInput?.focus(), 100);
-                }
 
-                function disableSearch() {
-                    document.body.classList.remove('search-active');
-                    suggestionsContainer?.classList.remove('active');
-                    const defaultHeader = document.getElementById('defaultHeader');
-                    const searchHeader = document.getElementById('searchHeader');
-                    if (defaultHeader) defaultHeader.classList.remove('hidden');
-                    if (searchHeader) {
-                        searchHeader.classList.add('hidden');
-                        searchHeader.classList.remove('flex');
-                    }
-                    const searchOverlay = document.getElementById('searchOverlay');
-                    if (searchOverlay) {
-                        searchOverlay.classList.add('opacity-0', 'pointer-events-none');
-                        searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-                    }
-                    if (searchInput) searchInput.value = '';
-                }
+                </div>
 
-                if (searchToggle) searchToggle.addEventListener('click', enableSearch);
-                if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
-                if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
-                if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
-
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
-                        disableSearch();
-                    }
-                });
-
-                if (searchInput) {
-                    searchInput.addEventListener('input', function (e) {
-                        debouncedSearch(e.target.value.trim());
-                    });
-                    searchInput.addEventListener('keypress', function (e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            const query = searchInput.value.trim();
-                            if (query) {
-                                window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
-                            }
-                        }
-                    });
-                }
-
-                document.addEventListener('click', function (e) {
-                    if (searchInput && suggestionsContainer &&
-                        !searchInput.contains(e.target) &&
-                        !suggestionsContainer.contains(e.target)) {
-                        suggestionsContainer.classList.remove('active');
-                    }
-                });
-
-            });</script>
-
+                <!-- Thông tin liên hệ Mobile -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">62 Lê Bình, Tân An, Cần Thơ</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-phone-alt text-red-600 w-5 mr-2"></i>
+                        <a href="tel:0987.879.243" class="text-sm text-gray-600">0987.879.243</a>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="far fa-clock text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">08:00 - 21:00</span>
+                    </div>
+                </div>
+            </div>
+            <!-- JavaScript Form Validation & Toggle Password -->
             <script>
-document.addEventListener('DOMContentLoaded', function () {
-    
-    // === USER DROPDOWN TOGGLE ===
-    const userToggle = document.getElementById('userToggle');
-    const userMenu = document.getElementById('userMenu');
-    if (userToggle && userMenu) {
-        userToggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            userMenu.classList.toggle('active');
-        });
-        document.addEventListener('click', function (e) {
-            if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.remove('active');
-            }
-        });
-    }
+                document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.getElementById('loginForm');
+                    const username = document.getElementById('username');
+                    const password = document.getElementById('password');
+                    const submitBtn = document.getElementById('submitBtn');
+                    const togglePasswordBtn = document.getElementById('togglePassword');
+                    const toggleIcon = togglePasswordBtn ? togglePasswordBtn.querySelector('i') : null;
 
-    // === MEGA MENU ===
-    const menuTrigger = document.getElementById('mega-menu-trigger');
-    const menuDropdown = document.getElementById('mega-menu-dropdown');
-    const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-    const menuContents = document.querySelectorAll('.menu-content');
+                    // ===  TOGGLE PASSWORD VISIBILITY ===
+                    if (togglePasswordBtn && password && toggleIcon) {
+                        togglePasswordBtn.addEventListener('click', function () {
+                            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                            password.setAttribute('type', type);
+                            // Toggle icon
+                            toggleIcon.classList.toggle('fa-eye');
+                            toggleIcon.classList.toggle('fa-eye-slash');
+                            // Change color when active
+                            if (type === 'text') {
+                                togglePasswordBtn.style.color = '#FF3F1A';
+                            } else {
+                                togglePasswordBtn.style.color = '#6b7280';
+                            }
+                        });
+                    }
 
-    if (menuTrigger) {
-        menuTrigger.addEventListener('click', function (e) {
-            e.stopPropagation();
-            menuDropdown.classList.toggle('hidden');
-        });
-    }
+                    // === Validation functions ===
+                    function validateUsername() {
+                        const value = username.value.trim();
+                        const error = document.getElementById('username-error');
+                        if (value.length === 0) {
+                            username.classList.add('input-invalid');
+                            username.classList.remove('input-valid');
+                            if (error) error.style.display = 'block';
+                            return false;
+                        }
+                        username.classList.add('input-valid');
+                        username.classList.remove('input-invalid');
+                        if (error) error.style.display = 'none';
+                        return true;
+                    }
+                    function validatePassword() {
+                        const value = password.value;
+                        const error = document.getElementById('password-error');
+                        if (value.length === 0) {
+                            password.classList.add('input-invalid');
+                            password.classList.remove('input-valid');
+                            if (error) error.style.display = 'block';
+                            return false;
+                        }
+                        password.classList.add('input-valid');
+                        password.classList.remove('input-invalid');
+                        if (error) error.style.display = 'none';
+                        return true;
+                    }
+                    function checkFormValidity() {
+                        const isValid = validateUsername() && validatePassword();
+                        if (submitBtn) {
+                            submitBtn.disabled = !isValid;
+                            submitBtn.classList.toggle('opacity-50', !isValid);
+                            submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+                        }
+                        return isValid;
+                    }
+                    // Event listeners
+                    if (username) {
+                        username.addEventListener('blur', validateUsername);
+                        username.addEventListener('input', checkFormValidity);
+                    }
+                    if (password) {
+                        password.addEventListener('blur', validatePassword);
+                        password.addEventListener('input', checkFormValidity);
+                    }
+                    // Form submit
+                    if (form) {
+                        form.addEventListener('submit', function (e) {
+                            if (!checkFormValidity()) {
+                                e.preventDefault();
+                                const firstError = form.querySelector('.input-invalid');
+                                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        });
+                    }
+                    // Initial check
+                    checkFormValidity();
+                });
+            </script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
 
-    menuItems.forEach(item => {
-        item.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const menuId = this.getAttribute('data-menu');
-            menuItems.forEach(el => {
-                el.classList.remove('active', 'bg-red-50');
-                const titleEl = el.querySelector('.font-bold');
-                if (titleEl) titleEl.classList.remove('text-red-600');
-            });
-            this.classList.add('active', 'bg-red-50');
-            const activeTitle = this.querySelector('.font-bold');
-            if (activeTitle) activeTitle.classList.add('text-red-600');
-            menuContents.forEach(content => { content.classList.add('hidden'); });
-            const activeContent = document.getElementById(`content-${menuId}`);
-            if (activeContent) { activeContent.classList.remove('hidden'); }
-        });
-    });
+                    // === USER DROPDOWN TOGGLE ===
+                    const userToggle = document.getElementById('userToggle');
+                    const userMenu = document.getElementById('userMenu');
+                    if (userToggle && userMenu) {
+                        userToggle.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            userMenu.classList.toggle('active');
+                        });
+                        document.addEventListener('click', function (e) {
+                            if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+                                userMenu.classList.remove('active');
+                            }
+                        });
+                    }
 
-    document.addEventListener('click', function (e) {
-        if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-            menuDropdown.classList.add('hidden');
-        }
-    });
-    menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+                    // === MEGA MENU ===
+                    const menuTrigger = document.getElementById('mega-menu-trigger');
+                    const menuDropdown = document.getElementById('mega-menu-dropdown');
+                    const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+                    const menuContents = document.querySelectorAll('.menu-content');
 
-    // === MOBILE MENU TOGGLE ===
-    const menuToggle = document.querySelector('.menu-toggle');
-    const closeMenu = document.querySelector('.close-menu');
-    const mobileMenu = document.getElementById('main-menu');
+                    if (menuTrigger) {
+                        menuTrigger.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            menuDropdown.classList.toggle('hidden');
+                        });
+                    }
 
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function () {
-            mobileMenu.classList.remove('-translate-x-full');
-            document.body.style.overflow = 'hidden';
-        });
-    }
-    if (closeMenu) {
-        closeMenu.addEventListener('click', function () {
-            mobileMenu.classList.add('-translate-x-full');
-            document.body.style.overflow = '';
-        });
-    }
+                    menuItems.forEach(item => {
+                        item.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const menuId = this.getAttribute('data-menu');
+                            menuItems.forEach(el => {
+                                el.classList.remove('active', 'bg-red-50');
+                                const titleEl = el.querySelector('.font-bold');
+                                if (titleEl) titleEl.classList.remove('text-red-600');
+                            });
+                            this.classList.add('active', 'bg-red-50');
+                            const activeTitle = this.querySelector('.font-bold');
+                            if (activeTitle) activeTitle.classList.add('text-red-600');
+                            menuContents.forEach(content => { content.classList.add('hidden'); });
+                            const activeContent = document.getElementById(`content-${menuId}`);
+                            if (activeContent) { activeContent.classList.remove('hidden'); }
+                        });
+                    });
 
-    // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA) ==========
-    const searchToggle = document.getElementById('searchToggle');
-    const searchToggleMobile = document.getElementById('searchToggleMobile');
-    const closeSearchBtn = document.getElementById('closeSearchBtn');
-    const searchOverlay = document.getElementById('searchOverlay');
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsContainer = document.getElementById('searchSuggestions');
-    const suggestionsList = document.getElementById('suggestionsList');
+                    document.addEventListener('click', function (e) {
+                        if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
+                            menuDropdown.classList.add('hidden');
+                        }
+                    });
+                    menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
 
-    function debounce(func, delay) {
-        let timeoutId;
-        return function (...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
+                    // === MOBILE MENU TOGGLE ===
+                    const menuToggle = document.querySelector('.menu-toggle');
+                    const closeMenu = document.querySelector('.close-menu');
+                    const mobileMenu = document.getElementById('main-menu');
 
-    async function fetchSearchSuggestions(query) {
-        if (!query || query.length < 1) {
-            suggestionsContainer?.classList.remove('active');
-            return;
-        }
-        try {
-            const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
-            const result = await response.json();
-            if (result.success && result.data.length > 0) {
-                const limitedResults = result.data.slice(0, 8);
-                suggestionsList.innerHTML = limitedResults.map(product => `
+                    if (menuToggle) {
+                        menuToggle.addEventListener('click', function () {
+                            mobileMenu.classList.remove('-translate-x-full');
+                            document.body.style.overflow = 'hidden';
+                        });
+                    }
+                    if (closeMenu) {
+                        closeMenu.addEventListener('click', function () {
+                            mobileMenu.classList.add('-translate-x-full');
+                            document.body.style.overflow = '';
+                        });
+                    }
+
+                    // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA) ==========
+                    const searchToggle = document.getElementById('searchToggle');
+                    const searchToggleMobile = document.getElementById('searchToggleMobile');
+                    const closeSearchBtn = document.getElementById('closeSearchBtn');
+                    const searchOverlay = document.getElementById('searchOverlay');
+                    const searchInput = document.getElementById('searchInput');
+                    const suggestionsContainer = document.getElementById('searchSuggestions');
+                    const suggestionsList = document.getElementById('suggestionsList');
+
+                    function debounce(func, delay) {
+                        let timeoutId;
+                        return function (...args) {
+                            clearTimeout(timeoutId);
+                            timeoutId = setTimeout(() => func.apply(this, args), delay);
+                        };
+                    }
+
+                    async function fetchSearchSuggestions(query) {
+                        if (!query || query.length < 1) {
+                            suggestionsContainer?.classList.remove('active');
+                            return;
+                        }
+                        try {
+                            const response = await fetch(`./control/search-suggest.php?q=${encodeURIComponent(query)}`);
+                            const result = await response.json();
+                            if (result.success && result.data.length > 0) {
+                                const limitedResults = result.data.slice(0, 8);
+                                suggestionsList.innerHTML = limitedResults.map(product => `
                 <a href="${product.url}" class="suggestion-item">
                     <img src="./${product.image}" alt="${product.name}" loading="lazy"
                          onerror="this.src='./img/sanpham/placeholder.png'">
@@ -1818,94 +1697,94 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     </div>
                 </a>`).join('');
-                if (result.count > 8) {
-                    suggestionsList.innerHTML += `
+                                if (result.count > 8) {
+                                    suggestionsList.innerHTML += `
                     <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
                         <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
                     </a>`;
-                }
-                suggestionsContainer.classList.add('active');
-            } else {
-                suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
-                suggestionsContainer.classList.add('active');
-            }
-        } catch (error) {
-            console.error('Lỗi tìm kiếm:', error);
-        }
-    }
+                                }
+                                suggestionsContainer.classList.add('active');
+                            } else {
+                                suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
+                                suggestionsContainer.classList.add('active');
+                            }
+                        } catch (error) {
+                            console.error('Lỗi tìm kiếm:', error);
+                        }
+                    }
 
-    const debouncedSearch = debounce(fetchSearchSuggestions, 300);
+                    const debouncedSearch = debounce(fetchSearchSuggestions, 300);
 
-    function enableSearch() {
-        document.body.classList.add('search-active');
-        const defaultHeader = document.getElementById('defaultHeader');
-        const searchHeader = document.getElementById('searchHeader');
-        if (defaultHeader) defaultHeader.classList.add('hidden');
-        if (searchHeader) {
-            searchHeader.classList.remove('hidden');
-            searchHeader.classList.add('flex');
-        }
-        const searchOverlay = document.getElementById('searchOverlay');
-        if (searchOverlay) {
-            searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
-            searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
-        }
-        setTimeout(() => searchInput?.focus(), 100);
-    }
+                    function enableSearch() {
+                        document.body.classList.add('search-active');
+                        const defaultHeader = document.getElementById('defaultHeader');
+                        const searchHeader = document.getElementById('searchHeader');
+                        if (defaultHeader) defaultHeader.classList.add('hidden');
+                        if (searchHeader) {
+                            searchHeader.classList.remove('hidden');
+                            searchHeader.classList.add('flex');
+                        }
+                        const searchOverlay = document.getElementById('searchOverlay');
+                        if (searchOverlay) {
+                            searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                            searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
+                        }
+                        setTimeout(() => searchInput?.focus(), 100);
+                    }
 
-    function disableSearch() {
-        document.body.classList.remove('search-active');
-        suggestionsContainer?.classList.remove('active');
-        const defaultHeader = document.getElementById('defaultHeader');
-        const searchHeader = document.getElementById('searchHeader');
-        if (defaultHeader) defaultHeader.classList.remove('hidden');
-        if (searchHeader) {
-            searchHeader.classList.add('hidden');
-            searchHeader.classList.remove('flex');
-        }
-        const searchOverlay = document.getElementById('searchOverlay');
-        if (searchOverlay) {
-            searchOverlay.classList.add('opacity-0', 'pointer-events-none');
-            searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-        }
-        if (searchInput) searchInput.value = '';
-    }
+                    function disableSearch() {
+                        document.body.classList.remove('search-active');
+                        suggestionsContainer?.classList.remove('active');
+                        const defaultHeader = document.getElementById('defaultHeader');
+                        const searchHeader = document.getElementById('searchHeader');
+                        if (defaultHeader) defaultHeader.classList.remove('hidden');
+                        if (searchHeader) {
+                            searchHeader.classList.add('hidden');
+                            searchHeader.classList.remove('flex');
+                        }
+                        const searchOverlay = document.getElementById('searchOverlay');
+                        if (searchOverlay) {
+                            searchOverlay.classList.add('opacity-0', 'pointer-events-none');
+                            searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+                        }
+                        if (searchInput) searchInput.value = '';
+                    }
 
-    if (searchToggle) searchToggle.addEventListener('click', enableSearch);
-    if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
-    if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
-    if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
+                    if (searchToggle) searchToggle.addEventListener('click', enableSearch);
+                    if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
+                    if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
+                    if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
 
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
-            disableSearch();
-        }
-    });
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
+                            disableSearch();
+                        }
+                    });
 
-    if (searchInput) {
-        searchInput.addEventListener('input', function (e) {
-            debouncedSearch(e.target.value.trim());
-        });
-        searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = searchInput.value.trim();
-                if (query) {
-                                        window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
-                }
-            }
-        });
-    }
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function (e) {
+                            debouncedSearch(e.target.value.trim());
+                        });
+                        searchInput.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const query = searchInput.value.trim();
+                                if (query) {
+                                    window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
+                                }
+                            }
+                        });
+                    }
 
-    document.addEventListener('click', function (e) {
-        if (searchInput && suggestionsContainer &&
-            !searchInput.contains(e.target) &&
-            !suggestionsContainer.contains(e.target)) {
-            suggestionsContainer.classList.remove('active');
-        }
-    });
+                    document.addEventListener('click', function (e) {
+                        if (searchInput && suggestionsContainer &&
+                            !searchInput.contains(e.target) &&
+                            !suggestionsContainer.contains(e.target)) {
+                            suggestionsContainer.classList.remove('active');
+                        }
+                    });
 
-});</script>
+                });</script>
 </body>
 
 </html>

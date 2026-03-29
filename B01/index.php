@@ -1095,20 +1095,20 @@ if ($is_logged_in) {
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="md:col-span-2 rounded-lg overflow-hidden shadow-lg h-full">
                                 <a href="./view/shop.php" class="block h-full">
-                                    <img src="https://nvbplay.vn/wp-content/uploads/2026/02/MUA-DEAL-RON-RANG-scaled.png"
+                                    <img src="./img/icons/banner-1.png"
                                         alt="MUA DEAL RON RANG" class="w-full h-full object-cover">
                                 </a>
                             </div>
                             <div class="flex flex-col space-y-4 h-full">
                                 <div class="rounded-lg overflow-hidden shadow-lg flex-1">
                                     <a href="./view/shop.php" class="block h-full">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ThayDoThaGa-KhongLoVeGia-2x1-1.png"
+                                        <img src="./img/icons/banner-4.jpg"
                                             alt="ThayDoThaGa" class="w-full h-full object-cover">
                                     </a>
                                 </div>
                                 <div class="rounded-lg overflow-hidden shadow-lg flex-1">
                                     <a href="./view/shop.php" class="block h-full">
-                                        <img src="https://nvbplay.vn/wp-content/uploads/2026/02/ron-rang-xuan-sang-san-deal-hoanh-trang-1200x600-1-1.png"
+                                        <img src="./img/icons/banner-5.png"
                                             alt="Ron rang xuan sang" class="w-full h-full object-cover">
                                     </a>
                                 </div>
@@ -1271,14 +1271,14 @@ if ($is_logged_in) {
                     <!-- Banner Row -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         <div class="rounded-lg overflow-hidden shadow-md">
-                            <a href="https://nvbplay.vn/7-doi-giay-cau-long-sieu-pham-khong-the-bo-qua.html">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/7-doi-giay-cau-long-sieu-pham-khong-the-bo-qua-1-1024x512.jpg"
+                            <a href="./view/shop.php">
+                                <img src="./img/icons/banner-3.jpg"
                                     alt="7 đôi giày cầu lông siêu phẩm" class="w-full h-auto object-cover">
                             </a>
                         </div>
                         <div class="rounded-lg overflow-hidden shadow-md">
-                            <a href="https://nvbplay.vn/kham-pha-vot-cau-long-chuyen-nghiep.html">
-                                <img src="https://nvbplay.vn/wp-content/uploads/2025/01/kham-pha-vot-cau-long-chuyen-nghiep-1-1024x512.jpg"
+                            <a href="./view/shop.php">
+                                <img src="./img/icons/banner-2.jpg"
                                     alt="Khám phá vợt cầu lông chuyên nghiệp" class="w-full h-auto object-cover">
                             </a>
                         </div>

@@ -15,7 +15,7 @@ if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
 // === KIỂM TRA ĐĂNG NHẬP BẮT BUỘC ===
 if (!isset($_SESSION['user_id'])) {
     // Chưa đăng nhập → chuyển về trang đăng nhập
-    header("Location: login.php?redirect=my-account");
+    header("Location: ../login.php?redirect=my-account");
     exit();
 }
 
