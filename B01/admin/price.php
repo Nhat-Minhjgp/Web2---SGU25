@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_profit'
     
     $product = getProductById($conn, $product_id);
     if ($product) {
-        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent / 100);
+        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
         
         $sql = "UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?";
         $stmt = $conn->prepare($sql);
@@ -368,7 +368,7 @@ $categories = getCategories($conn);
                     <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (%)</label>
                     <input type="number" name="profit_percent" id="profit_percent" step="0.01" required 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                    <p class="text-xs text-gray-500 mt-1">Giá bán sẽ được tính tự động = Giá vốn × (1 + % lợi nhuận/100)</p>
+                    <p class="text-xs text-gray-500 mt-1">Giá bán sẽ được tính tự động = Giá vốn × (1 + % lợi nhuận)</p>
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('profitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
