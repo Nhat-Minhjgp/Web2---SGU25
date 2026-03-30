@@ -50,13 +50,16 @@ if (isset($_POST['remove_image'])) {
 
 // Xử lý cập nhật sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
+    // Lấy tỷ lệ lợi nhuận từ form (dạng thập phân)
+    $phan_tram_loi_nhuan = floatval($_POST['phan_tram_loi_nhuan']); // Giữ nguyên dạng thập phân
+    
     $data = [
         'ten_sp' => $_POST['ten_sp'],
         'danhmuc_id' => $_POST['danhmuc_id'] ?: null,
         'ncc_id' => $_POST['ncc_id'] ?: null,
         'thuonghieu_id' => $_POST['thuonghieu_id'] ?: null,
         'mota' => $_POST['mota'],
-        'phan_tram_loi_nhuan' => $_POST['phan_tram_loi_nhuan'],
+        'phan_tram_loi_nhuan' => $phan_tram_loi_nhuan,
         'trang_thai' => $_POST['trang_thai'],
         'don_vi' => $_POST['don_vi']
     ];
@@ -130,6 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
         }
     }
 }
+
+// Hiển thị tỷ lệ lợi nhuận dưới dạng thập phân
+$phan_tram_hien_thi = $product['PhanTramLoiNhuan'];
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -304,9 +310,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                             <input type="text" value="<?php echo number_format($product['GiaNhapTB'], 0, ',', '.'); ?>đ" readonly class="form-control bg-gray-100">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Tỷ lệ lợi nhuận (%)</label>
-                            <input type="number" name="phan_tram_loi_nhuan" id="phan_tram" value="<?php echo $product['PhanTramLoiNhuan']; ?>" step="0.01" class="form-control" onchange="tinhGiaBan()" onkeyup="tinhGiaBan()">
-                            <p class="text-xs text-gray-500 mt-1">Thay đổi để tự động tính giá bán</p>
+                            <label class="form-label">Tỷ lệ lợi nhuận (dạng thập phân)</label>
+                            <input type="number" name="phan_tram_loi_nhuan" id="phan_tram" value="<?php echo $phan_tram_hien_thi; ?>" step="0.01" class="form-control" oninput="tinhGiaBan()">
+                            <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
                         </div>
                         <div class="form-group">
                             <label class="form-label">
@@ -314,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                                 <span class="info-badge">Tự động tính</span>
                             </label>
                             <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
-                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + % lợi nhuận)</p>
+                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + tỷ lệ lợi nhuận)</p>
                         </div>
                     </div>
                     
@@ -329,8 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                         <div class="form-group">
                             <label class="form-label">Trạng thái</label>
                             <select name="trang_thai" class="form-control">
-                                <option value= 1 <?php echo ($product['TrangThai'] == 1) ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
-                                <option value= 0 <?php echo ($product['TrangThai'] == 0) ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
+                                <option value="1" <?php echo ($product['TrangThai'] == 1) ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
+                                <option value="0" <?php echo ($product['TrangThai'] == 0) ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
                             </select>
                         </div>
                     </div>
@@ -389,8 +395,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             }
             
             if (giaNhapGoc > 0) {
-                // Công thức tính giá bán: Giá nhập × (1 + % lợi nhuận)
-                let giaBan = giaNhapGoc * (1 + phanTram );
+                // Công thức tính giá bán: Giá nhập × (1 + tỷ lệ lợi nhuận)
+                let giaBan = giaNhapGoc * (1 + phanTram);
                 // Làm tròn và hiển thị
                 document.getElementById('gia_ban').value = Math.round(giaBan).toLocaleString('vi-VN') + 'đ';
             } else {

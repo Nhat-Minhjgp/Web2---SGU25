@@ -342,7 +342,7 @@ if (!$result) {
                                             <div class="overflow-x-auto">
                                                 <table class="w-full text-sm border rounded-lg">
                                                     <thead class="bg-gray-200">
-                                                        应
+                                                    
                                                             <th class="p-2 text-left">Sản phẩm</th>
                                                             <th class="p-2 text-right">Số lượng</th>
                                                             <th class="p-2 text-right">Giá nhập</th>

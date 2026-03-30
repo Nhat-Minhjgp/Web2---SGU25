@@ -16,11 +16,11 @@ $admin_username = $_SESSION['admin_username'] ?? '';
 // Xử lý cập nhật tỷ lệ lợi nhuận cho sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_profit'])) {
     $product_id = intval($_POST['product_id']);
-    $profit_percent = floatval($_POST['profit_percent']);
+    $profit_percent = floatval($_POST['profit_percent']); // Giữ nguyên dạng thập phân
     
     $product = getProductById($conn, $product_id);
     if ($product) {
-        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent );
+        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
         
         $sql = "UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?";
         $stmt = $conn->prepare($sql);
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_profit'
 // Xử lý cập nhật tỷ lệ lợi nhuận cho loại sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit'])) {
     $category_id = intval($_POST['category_id']);
-    $profit_percent = floatval($_POST['category_profit']);
+    $profit_percent = floatval($_POST['category_profit']); // Giữ nguyên dạng thập phân
     
     $sql = "SELECT SanPham_id, GiaNhapTB FROM sanpham WHERE Danhmuc_id = ?";
     $stmt = $conn->prepare($sql);
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit
     
     $success_count = 0;
     while ($product = $products->fetch_assoc()) {
-        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent );
+        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
         $update = $conn->prepare("UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?");
         $update->bind_param("ddi", $profit_percent, $new_price, $product['SanPham_id']);
         if ($update->execute()) {
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit
     }
     
     if ($success_count > 0) {
-        $message = "Đã cập nhật tỷ lệ lợi nhuận cho $success_count sản phẩm!";
+        $message = "Đã cập nhật tỷ lệ lợi nhuận thành công cho $success_count sản phẩm!";
     } else {
         $error = 'Không có sản phẩm nào trong loại này!';
     }
@@ -72,14 +72,13 @@ $search_category = isset($_GET['category_id']) ? intval($_GET['category_id']) : 
 $sql_products = "SELECT sp.*, dm.Ten_danhmuc 
                  FROM sanpham sp
                  LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
-                 WHERE 1=1"; // Trick nhỏ để dễ dàng nối thêm điều kiện AND
+                 WHERE 1=1";
 
 $params = [];
 $types = "";
 
 // 1. Nếu có tìm kiếm bằng từ khóa (Tên SP hoặc Mã SP)
 if (!empty($search_keyword)) {
-    // Nếu người dùng gõ "SP0005", ta cắt chữ "SP" ra để lấy số 5 tìm theo ID
     $search_id = preg_replace('/[^0-9]/', '', $search_keyword); 
     
     if (!empty($search_id)) {
@@ -274,7 +273,6 @@ $categories = getCategories($conn);
                                 <a href="price.php" class="bg-gray-500 text-white px-4 py-2.5 rounded-lg hover:bg-gray-600 transition shadow-sm flex items-center justify-center" title="Xóa bộ lọc">
                                     <i class="fas fa-times"></i>
                                 </a>
-
                             <?php endif; ?>
                         </div>
                     </form>
@@ -282,13 +280,13 @@ $categories = getCategories($conn);
                     <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                         <table class="w-full min-w-[900px]">
                             <thead class="bg-gradient-custom text-white">
-                                <tr>
+                                应
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Hình</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Mã SP</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Tên sản phẩm</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Danh mục</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá vốn</th>
-                                    <th class="px-4 py-3 text-right text-white text-sm font-semibold">Tỷ lệ LN (%)</th>
+                                    <th class="px-4 py-3 text-right text-white text-sm font-semibold">Tỷ lệ LN</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá bán</th>
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Thao tác</th>
                                 </tr>
@@ -296,6 +294,10 @@ $categories = getCategories($conn);
                             <tbody id="productTableBody" class="divide-y divide-gray-200">
                                 <?php if ($products && $products->num_rows > 0): ?>
                                     <?php while($row = $products->fetch_assoc()): ?>
+                                    <?php 
+                                    // Hiển thị dưới dạng số thập phân (0.15)
+                                    $profit_display = $row['PhanTramLoiNhuan'];
+                                    ?>
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-4 py-3 text-center">
                                             <?php if ($row['image_url']): ?>
@@ -308,22 +310,22 @@ $categories = getCategories($conn);
                                                 </div>
                                             <?php endif; ?>
                                          </td>
-                                        <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> </td>
-                                        <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?> </td>
-                                        <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?> </td>
+                                        <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                        <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?></td>
+                                        <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
                                         <td class="px-4 py-3 text-right font-mono text-sm"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                         <td class="px-4 py-3 text-right">
-                                            <span class="font-semibold text-indigo-600"><?php echo ($row['PhanTramLoiNhuan'] * 100); ?>%</span>
-                                        </td>
+                                            <span class="font-semibold text-indigo-600"><?php echo $profit_display; ?></span>
+                                         </td>
                                         <td class="px-4 py-3 text-right font-semibold text-indigo-600 text-sm">
                                             <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ
-                                        </td>
+                                         </td>
                                         <td class="px-4 py-3 text-center">
-                                            <button onclick="openProfitModal(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>', <?php echo ($row['PhanTramLoiNhuan'] * 100); ?>, <?php echo $row['GiaNhapTB']; ?>)" 
-        class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition" title="Cập nhật tỷ lệ lợi nhuận">
-    <i class="fas fa-edit"></i>
-</button>
-                                        </td>
+                                            <button onclick="openProfitModal(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>', <?php echo $profit_display; ?>, <?php echo $row['GiaNhapTB']; ?>)" 
+                                                    class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition" title="Cập nhật tỷ lệ lợi nhuận">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
@@ -343,18 +345,13 @@ $categories = getCategories($conn);
         </main>
     </div>
 
+    <!-- Modal cập nhật tỷ lệ lợi nhuận cho sản phẩm -->
     <div id="profitModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 animate-fadeIn">
             <div class="bg-gradient-custom text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Cập nhật tỷ lệ lợi nhuận</h3>
                 <button onclick="closeModal('profitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
-            <input type="hidden" id="profit_base_price" value="0">
-
-<div class="mb-4">
-    <label class="block text-gray-700 font-medium mb-2">Giá bán dự kiến</label>
-    <input type="text" id="profit_expected_price" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-indigo-600 font-bold text-lg">
-</div>
             <form method="POST" class="p-6">
                 <input type="hidden" name="update_product_profit" value="1">
                 <input type="hidden" name="product_id" id="profit_product_id">
@@ -363,10 +360,19 @@ $categories = getCategories($conn);
                     <input type="text" id="profit_product_name" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (%)</label>
+                    <label class="block text-gray-700 font-medium mb-2">Giá vốn (VNĐ)</label>
+                    <input type="text" id="profit_base_price" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (dạng thập phân)</label>
                     <input type="number" name="profit_percent" id="profit_percent" step="0.01" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                    <p class="text-xs text-gray-500 mt-1">Giá bán sẽ được tính tự động = Giá vốn × (1 + % lợi nhuận)</p>
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                           oninput="calcExpectedPrice()">
+                    <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Giá bán dự kiến</label>
+                    <input type="text" id="profit_expected_price" readonly class="w-full px-3 py-2 border rounded-lg bg-green-50 text-green-700 font-bold text-lg">
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('profitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
@@ -376,6 +382,7 @@ $categories = getCategories($conn);
         </div>
     </div>
 
+    <!-- Modal cập nhật tỷ lệ lợi nhuận cho loại sản phẩm -->
     <div id="categoryProfitModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 animate-fadeIn">
             <div class="bg-gradient-custom text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
@@ -390,10 +397,11 @@ $categories = getCategories($conn);
                     <input type="text" id="category_name" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (%)</label>
+                    <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (dạng thập phân)</label>
                     <input type="number" name="category_profit" id="category_profit" step="0.01" required 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                    <p class="text-xs text-gray-500 mt-1">Sẽ áp dụng cho TẤT CẢ sản phẩm trong loại này</p>
+                    <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
+                    <p class="text-xs text-orange-500 mt-1">⚠️ Sẽ áp dụng cho TẤT CẢ sản phẩm trong loại này</p>
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('categoryProfitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
@@ -403,6 +411,7 @@ $categories = getCategories($conn);
         </div>
     </div>
 
+    <!-- Modal xem ảnh lớn -->
     <div id="imageModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[2000]" onclick="closeImageModal()">
         <span class="absolute top-5 right-10 text-white text-5xl cursor-pointer hover:text-gray-300" onclick="closeImageModal()">&times;</span>
         <div class="max-w-[90%] max-h-[90%]" onclick="event.stopPropagation()">
@@ -412,31 +421,27 @@ $categories = getCategories($conn);
     </div>
 
     <script>
-        // Thay thế hàm cũ bằng hàm mới có thêm biến basePrice
-function openProfitModal(productId, productName, currentProfit, basePrice) {
-    document.getElementById('profit_product_id').value = productId;
-    document.getElementById('profit_product_name').value = productName;
-    document.getElementById('profit_percent').value = currentProfit;
-    document.getElementById('profit_base_price').value = basePrice; // Lưu giá vốn
-    
-    calcExpectedPrice(); // Gọi hàm tính ngay khi mở form
-    
-    document.getElementById('profitModal').classList.remove('hidden');
-    document.getElementById('profitModal').classList.add('flex');
-}
-
-// Hàm tính toán giá dự kiến và format tiền Việt Nam
-function calcExpectedPrice() {
-    let basePrice = parseFloat(document.getElementById('profit_base_price').value) || 0;
-    let profitPercent = parseFloat(document.getElementById('profit_percent').value) || 0;
-    
-    let expectedPrice = basePrice * (1 + (profitPercent / 100));
-    
-    document.getElementById('profit_expected_price').value = new Intl.NumberFormat('vi-VN').format(expectedPrice) + 'đ';
-}
-
-// Lắng nghe sự kiện người dùng gõ phím vào ô Tỷ lệ lợi nhuận thì sẽ tính lại giá
-document.getElementById('profit_percent').addEventListener('input', calcExpectedPrice);
+        let basePrice = 0;
+        
+        function openProfitModal(productId, productName, currentProfit, basePriceValue) {
+            document.getElementById('profit_product_id').value = productId;
+            document.getElementById('profit_product_name').value = productName;
+            document.getElementById('profit_percent').value = currentProfit;
+            document.getElementById('profit_base_price').value = new Intl.NumberFormat('vi-VN').format(basePriceValue) + 'đ';
+            basePrice = basePriceValue;
+            
+            calcExpectedPrice();
+            
+            document.getElementById('profitModal').classList.remove('hidden');
+            document.getElementById('profitModal').classList.add('flex');
+        }
+        
+        function calcExpectedPrice() {
+            let profitPercent = parseFloat(document.getElementById('profit_percent').value) || 0;
+            let expectedPrice = basePrice * (1 + profitPercent);
+            document.getElementById('profit_expected_price').value = new Intl.NumberFormat('vi-VN').format(expectedPrice) + 'đ';
+        }
+        
         function openCategoryProfitModal(categoryId, categoryName) {
             document.getElementById('category_id').value = categoryId;
             document.getElementById('category_name').value = categoryName;
