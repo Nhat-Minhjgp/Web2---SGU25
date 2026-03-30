@@ -88,11 +88,62 @@ $result = $conn->query($sql);
                 opacity: 1;
             }
         }
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .menu-btn i {
+            width: 20px;
+            color: #9ca3af;
+        }
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: #667eea;
+        }
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .menu-btn.active i {
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-   <header class="bg-white shadow-md sticky top-0 z-50">
+    <!-- HEADER - ĐỒNG BỘ VỚI DASHBOARD -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
             <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
             <div class="flex items-center space-x-4">
@@ -101,9 +152,6 @@ $result = $conn->query($sql);
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm text-gray-800">
-                           <?php echo htmlspecialchars($admin_name); ?>
-                        </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
@@ -116,32 +164,32 @@ $result = $conn->query($sql);
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
-        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
+        <!-- SIDEBAR - ĐỒNG BỘ VỚI DASHBOARD -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Danh mục chức năng</h3>
             </div>
-            <nav class="p-4 space-y-2">
-                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-home w-5 text-center"></i> Dashboard
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="menu-btn">
+                    <i class="fas fa-home"></i> Dashboard
                 </a>
-                <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
+                <a href="users.php" class="menu-btn">
+                    <i class="fas fa-users"></i> Quản lý người dùng
                 </a>
-                
-                <a href="product.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-                    <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
+                <a href="product.php" class="menu-btn active">
+                    <i class="fas fa-box"></i> Quản lý sản phẩm
                 </a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
+                <a href="import.php" class="menu-btn">
+                    <i class="fas fa-arrow-down"></i> Quản lý nhập hàng
                 </a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
+                <a href="price.php" class="menu-btn">
+                    <i class="fas fa-tag"></i> Quản lý giá bán
                 </a>
-                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
+                <a href="orders.php" class="menu-btn">
+                    <i class="fas fa-receipt"></i> Quản lý đơn hàng
                 </a>
-                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
+                <a href="inventory.php" class="menu-btn">
+                    <i class="fas fa-warehouse"></i> Tồn kho & Báo cáo
                 </a>
             </nav>
         </aside>
@@ -152,14 +200,14 @@ $result = $conn->query($sql);
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
                         <i class="fas fa-box text-primary"></i> Quản lý sản phẩm
                     </h2>
-                    <a href="add_product.php" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <a href="add_product.php" class="bg-gradient-custom hover:opacity-90 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-plus"></i> Thêm sản phẩm
                     </a>
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                     <div class="relative w-full sm:max-w-md">
-                        <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()"
+                        <input type="text" id="productSearch" placeholder="🔍 Tìm kiếm sản phẩm..." onkeyup="filterProducts()"
                                class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition shadow-sm">
                         <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
                     </div>
@@ -177,7 +225,7 @@ $result = $conn->query($sql);
                                 <th class="p-4 font-medium text-sm text-center">Tồn kho</th>
                                 <th class="p-4 font-medium text-sm text-center">Trạng thái</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
-                            </tr>
+                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" id="productTableBody">
                             <?php if ($result && $result->num_rows > 0): ?>
@@ -187,7 +235,7 @@ $result = $conn->query($sql);
                                         <img src="../<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
                                              alt="<?php echo htmlspecialchars($row['TenSP']); ?>" 
                                              class="w-12 h-12 object-cover rounded-lg border border-gray-200 shadow-sm bg-gray-50">
-                                    </td>
+                                     </td>
                                     <td class="p-4 font-semibold text-gray-800">
                                         <?php echo htmlspecialchars($row['TenSP']); ?>
                                      </td>
@@ -241,7 +289,7 @@ $result = $conn->query($sql);
                                     <td colspan="8" class="text-center py-12 text-gray-500">
                                         <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
                                         <p class="text-lg">Chưa có sản phẩm nào.</p>
-                                    </td>
+                                     </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
