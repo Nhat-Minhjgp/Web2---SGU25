@@ -838,41 +838,50 @@ DELIMITER ;
 (18, 'Dây cước căng vợt Yonex BG 80 Power', 2, 1, 3, '- Dây cước căng vợt Yonex BG 80 Power là loại cước với độ cứng cao, độ nảy tốt được khá nhiều các vận động viên thế giới sử dụng. Ngoài ra, cước được phủ một lớp phức hợp Titanium bên ngoài cho độ nhám ở bề mặt kết hợp cùng đường kính dây 0.68mm đảm bảo trong lúc sử dụng dây ít bị chạy và tụt kg tạo ra độ bền nhất định.', 'img/sanpham/PROD-20260328141835-69c7d52ba34e7.webp', 200000, 240000.00, 0.20, 0, '2026-03-28 20:18:35', 20, 5),
 (19, 'Túi cầu lông Yonex BAG2326T02', 2, 1, 2, '- Được làm bằng chất liệu cao cấp đảm bảo độ bền, chống thấm hiệu quả, dễ dàng vệ sinh. Thiết kế với màu xanh cùng với các họa tiết được làm tỉ mỉ tạo nên phong cách nổi bật, năng động và hiện đại, có thể sử dụng trong các chuyến đi dã ngoại hoặc du lịch vô cùng tiện lợi.', 'img/sanpham/PROD-20260328142145-69c7d5e91603e.webp', 5000000, 5500000.00, 0.10, 1, '2026-03-28 20:21:45', 19, 5);
 
-  INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
-  (8,10,280000),
-  (8,50,275000),
-  (8,100,350000),
-  (1,10,3200000),
-  (2,15,2500000),
-  (3,8,2800000),
-  (4,12,3100000),
-  (5,7,2900000),
-  (6,50,450000),
-  (7,10,180000),
-  (9,45,320000),
-  (10,5,4500000),
-  (11,4,5200000),
-  (12,10,2100000),
-  (13,6,3800000);
+ 
 
 
+ INSERT INTO `phieunhap` (`NguoiNhap`, `NgayNhap`, `SoLuong`, `TrangThai`) VALUES
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed');
 
-  INSERT INTO `phieunhap` ( `NguoiNhap`, `NgayNhap`, `SoLuong`) VALUES
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0);
-
+ INSERT INTO `chitietphieunhap` (`PhieuNhap_id`, `SanPham_id`, `SoLuong`, `Gia_Nhap`, `MaLoHang`) VALUES
+(1, 1, 10, 3200000, 'LH001'),
+(2, 2, 10, 2500000, 'LH002'),
+(3, 3, 10, 2800000, 'LH003'),
+(4, 4, 10, 3100000, 'LH004'),
+(5, 5, 10, 2900000, 'LH005'),
+(6, 6, 10, 450000, 'LH006'),
+(7, 7, 10, 180000, 'LH007'),
+(8, 8, 10, 322188, 'LH008'),
+(9, 9, 10, 320000, 'LH009'),
+(10, 10, 10, 4500000, 'LH010'),
+(11, 11, 10, 5200000, 'LH011'),
+(12, 12, 10, 2100000, 'LH012'),
+(13, 13, 10, 3800000, 'LH013'),
+(14, 14, 10, 1500000, 'LH014'),
+(15, 15, 10, 400000, 'LH015'),
+(16, 16, 10, 1000000, 'LH016'),
+(17, 17, 10, 900000, 'LH017'),
+(18, 18, 10, 200000, 'LH018'),
+(19, 19, 10, 5000000, 'LH019');
 
   INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
   (1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
