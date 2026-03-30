@@ -662,7 +662,7 @@ ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
 -- THÊM CỘT TRẠNG THÁI CHO BẢNG phieunhap
 -- ============================================
 ALTER TABLE `phieunhap` 
-ADD COLUMN IF NOT EXISTS `TrangThai` ENUM('pending', 'completed') DEFAULT 'pending' AFTER `SoLuong`;
+ADD COLUMN `TrangThai` ENUM('pending', 'completed') DEFAULT 'pending' AFTER `SoLuong`;
 
 -- ============================================
 -- TRIGGER MỚI - CHỈ CẬP NHẬT SỐ LƯỢNG TRONG PHIẾU
