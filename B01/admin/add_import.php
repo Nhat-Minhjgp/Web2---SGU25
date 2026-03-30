@@ -119,6 +119,28 @@ tailwind.config = {
 .animate-slide-in { animation: slideIn 0.3s ease-out; }
 .item-card { transition: all 0.2s; }
 .item-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+
+
+</style>
+<style>
+.select2-container--default .select2-selection--single {
+    @apply px-3 py-2 rounded-lg border text-sm h-auto min-h-[40px];
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    @apply text-gray-700 px-1;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    @apply h-[38px];
+}
+.select2-dropdown {
+    @apply border-gray-300 rounded-lg shadow-lg;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    @apply border-gray-300 rounded px-3 py-2 text-sm;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    @apply bg-primary text-white;
+}
 </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -375,6 +397,49 @@ function logout() {
 document.addEventListener('DOMContentLoaded', () => {
     addItemRow();
 });
+
+function initSelect2Ajax(element) {
+    $(element).select2({
+        theme: 'default',
+        language: 'vi',
+        placeholder: '🔍 Nhập ít nhất 2 ký tự...',
+        allowClear: true,
+        width: '100%',
+        minimumInputLength: 2,
+        ajax: {
+            url: 'ajax/search_product.php',
+            dataType: 'json',
+            delay: 250,
+             function(params) {
+                return { q: params.term };
+            },
+            processResults: function(data) {
+                return { results: data };
+            },
+            cache: true
+        },
+        templateResult: function(item) {
+            if (!item.id) return item.text;
+            return $('<span>' + item.text + 
+                   '<br><small class="text-gray-500">Giá nhập: ' + 
+                   new Intl.NumberFormat('vi-VN').format(item.giaNhap) + 'đ</small></span>');
+        }
+    }).on('select2:select', function(e) {
+        const data = e.params.data;
+        const card = $(this).closest('.item-card');
+        
+        // Điền dữ liệu vào các field liên quan
+        if (data.giaNhap) card.find('.price-input').val(data.giaNhap);
+        if (data.loiNhuan) {
+            const profitPercent = (data.loiNhuan * 100).toFixed(0) + '%';
+            card.find('.profit-display').val(profitPercent);
+            card.find('.profit-display').data('value', data.loiNhuan);
+        }
+        
+        calcItemTotal(card.find('.qty-input')[0]);
+        calcSellingPrice(card.find('.price-input')[0]);
+    });
+}
 </script>
 </body>
 </html>
