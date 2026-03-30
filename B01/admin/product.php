@@ -26,12 +26,9 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm - Admin</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Cấu hình màu sắc -->
     <script>
         tailwind.config = {
             theme: {
@@ -56,14 +53,48 @@ $result = $conn->query($sql);
         .animate-slide-in {
             animation: slideIn 0.3s ease-out forwards;
         }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Toast message */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-   <!-- HEADER -->
    <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
@@ -71,7 +102,7 @@ $result = $conn->query($sql);
                     </div>
                     <div>
                         <p class="font-semibold text-sm text-gray-800">
-                           
+                           <?php echo htmlspecialchars($admin_name); ?>
                         </p>
                         <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
@@ -83,10 +114,8 @@ $result = $conn->query($sql);
         </div>
     </header>
 
-    <!-- CONTAINER CHÍNH -->
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
@@ -105,9 +134,8 @@ $result = $conn->query($sql);
                 <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
                 </a>
-                <a href="price.php" class="menu-btn flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition duration-200 text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-tag w-5 text-gray-500"></i>
-                    <span>Quản lý giá bán</span>
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
                 </a>
                 <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
@@ -118,21 +146,17 @@ $result = $conn->query($sql);
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
-                <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
                         <i class="fas fa-box text-primary"></i> Quản lý sản phẩm
                     </h2>
-                    <!-- Nút thêm sản phẩm -->
                     <a href="add_product.php" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-plus"></i> Thêm sản phẩm
                     </a>
                 </div>
 
-                <!-- Action Bar (Search) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                     <div class="relative w-full sm:max-w-md">
                         <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()"
@@ -141,7 +165,6 @@ $result = $conn->query($sql);
                     </div>
                 </div>
 
-                <!-- Products Table -->
                 <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table class="w-full text-left border-collapse" id="myTable">
                         <thead>
@@ -151,14 +174,15 @@ $result = $conn->query($sql);
                                 <th class="p-4 font-medium text-sm">Danh mục</th>
                                 <th class="p-4 font-medium text-sm">Thương hiệu</th>
                                 <th class="p-4 font-medium text-sm">Giá bán</th>
-                                <th class="p-4 font-medium text-sm">Tồn kho</th>
+                                <th class="p-4 font-medium text-sm text-center">Tồn kho</th>
+                                <th class="p-4 font-medium text-sm text-center">Trạng thái</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100" id="productTableBody">
                             <?php if ($result && $result->num_rows > 0): ?>
                                 <?php while($row = $result->fetch_assoc()): ?>
-                                <tr class="hover:bg-blue-50/50 transition duration-150">
+                                <tr id="product-row-<?php echo $row['SanPham_id']; ?>" class="hover:bg-blue-50/50 transition duration-150">
                                     <td class="p-4">
                                         <img src="../<?php echo $row['image_url'] ? $row['image_url'] : 'no-image.png'; ?>" 
                                              alt="<?php echo htmlspecialchars($row['TenSP']); ?>" 
@@ -166,44 +190,55 @@ $result = $conn->query($sql);
                                     </td>
                                     <td class="p-4 font-semibold text-gray-800">
                                         <?php echo htmlspecialchars($row['TenSP']); ?>
-                                    </td>
+                                     </td>
                                     <td class="p-4 text-gray-600">
                                         <?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?>
-                                    </td>
+                                     </td>
                                     <td class="p-4 text-gray-600">
                                         <?php echo htmlspecialchars($row['Ten_thuonghieu'] ?? 'Chưa có'); ?>
-                                    </td>
+                                     </td>
                                     <td class="p-4 font-medium text-gray-700">
                                         <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ
-                                    </td>
-                                    <td class="p-4">
+                                     </td>
+                                    <td class="p-4 text-center">
                                         <?php if($row['SoLuongTon'] > 0): ?>
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                                                <?php echo $row['SoLuongTon']; ?> sản phẩm
+                                                <?php echo $row['SoLuongTon']; ?> 
                                             </span>
                                         <?php else: ?>
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                                                 Hết hàng
                                             </span>
                                         <?php endif; ?>
-                                    </td>
+                                     </td>
+                                    <td class="p-4 text-center">
+                                        <?php if(isset($row['TrangThai']) && $row['TrangThai'] == 1): ?>
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                                <i class="fas fa-check-circle mr-1"></i>Đang bán
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                                <i class="fas fa-eye-slash mr-1"></i>Đã ẩn
+                                            </span>
+                                        <?php endif; ?>
+                                     </td>
                                     <td class="p-4">
                                         <div class="flex items-center justify-center gap-3">
                                             <button onclick="window.location.href='edit_product.php?id=<?php echo $row['SanPham_id']; ?>'" 
                                                     class="text-blue-500 hover:text-blue-700 transition transform hover:scale-110" title="Sửa">
                                                 <i class="fas fa-edit text-lg"></i>
                                             </button>
-                                            <button onclick="deleteProduct(<?php echo $row['SanPham_id']; ?>)" 
+                                            <button onclick="deleteProduct(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>')" 
                                                     class="text-red-500 hover:text-red-700 transition transform hover:scale-110" title="Xóa">
                                                 <i class="fas fa-trash text-lg"></i>
                                             </button>
                                         </div>
-                                    </td>
+                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-12 text-gray-500">
+                                    <td colspan="8" class="text-center py-12 text-gray-500">
                                         <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
                                         <p class="text-lg">Chưa có sản phẩm nào.</p>
                                     </td>
@@ -216,31 +251,50 @@ $result = $conn->query($sql);
         </main>
     </div>
 
-    <!-- MODAL XÁC NHẬN XÓA -->
-    <div id="deleteModal" class="modal fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
-        <div class="modal-content bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
-            <div class="modal-header bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
+    <!-- Modal xác nhận xóa -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
+            <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2">
                     <i class="fas fa-exclamation-triangle"></i> Xác nhận xóa
                 </h3>
-                <button onclick="closeDeleteModal()" class="modal-close text-white hover:text-gray-200 transition text-xl">
+                <button onclick="closeDeleteModal()" class="text-white hover:text-gray-200 transition text-xl">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 text-center">
-                <p class="text-gray-800 font-medium text-lg mb-2">Bạn có chắc chắn muốn xóa sản phẩm này?</p>
-                <p style="color: #666; font-size: 14px; margin-top: 10px;">Thao tác này không thể hoàn tác!</p>
+            <div class="p-8 text-center">
+                <i class="fas fa-trash-alt text-red-500 text-5xl mb-4"></i>
+                <p class="text-gray-800 font-medium text-lg mb-2">Bạn có chắc chắn muốn xóa sản phẩm?</p>
+                <p id="productName" class="text-primary font-semibold text-lg mb-2"></p>
+                <p class="text-gray-500 text-sm">Thao tác này sẽ xóa vĩnh viễn sản phẩm khỏi hệ thống!</p>
+                <p class="text-red-500 text-xs mt-2">Lưu ý: Sản phẩm đang có trong đơn hàng sẽ không thể xóa.</p>
             </div>
-            <div class="modal-footer p-5 border-t border-gray-100 flex justify-center gap-3 bg-gray-50 rounded-b-xl">
-                <button onclick="closeDeleteModal()" class="btn btn-secondary px-6 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
-                <button id="confirmDeleteBtn" class="btn btn-danger px-6 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition font-medium shadow-lg">Xóa</button>
+            <div class="p-5 border-t border-gray-100 flex justify-center gap-3 bg-gray-50 rounded-b-xl">
+                <button onclick="closeDeleteModal()" class="px-6 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">
+                    <i class="fas fa-times mr-2"></i>Hủy
+                </button>
+                <button id="confirmDeleteBtn" class="px-6 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition font-medium shadow-lg">
+                    <i class="fas fa-trash mr-2"></i>Xóa
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript GIỐNG FILE BẠN GỬI - KHÔNG ĐỔI GÌ -->
+    <!-- Toast thông báo -->
+    <div id="toast" class="toast hidden">
+        <div class="bg-white rounded-lg shadow-lg p-4 min-w-[300px] border-l-4 border-green-500">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+                <div>
+                    <p class="font-semibold text-gray-800">Thành công!</p>
+                    <p id="toastMessage" class="text-sm text-gray-600"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Hàm lọc tìm kiếm nhanh (GIỮ NGUYÊN)
+        // Hàm lọc tìm kiếm nhanh
         function filterProducts() {
             let input = document.getElementById("productSearch");
             let filter = input.value.toUpperCase();
@@ -256,32 +310,111 @@ $result = $conn->query($sql);
             }
         }
 
-        // Hàm xóa sản phẩm (GIỮ NGUYÊN)
+        // Hàm xóa sản phẩm
         let deleteId = null;
 
-        function deleteProduct(id) {
+        function deleteProduct(id, productName) {
             deleteId = id;
-            document.getElementById('deleteModal').classList.add('show');
+            document.getElementById('productName').innerHTML = productName;
             document.getElementById('deleteModal').classList.remove('hidden');
             document.getElementById('deleteModal').classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
 
         function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('show');
             document.getElementById('deleteModal').classList.add('hidden');
             document.getElementById('deleteModal').classList.remove('flex');
             document.body.style.overflow = 'auto';
             deleteId = null;
         }
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteId) {
-                window.location.href = 'delete_product.php?id=' + deleteId;
+        // Xử lý xóa bằng AJAX
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!deleteId) return;
+            
+            // Hiển thị loading
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div> Đang xóa...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('delete_product.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'id=' + deleteId
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Xóa dòng sản phẩm khỏi bảng
+                    const row = document.getElementById('product-row-' + deleteId);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    // Hiển thị thông báo thành công
+                    showToast(result.message, 'success');
+                    
+                    // Đóng modal
+                    closeDeleteModal();
+                    
+                    // Nếu không còn sản phẩm nào, hiển thị thông báo
+                    const tbody = document.getElementById('productTableBody');
+                    if (tbody.children.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
+                                    <p class="text-lg">Chưa có sản phẩm nào.</p>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi xóa sản phẩm!', 'error');
+            } finally {
+                // Khôi phục nút
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         });
 
-        // Hàm logout (GIỮ NGUYÊN)
+        // Hàm hiển thị toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const borderColor = type === 'success' ? 'border-green-500' : 'border-red-500';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            const iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
+            
+            toastMessage.innerHTML = message;
+            toast.className = 'toast fixed top-20 right-5 z-50';
+            toast.style.display = 'block';
+            
+            // Thay đổi màu border và icon
+            const toastDiv = toast.querySelector('.bg-white');
+            toastDiv.className = `bg-white rounded-lg shadow-lg p-4 min-w-[300px] border-l-4 ${borderColor}`;
+            const iconElement = toast.querySelector('.fa-check-circle');
+            if (iconElement) {
+                iconElement.className = `fas ${icon} ${iconColor} text-xl mr-3`;
+            }
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Hàm logout
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
                 window.location.href = 'logout.php';
@@ -290,13 +423,18 @@ $result = $conn->query($sql);
 
         // Click outside modal
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('show');
-                event.target.classList.add('hidden');
-                event.target.classList.remove('flex');
-                document.body.style.overflow = 'auto';
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
             }
         }
+        
+        // ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
     </script>
 </body>
 </html>

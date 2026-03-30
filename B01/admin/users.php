@@ -14,34 +14,39 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit();
 }
 
-// Xử lý các action từ URL
+// Xử lý các action từ URL (Khóa/Mở khóa)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $user_id = intval($_GET['id']);
     
     if ($_GET['action'] == 'lock') {
-        toggleUserStatus($conn, $user_id, '0');
-        $message = 'Đã khóa tài khoản thành công!';
-        // Chuyển hướng để tránh submit lại khi refresh
+        toggleUserStatus($conn, $user_id, '0'); // 0 = Khóa
+        $_SESSION['message'] = 'Đã khóa tài khoản thành công!';
         header('Location: users.php');
         exit();
     } elseif ($_GET['action'] == 'unlock') {
-        toggleUserStatus($conn, $user_id, '1');
-        $message = 'Đã mở khóa tài khoản thành công!';
+        toggleUserStatus($conn, $user_id, '1'); // 1 = Hoạt động
+        $_SESSION['message'] = 'Đã mở khóa tài khoản thành công!';
         header('Location: users.php');
         exit();
     }
 }
 
+// Lấy thông báo từ Session (nếu có redirect)
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    unset($_SESSION['message']);
+}
+
 // Xử lý thêm user từ form
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $data = [
-        'username' => $_POST['username'],
+        'username' => trim($_POST['username']),
         'password' => $_POST['password'],
-        'ho_ten' => $_POST['fullname'],
-        'email' => $_POST['email'],
-        'sdt' => $_POST['phone'],
-        'role' => $_POST['role'],
-        'status' => 'active'
+        'ho_ten' => trim($_POST['fullname']),
+        'email' => trim($_POST['email']),
+        'sdt' => trim($_POST['phone']),
+        'role' => intval($_POST['role']), // 1 = Nhân viên, 0 = Khách hàng
+        'status' => 1 // Mặc định khi tạo mới là 1 (Đang hoạt động)
     ];
     
     if (addUser($conn, $data)) {
@@ -53,13 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
 
 // Xử lý cập nhật user
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
-    $user_id = $_POST['user_id'];
+    $user_id = intval($_POST['user_id']);
     $data = [
-        'ho_ten' => $_POST['fullname'],
-        'email' => $_POST['email'],
-        'sdt' => $_POST['phone'],
-        'role' => $_POST['role'],
-        'status' => $_POST['status']
+        'ho_ten' => trim($_POST['fullname']),
+        'email' => trim($_POST['email']),
+        'sdt' => trim($_POST['phone']),
+        'role' => intval($_POST['role']), // 1 = Nhân viên, 0 = Khách hàng
+        'status' => intval($_POST['status']) // 1 = Đang hoạt động, 0 = Đã khóa
     ];
     
     if (updateUser($conn, $user_id, $data)) {
@@ -100,40 +105,25 @@ $users_json = json_encode($users);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý người dùng</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Cấu hình màu sắc -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#667eea',
-                        secondary: '#764ba2',
-                    },
-                    backgroundImage: {
-                        'gradient-custom': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    }
+                    colors: { primary: '#667eea', secondary: '#764ba2' },
+                    backgroundImage: { 'gradient-custom': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
                 }
             }
         }
     </script>
     <style>
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-slide-in {
-            animation: slideIn 0.3s ease-out forwards;
-        }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-   <!-- HEADER -->
    <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
             <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
@@ -143,9 +133,7 @@ $users_json = json_encode($users);
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm text-gray-800">
-                            <?php echo htmlspecialchars($admin_username); ?>
-                        </p>
+                        <p class="font-semibold text-sm text-gray-800"><?php echo htmlspecialchars($admin_username); ?></p>
                         <p class="text-xs text-gray-500">Quản trị viên</p>
                     </div>
                 </div>
@@ -156,85 +144,56 @@ $users_json = json_encode($users);
         </div>
     </header>
 
-    <!-- CONTAINER CHÍNH -->
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
-            </div>
+            <div class="p-6 border-b border-gray-100"><h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3></div>
             <nav class="p-4 space-y-2">
-                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-home w-5 text-center"></i> Dashboard
-                </a>
-                <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-                    <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
-                </a>
-                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
-                </a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
-                </a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
-                </a>
-                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
-                </a>
-                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-                    <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
-                </a>
+                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
+                <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5"><i class="fas fa-users w-5 text-center"></i> Quản lý người dùng</a>
+                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm</a>
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng</a>
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán</a>
+                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng</a>
+                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo</a>
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
-                <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                        <i class="fas fa-users text-primary"></i> Quản lý người dùng
-                    </h2>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3"><i class="fas fa-users text-primary"></i> Quản lý người dùng</h2>
                     <button onclick="openModal('addModal')" class="bg-gradient-custom hover:opacity-90 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-user-plus"></i> Thêm tài khoản
                     </button>
                 </div>
 
-                <!-- Messages -->
                 <?php if (isset($message)): ?>
                     <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3 animate-slide-in">
-                        <i class="fas fa-check-circle"></i>
-                        <span><?php echo $message; ?></span>
+                        <i class="fas fa-check-circle"></i><span><?php echo $message; ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($error)): ?>
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3 animate-slide-in">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span><?php echo $error; ?></span>
+                        <i class="fas fa-exclamation-circle"></i><span><?php echo $error; ?></span>
                     </div>
                 <?php endif; ?>
 
-                <!-- Filter Bar -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, email..." 
-                           class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, email..." class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     <select id="roleFilter" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                         <option value="">Tất cả vai trò</option>
-                        <option value="admin">Admin</option>
-                        <option value="staff">Nhân viên</option>
-                        <option value="customer">Khách hàng</option>
+                        <option value="nhân viên">Nhân viên</option>
+                        <option value="khách hàng">Khách hàng</option>
                     </select>
                     <select id="statusFilter" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
                         <option value="">Tất cả trạng thái</option>
-                        <option value="active">Đang hoạt động</option>
-                        <option value="blocked">Đã khóa</option>
+                        <option value="đang hoạt động">Đang hoạt động</option>
+                        <option value="đã khóa">Đã khóa</option>
                     </select>
                 </div>
 
-                <!-- Users Table -->
                 <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table id="usersTable" class="w-full text-left border-collapse">
                         <thead>
@@ -257,24 +216,14 @@ $users_json = json_encode($users);
                                 <td class="p-4 text-gray-600"><?php echo htmlspecialchars($user['Ho_ten'] ?? ''); ?></td>
                                 <td class="p-4 text-gray-600"><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
                                 <td class="p-4">
-                                    <?php 
-                                    $roleClass = '';
-                                    $roleName = '';
-                                    if ($user['role'] == 'admin' || $user['role'] == 1) {
-                                        $roleClass = 'bg-gradient-custom text-white';
-                                        $roleName = 'Admin';
-                                    } elseif ($user['role'] == 'staff' || $user['role'] == 2) {
-                                        $roleClass = 'bg-blue-500 text-white';
-                                        $roleName = 'Nhân viên';
-                                    } else {
-                                        $roleClass = 'bg-gray-500 text-white';
-                                        $roleName = 'Khách hàng';
-                                    }
-                                    ?>
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium <?php echo $roleClass; ?>"><?php echo $roleName; ?></span>
+                                    <?php if ($user['role'] == 1): ?>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-gradient-custom text-white">Nhân viên</span>
+                                    <?php else: ?>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-500 text-white">Khách hàng</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="p-4">
-                                    <?php if ($user['status'] === 'active' || $user['status'] == 1): ?>
+                                    <?php if ($user['status'] == 1): ?>
                                         <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
                                             <i class="fas fa-check-circle mr-1 text-xs"></i> Đang hoạt động
                                         </span>
@@ -294,22 +243,17 @@ $users_json = json_encode($users);
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <button onclick="resetPasswordDefault(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
-                                                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" 
-                                                title="Đặt lại mật khẩu thành 123456">
+                                                class="w-8 h-8 rounded bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center transition shadow-sm" title="Đặt lại mật khẩu thành 123456">
                                             <i class="fas fa-key text-xs"></i>
                                         </button>
-                                        <?php if ($user['status'] === 'active' || $user['status'] == 1): ?>
-                                            <!-- Nút KHÓA tài khoản (màu đỏ) -->
+                                        <?php if ($user['status'] == 1): ?>
                                             <button onclick="lockUser(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
-                                                    class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" 
-                                                    title="Khóa tài khoản">
+                                                    class="w-8 h-8 rounded bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm" title="Khóa tài khoản">
                                                 <i class="fas fa-ban text-xs"></i>
                                             </button>
                                         <?php else: ?>
-                                            <!-- Nút MỞ KHÓA tài khoản (màu xanh lá) -->
                                             <button onclick="unlockUser(<?php echo $user['User_id']; ?>, '<?php echo htmlspecialchars($user['Username']); ?>')" 
-                                                    class="w-8 h-8 rounded bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm" 
-                                                    title="Mở khóa tài khoản">
+                                                    class="w-8 h-8 rounded bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-sm" title="Mở khóa tài khoản">
                                                 <i class="fas fa-check-circle text-xs"></i>
                                             </button>
                                         <?php endif; ?>
@@ -324,7 +268,6 @@ $users_json = json_encode($users);
         </main>
     </div>
 
-    <!-- MODAL THÊM NGƯỜI DÙNG -->
     <div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
@@ -356,9 +299,8 @@ $users_json = json_encode($users);
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
                         <select name="role" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
-                            <option value="customer">Khách hàng</option>
-                            <option value="staff">Nhân viên</option>
-                            <option value="admin">Admin</option>
+                            <option value="0">Khách hàng</option>
+                            <option value="1">Nhân viên</option>
                         </select>
                     </div>
                 </div>
@@ -370,7 +312,6 @@ $users_json = json_encode($users);
         </div>
     </div>
 
-    <!-- MODAL XEM CHI TIẾT -->
     <div id="viewModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
@@ -378,15 +319,13 @@ $users_json = json_encode($users);
                 <button onclick="closeModal('viewModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6 overflow-y-auto" id="viewContent">
-                <!-- Nội dung sẽ load bằng JavaScript -->
-            </div>
+                </div>
             <div class="p-5 border-t border-gray-100 flex justify-end bg-gray-50 rounded-b-xl">
                 <button onclick="closeModal('viewModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Đóng</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CHỈNH SỬA -->
     <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
@@ -415,16 +354,15 @@ $users_json = json_encode($users);
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
                         <select name="role" id="editRole" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
-                            <option value="customer">Khách hàng</option>
-                            <option value="staff">Nhân viên</option>
-                            <option value="admin">Admin</option>
+                            <option value="0">Khách hàng</option>
+                            <option value="1">Nhân viên</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Trạng thái</label>
                         <select name="status" id="editStatus" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition bg-white">
-                            <option value="active">Đang hoạt động</option>
-                            <option value="blocked">Đã khóa</option>
+                            <option value="1">Đang hoạt động</option>
+                            <option value="0">Đã khóa</option>
                         </select>
                     </div>
                 </div>
@@ -436,13 +374,11 @@ $users_json = json_encode($users);
         </div>
     </div>
 
-    <!-- Form ẩn để reset mật khẩu -->
     <form id="resetDefaultForm" method="POST" style="display:none;">
         <input type="hidden" name="user_id" id="resetDefaultUserId">
         <input type="hidden" name="reset_to_default" value="1">
     </form>
 
-    <!-- SCRIPT -->
     <script>
         const users = <?php echo $users_json; ?>;
 
@@ -460,21 +396,18 @@ $users_json = json_encode($users);
             document.body.style.overflow = 'auto';
         }
 
-        // Hàm khóa tài khoản với xác nhận
         function lockUser(userId, username) {
             if (confirm(`⚠️ Bạn có chắc muốn KHÓA tài khoản "${username}"?`)) {
                 window.location.href = `?action=lock&id=${userId}`;
             }
         }
 
-        // Hàm mở khóa tài khoản với xác nhận
         function unlockUser(userId, username) {
             if (confirm(`✅ Bạn có chắc muốn MỞ KHÓA tài khoản "${username}"?`)) {
                 window.location.href = `?action=unlock&id=${userId}`;
             }
         }
 
-        // Hàm reset mật khẩu về 12345
         function resetPasswordDefault(userId, username) {
             if (confirm(`⚠️ Bạn có chắc muốn ĐẶT LẠI mật khẩu của tài khoản "${username}" thành "123456"?`)) {
                 document.getElementById('resetDefaultUserId').value = userId;
@@ -486,13 +419,9 @@ $users_json = json_encode($users);
             const user = users.find(u => u.User_id == userId);
             
             if (user) {
-                const statusText = (user.status === 'active' || user.status == 1) ? 'Đang hoạt động' : 'Đã khóa';
-                const statusColor = (user.status === 'active' || user.status == 1) ? 'text-green-600' : 'text-red-600';
-                
-                let roleText = '';
-                if (user.role == 'admin' || user.role == 1) roleText = 'Admin';
-                else if (user.role == 'staff' || user.role == 2) roleText = 'Nhân viên';
-                else roleText = 'Khách hàng';
+                const statusText = (user.status == 1) ? 'Đang hoạt động' : 'Đã khóa';
+                const statusColor = (user.status == 1) ? 'text-green-600' : 'text-red-600';
+                const roleText = (user.role == 1) ? 'Nhân viên' : 'Khách hàng';
                 
                 const html = `
                     <div class="grid grid-cols-[100px_1fr] gap-3 text-sm">
@@ -530,23 +459,26 @@ $users_json = json_encode($users);
                 document.getElementById('editFullname').value = user.Ho_ten || '';
                 document.getElementById('editEmail').value = user.email || '';
                 document.getElementById('editPhone').value = user.SDT || '';
-                document.getElementById('editRole').value = (user.role == 'admin' || user.role == 1) ? 'admin' : ((user.role == 'staff' || user.role == 2) ? 'staff' : 'customer');
-                document.getElementById('editStatus').value = (user.status === 'active' || user.status == 1) ? 'active' : 'blocked';
+                
+                // Set đúng value 1 hoặc 0 cho select
+                document.getElementById('editRole').value = (user.role == 1) ? '1' : '0';
+                document.getElementById('editStatus').value = (user.status == 1) ? '1' : '0';
+                
                 openModal('editModal');
             } else {
                 alert('Không tìm thấy người dùng!');
             }
         }
 
-        // Filter Table
+        // Filter Table (Tìm chuỗi text theo select)
         document.getElementById('searchInput').addEventListener('keyup', filterTable);
         document.getElementById('roleFilter').addEventListener('change', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
 
         function filterTable() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
-            const roleValue = document.getElementById('roleFilter').value;
-            const statusValue = document.getElementById('statusFilter').value;
+            const roleValue = document.getElementById('roleFilter').value.toLowerCase();
+            const statusValue = document.getElementById('statusFilter').value.toLowerCase();
             const rows = document.querySelectorAll('#usersTable tbody tr');
 
             rows.forEach(row => {
@@ -558,9 +490,7 @@ $users_json = json_encode($users);
 
                 let matchSearch = searchValue === '' || username.includes(searchValue) || fullname.includes(searchValue) || email.includes(searchValue);
                 let matchRole = roleValue === '' || role.includes(roleValue);
-                let matchStatus = statusValue === '' || 
-                    (statusValue === '1' && status.includes('đang hoạt động')) ||
-                    (statusValue === '0' && status.includes('đã khóa'));
+                let matchStatus = statusValue === '' || status.includes(statusValue);
 
                 row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
             });

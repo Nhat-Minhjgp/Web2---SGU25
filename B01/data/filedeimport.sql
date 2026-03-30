@@ -662,7 +662,7 @@ ALTER TABLE `sanpham` ADD COLUMN `CanhBaoTon` INT DEFAULT 10 AFTER `SoLuongTon`;
 -- THÊM CỘT TRẠNG THÁI CHO BẢNG phieunhap
 -- ============================================
 ALTER TABLE `phieunhap` 
-ADD COLUMN IF NOT EXISTS `TrangThai` ENUM('pending', 'completed') DEFAULT 'pending' AFTER `SoLuong`;
+ADD COLUMN `TrangThai` ENUM('pending', 'completed') DEFAULT 'pending' AFTER `SoLuong`;
 
 -- ============================================
 -- TRIGGER MỚI - CHỈ CẬP NHẬT SỐ LƯỢNG TRONG PHIẾU
@@ -833,46 +833,55 @@ DELIMITER ;
 (13, 'Vợt Pickleball Soxter Impact', 3, 3, 3, 'đắt vãi ò', 'img/sanpham/vot-pickleball-soxter-impact-pro-2.png', 3800000, 4370000.00, 0.15, 1, '2026-03-20 22:16:21', 6, 5),
 (14, 'Vợt cầu lông 1000z', 1, 1, 2, 'Vợt cầu lông Yonex Nanoflare 1000Z có vùng Sweet spot khá rộng, giúp bạn có thể tập trung vào việc tăng cường sức mạnh và độ chính xác của các cú đánh. Điểm nổi bật nhất ở phiên bản mới này nằm ở thiết kế khung vợt khi Yonex tích hợp hai loại Aero Frame và Compact Frame', 'img/sanpham/PROD-20260328130506-69c7c3f2c9cab.webp', 1500000, 1695000.00, 0.13, 0, '2026-03-28 19:05:06', 20, 5),
 (15, 'Vợt cầu lông yonex 100zz VA', 1, 1, 2, 'Vợt cầu lông Yonex Astrox 100ZZ VA là phiên bản đặc biệt “VA Signature” của dòng Astrox 100ZZ từ Yonex - cây vợt chuyên nghiệp này được thiết kế riêng theo phong cách cá nhân của vận động viên Viktor Axelsen. Nó thể hiện rõ phương châm \"Chúng ta cùng nhau phấn đấu\" của nhà vô địch Olympic. Vợt với màu sắc trắng xanh này là phiên bản giới hạn của mẫu vợt chủ lực thuộc dòng Astrox, với độ cân bằng cao ở đầu vợt và cán vợt cực kỳ cứng cáp, lý tưởng cho những người chơi tìm kiếm sức mạnh và độ chính xác tối đa.', 'img/sanpham/PROD-20260328131037-69c7c53d540ea.webp', 400000, 520000.00, 0.30, 1, '2026-03-28 19:10:37', 30, 5),
-(16, 'Balo Cầu Lông Lining P-ABSU401-1 chính hãng', 1, 3, 1, 'Balo Cầu Lông Lining P-ABSU401-1 nổi bật với tông màu đen chủ đạo cho cái nhìn sang trọng với kiểu dáng thể thao, trẻ trung năng động phù hợp mọi hoàn cảnh từ đem tới sân cầu cho tới đem đi du lịch với nhiều túi nhỏ tiện dụng để đựng điện thoại, phụ kiện, đồ dùng cá nhân.', '1774703260_69c7d29c36e15.webp', 1000000, 1900000.00, 0.90, 1, '2026-03-28 20:00:08', 10, 5),
+(16, 'Balo Cầu Lông Lining P-ABSU401-1 chính hãng', 1, 3, 1, 'Balo Cầu Lông Lining P-ABSU401-1 nổi bật với tông màu đen chủ đạo cho cái nhìn sang trọng với kiểu dáng thể thao, trẻ trung năng động phù hợp mọi hoàn cảnh từ đem tới sân cầu cho tới đem đi du lịch với nhiều túi nhỏ tiện dụng để đựng điện thoại, phụ kiện, đồ dùng cá nhân.', 'img/sanpham/balo-cau-long-lining-p-absu401-1-chinh-hang_1733448055.webp', 1000000, 1900000.00, 0.90, 1, '2026-03-28 20:00:08', 10, 5),
 (17, 'Balo cầu lông Lining P-ABSV133-1 chính hãng', 2, 3, 1, '- Balo cầu lông Lining P-ABSV133-1 được thiết kế dành riêng cho người chơi cầu lông phong trào, học sinh, sinh viên và người trẻ yêu thích phong cách thể thao, unisex hiện đại. Với mức giá hợp lý, đây là một lựa chọn đáng cân nhắc trong phân khúc balo cầu lông tầm trung.', 'img/sanpham/PROD-20260328140900-69c7d2ec3ebf5.webp', 900000, 1080000.00, 0.20, 1, '2026-03-28 20:09:00', 10, 5),
 (18, 'Dây cước căng vợt Yonex BG 80 Power', 2, 1, 3, '- Dây cước căng vợt Yonex BG 80 Power là loại cước với độ cứng cao, độ nảy tốt được khá nhiều các vận động viên thế giới sử dụng. Ngoài ra, cước được phủ một lớp phức hợp Titanium bên ngoài cho độ nhám ở bề mặt kết hợp cùng đường kính dây 0.68mm đảm bảo trong lúc sử dụng dây ít bị chạy và tụt kg tạo ra độ bền nhất định.', 'img/sanpham/PROD-20260328141835-69c7d52ba34e7.webp', 200000, 240000.00, 0.20, 0, '2026-03-28 20:18:35', 20, 5),
 (19, 'Túi cầu lông Yonex BAG2326T02', 2, 1, 2, '- Được làm bằng chất liệu cao cấp đảm bảo độ bền, chống thấm hiệu quả, dễ dàng vệ sinh. Thiết kế với màu xanh cùng với các họa tiết được làm tỉ mỉ tạo nên phong cách nổi bật, năng động và hiện đại, có thể sử dụng trong các chuyến đi dã ngoại hoặc du lịch vô cùng tiện lợi.', 'img/sanpham/PROD-20260328142145-69c7d5e91603e.webp', 5000000, 5500000.00, 0.10, 1, '2026-03-28 20:21:45', 19, 5);
 
-  INSERT INTO `chitietphieunhap` (`SanPham_id`	,`SoLuong`,	`Gia_Nhap`) VALUES 
-  (8,10,280000),
-  (8,50,275000),
-  (8,100,350000),
-  (1,10,3200000),
-  (2,15,2500000),
-  (3,8,2800000),
-  (4,12,3100000),
-  (5,7,2900000),
-  (6,50,450000),
-  (7,10,180000),
-  (9,45,320000),
-  (10,5,4500000),
-  (11,4,5200000),
-  (12,10,2100000),
-  (13,6,3800000);
+ 
 
 
+ INSERT INTO `phieunhap` (`NguoiNhap`, `NgayNhap`, `SoLuong`, `TrangThai`) VALUES
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed'),
+('user', CURDATE(), 0, 'completed');
 
-  INSERT INTO `phieunhap` ( `NguoiNhap`, `NgayNhap`, `SoLuong`) VALUES
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0),
-('user', '2026-03-23', 0);
-
+ INSERT INTO `chitietphieunhap` (`PhieuNhap_id`, `SanPham_id`, `SoLuong`, `Gia_Nhap`, `MaLoHang`) VALUES
+(1, 1, 10, 3200000, 'LH001'),
+(2, 2, 10, 2500000, 'LH002'),
+(3, 3, 10, 2800000, 'LH003'),
+(4, 4, 10, 3100000, 'LH004'),
+(5, 5, 10, 2900000, 'LH005'),
+(6, 6, 10, 450000, 'LH006'),
+(7, 7, 10, 180000, 'LH007'),
+(8, 8, 10, 322188, 'LH008'),
+(9, 9, 10, 320000, 'LH009'),
+(10, 10, 10, 4500000, 'LH010'),
+(11, 11, 10, 5200000, 'LH011'),
+(12, 12, 10, 2100000, 'LH012'),
+(13, 13, 10, 3800000, 'LH013'),
+(14, 14, 10, 1500000, 'LH014'),
+(15, 15, 10, 400000, 'LH015'),
+(16, 16, 10, 1000000, 'LH016'),
+(17, 17, 10, 900000, 'LH017'),
+(18, 18, 10, 200000, 'LH018'),
+(19, 19, 10, 5000000, 'LH019');
 
   INSERT INTO `users` (`User_id`, `Username`, `password`, `Ho_ten`, `email`, `SDT`, `role`, `status`, `created_at`) VALUES
   (1, 'user', '$2y$10$WyfbWCYPDFLPz2HbRfYDa.POvoakT/E71k.3Qhbe2Fay/NAx0ZH3i', NULL, NULL, NULL, 1, '1', '2026-03-20 22:30:01'),
