@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     ];
     
     // Tính giá bán từ giá nhập và tỷ lệ lợi nhuận
-    $data['gia_ban'] = $product['GiaNhapTB'] * (1 + $data['phan_tram_loi_nhuan'] / 100);
+    $data['gia_ban'] = $product['GiaNhapTB'] * (1 + $data['phan_tram_loi_nhuan']);
     
     // Xử lý upload hình mới
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -314,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                                 <span class="info-badge">Tự động tính</span>
                             </label>
                             <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
-                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + % lợi nhuận/100)</p>
+                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + % lợi nhuận)</p>
                         </div>
                     </div>
                     
@@ -389,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             }
             
             if (giaNhapGoc > 0) {
-                // Công thức tính giá bán: Giá nhập × (1 + % lợi nhuận/100)
+                // Công thức tính giá bán: Giá nhập × (1 + % lợi nhuận)
                 let giaBan = giaNhapGoc * (1 + phanTram );
                 // Làm tròn và hiển thị
                 document.getElementById('gia_ban').value = Math.round(giaBan).toLocaleString('vi-VN') + 'đ';
