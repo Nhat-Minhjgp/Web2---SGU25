@@ -176,6 +176,9 @@ $result = $conn->query($sql);
         <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
             <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
         </a>
+        <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+</a>
         <a href="product.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
             <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
         </a>
@@ -378,63 +381,82 @@ $result = $conn->query($sql);
 
         // Xử lý xóa bằng AJAX
         document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
-            if (!deleteId) return;
-            
-            // Hiển thị loading
-            const btn = this;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<div class="loading-spinner"></div> Đang xóa...';
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch('delete_product.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'id=' + deleteId
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Xóa dòng sản phẩm khỏi bảng
-                    const row = document.getElementById('product-row-' + deleteId);
-                    if (row) {
-                        row.remove();
-                    }
-                    
-                    // Hiển thị thông báo thành công
-                    showToast(result.message, 'success');
-                    
-                    // Đóng modal
-                    closeDeleteModal();
-                    
-                    // Nếu không còn sản phẩm nào, hiển thị thông báo
-                    const tbody = document.getElementById('productTableBody');
-                    if (tbody.children.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="8" class="text-center py-12 text-gray-500">
-                                    <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
-                                    <p class="text-lg">Chưa có sản phẩm nào.</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                } else {
-                    // Hiển thị thông báo lỗi
-                    showToast(result.message, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Có lỗi xảy ra khi xóa sản phẩm!', 'error');
-            } finally {
-                // Khôi phục nút
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+    if (!deleteId) return;
+    
+    // Hiển thị loading
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<div class="loading-spinner"></div> Đang xóa...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('delete_product.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id=' + deleteId
         });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Kiểm tra xem sản phẩm đã được ẩn hay xóa hẳn
+            // Dựa vào message để biết
+            if (result.message.includes('đã được ẩn')) {
+                // Sản phẩm bị ẩn - cập nhật lại trạng thái hiển thị
+                const row = document.getElementById('product-row-' + deleteId);
+                if (row) {
+                    // Cập nhật cột trạng thái (cột thứ 7 - index 6)
+                    const statusCell = row.cells[6];
+                    statusCell.innerHTML = `
+                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                            <i class="fas fa-eye-slash mr-1"></i>Đã ẩn
+                        </span>
+                    `;
+                    
+                    // Tùy chọn: thay đổi màu badge tồn kho nếu muốn
+                    // Không xóa dòng, chỉ cập nhật trạng thái
+                }
+                showToast(result.message, 'warning');
+            } else if (result.message.includes('xóa vĩnh viễn')) {
+                // Xóa hẳn - remove dòng
+                const row = document.getElementById('product-row-' + deleteId);
+                if (row) {
+                    row.remove();
+                }
+                showToast(result.message, 'success');
+            } else {
+                // Trường hợp khác
+                showToast(result.message, 'info');
+            }
+            
+            // Đóng modal
+            closeDeleteModal();
+            
+            // Nếu không còn sản phẩm nào, hiển thị thông báo
+            const tbody = document.getElementById('productTableBody');
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-12 text-gray-500">
+                            <i class="fas fa-box-open text-5xl mb-4 block text-gray-300"></i>
+                            <p class="text-lg">Chưa có sản phẩm nào.</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra khi xóa sản phẩm!', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
 
         // Hàm hiển thị toast
         function showToast(message, type = 'success') {
