@@ -1005,3 +1005,8 @@ ON DUPLICATE KEY UPDATE
     `Ten_thuonghieu` = VALUES(`Ten_thuonghieu`),
     `slug`           = VALUES(`slug`),
     `image_url`      = VALUES(`image_url`);
+-- =====================================
+-- CẬP NHẬT THƯƠNG HIỆU CHO SẢN PHẨM
+-- =====================================
+UPDATE `sanpham` SET `Ma_thuonghieu` = 12 WHERE `SanPham_id` IN (11, 12);
+UPDATE `sanpham` SET `Ma_thuonghieu` = 13 WHERE `SanPham_id` IN (10, 13);
