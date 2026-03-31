@@ -27,14 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
     // Xử lý upload ảnh
     $imageUrl = '';
     if (!empty($_FILES['image_url']['name']) && $_FILES['image_url']['error'] === 0) {
-        $uploadDir = __DIR__ . '/../uploads/categories/';
+        $uploadDir = __DIR__ . '/../img/icons/';
         if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
         
         $ext = pathinfo($_FILES['image_url']['name'], PATHINFO_EXTENSION);
         $newName = 'CAT-' . date('YmdHis') . '-' . uniqid() . '.' . $ext;
         
         if (move_uploaded_file($_FILES['image_url']['tmp_name'], $uploadDir . $newName)) {
-            $imageUrl = 'uploads/categories/' . $newName;
+            $imageUrl = 'img/icons/' . $newName;
         }
     }
     
@@ -63,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_category'])) {
     if (!empty($ten_danhmuc)) {
         // Kiểm tra xem có upload ảnh mới không
         if (!empty($_FILES['image_url']['name']) && $_FILES['image_url']['error'] === 0) {
-            $uploadDir = __DIR__ . '/../uploads/categories/';
+            $uploadDir = __DIR__ . '/../img/icons/';
             if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
             
             $ext = pathinfo($_FILES['image_url']['name'], PATHINFO_EXTENSION);
             $newName = 'CAT-' . date('YmdHis') . '-' . uniqid() . '.' . $ext;
             
             if (move_uploaded_file($_FILES['image_url']['tmp_name'], $uploadDir . $newName)) {
-                $imageUrl = 'uploads/categories/' . $newName;
+                $imageUrl = 'img/icons/' . $newName;
                 // Có ảnh mới -> Update cả tên, slug và ảnh
                 $stmt = $conn->prepare("UPDATE danhmuc SET Ten_danhmuc = ?, slug = ?, image_url = ? WHERE Danhmuc_id = ?");
                 $stmt->bind_param("sssi", $ten_danhmuc, $slug, $imageUrl, $id);
