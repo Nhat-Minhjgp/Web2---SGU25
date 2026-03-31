@@ -477,7 +477,11 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
-               
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">% Lợi nhuận (từ sản phẩm)</label>
+                    <input type="text" class="profit-display w-full px-3 py-2 rounded-lg border text-sm bg-gray-100"
+                        readonly value="20%">
+                </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Giá bán dự kiến</label>
                     <input type="text" class="selling-price w-full px-3 py-2 rounded-lg border text-sm bg-gray-100"
