@@ -1198,7 +1198,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                             </button>
                                             <!-- Links -->
                                             <div class="flex justify-between text-xs pt-2">
-                                                <a href="#" class="text-gray-500 hover:text-red-600">Quên mật khẩu?</a>
+                                                <a href="#" class="text-gray-500 hover:text-red-600"></a>
                                                 <a href="./register.php"
                                                     class="text-[#FF3F1A] font-bold hover:underline">Đăng ký</a>
                                             </div>
