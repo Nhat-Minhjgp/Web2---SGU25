@@ -11,19 +11,41 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 $admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_username = $_SESSION['admin_username'] ?? '';
 
+// Hàm tạo slug
+function createSlug($str) {
+    $str = trim(mb_strtolower($str, 'UTF-8'));
+    $str = preg_replace('/[^a-z0-9\s-]/', '', $str);
+    $str = preg_replace('/[\s-]+/', '-', $str);
+    return trim($str, '-');
+}
+
 // Xử lý thêm danh mục
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
     $ten_danhmuc = trim($_POST['ten_danhmuc']);
     $slug = createSlug($ten_danhmuc);
     
+    // Xử lý upload ảnh
+    $imageUrl = '';
+    if (!empty($_FILES['image_url']['name']) && $_FILES['image_url']['error'] === 0) {
+        $uploadDir = __DIR__ . '/../uploads/categories/';
+        if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+        
+        $ext = pathinfo($_FILES['image_url']['name'], PATHINFO_EXTENSION);
+        $newName = 'CAT-' . date('YmdHis') . '-' . uniqid() . '.' . $ext;
+        
+        if (move_uploaded_file($_FILES['image_url']['tmp_name'], $uploadDir . $newName)) {
+            $imageUrl = 'uploads/categories/' . $newName;
+        }
+    }
+    
     if (!empty($ten_danhmuc)) {
-        $stmt = $conn->prepare("INSERT INTO danhmuc (Ten_danhmuc, slug) VALUES (?, ?)");
-        $stmt->bind_param("ss", $ten_danhmuc, $slug);
+        $stmt = $conn->prepare("INSERT INTO danhmuc (Ten_danhmuc, slug, image_url) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $ten_danhmuc, $slug, $imageUrl);
         if ($stmt->execute()) {
             $message = 'Thêm danh mục thành công!';
             $messageType = 'success';
         } else {
-            $message = 'Có lỗi xảy ra!';
+            $message = 'Có lỗi xảy ra khi lưu vào database!';
             $messageType = 'error';
         }
     } else {
@@ -39,8 +61,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_category'])) {
     $slug = createSlug($ten_danhmuc);
     
     if (!empty($ten_danhmuc)) {
-        $stmt = $conn->prepare("UPDATE danhmuc SET Ten_danhmuc = ?, slug = ? WHERE Danhmuc_id = ?");
-        $stmt->bind_param("ssi", $ten_danhmuc, $slug, $id);
+        // Kiểm tra xem có upload ảnh mới không
+        if (!empty($_FILES['image_url']['name']) && $_FILES['image_url']['error'] === 0) {
+            $uploadDir = __DIR__ . '/../uploads/categories/';
+            if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+            
+            $ext = pathinfo($_FILES['image_url']['name'], PATHINFO_EXTENSION);
+            $newName = 'CAT-' . date('YmdHis') . '-' . uniqid() . '.' . $ext;
+            
+            if (move_uploaded_file($_FILES['image_url']['tmp_name'], $uploadDir . $newName)) {
+                $imageUrl = 'uploads/categories/' . $newName;
+                // Có ảnh mới -> Update cả tên, slug và ảnh
+                $stmt = $conn->prepare("UPDATE danhmuc SET Ten_danhmuc = ?, slug = ?, image_url = ? WHERE Danhmuc_id = ?");
+                $stmt->bind_param("sssi", $ten_danhmuc, $slug, $imageUrl, $id);
+            }
+        } else {
+            // Không có ảnh mới -> Chỉ update tên và slug
+            $stmt = $conn->prepare("UPDATE danhmuc SET Ten_danhmuc = ?, slug = ? WHERE Danhmuc_id = ?");
+            $stmt->bind_param("ssi", $ten_danhmuc, $slug, $id);
+        }
+        
         if ($stmt->execute()) {
             $message = 'Cập nhật danh mục thành công!';
             $messageType = 'success';
@@ -82,14 +122,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
 
 // Lấy danh sách danh mục
 $categories = $conn->query("SELECT * FROM danhmuc ORDER BY Danhmuc_id DESC");
-
-// Hàm tạo slug
-function createSlug($str) {
-    $str = trim(mb_strtolower($str, 'UTF-8'));
-    $str = preg_replace('/[^a-z0-9\s-]/', '', $str);
-    $str = preg_replace('/[\s-]+/', '-', $str);
-    return trim($str, '-');
-}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -119,7 +151,6 @@ function createSlug($str) {
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- HEADER -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
             <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
@@ -141,7 +172,6 @@ function createSlug($str) {
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
@@ -159,7 +189,6 @@ function createSlug($str) {
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>
-                
                 <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
                 </a>
@@ -175,7 +204,6 @@ function createSlug($str) {
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
@@ -198,12 +226,14 @@ function createSlug($str) {
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gradient-custom text-white">
+                                <th class="p-4 font-medium text-sm">Hình ảnh</th>
                                 <th class="p-4 font-medium text-sm">ID</th>
                                 <th class="p-4 font-medium text-sm">Tên danh mục</th>
                                 <th class="p-4 font-medium text-sm">Slug</th>
                                 <th class="p-4 font-medium text-sm">Số sản phẩm</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
-                            </thead>
+                            </tr>
+                        </thead>
                         <tbody class="divide-y divide-gray-200">
                             <?php while($cat = $categories->fetch_assoc()): 
                                 $count_sql = $conn->prepare("SELECT COUNT(*) as total FROM sanpham WHERE Danhmuc_id = ?");
@@ -212,6 +242,15 @@ function createSlug($str) {
                                 $product_count = $count_sql->get_result()->fetch_assoc()['total'];
                             ?>
                             <tr class="hover:bg-blue-50/50 transition">
+                                <td class="p-4">
+                                    <?php if (!empty($cat['image_url'])): ?>
+                                        <img src="../<?php echo $cat['image_url']; ?>" alt="<?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>" class="w-12 h-12 object-cover rounded-lg border border-gray-200">
+                                    <?php else: ?>
+                                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-image text-gray-400 text-xl"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="p-4 text-gray-600"><?php echo $cat['Danhmuc_id']; ?></td>
                                 <td class="p-4 font-medium text-gray-800"><?php echo htmlspecialchars($cat['Ten_danhmuc']); ?></td>
                                 <td class="p-4 text-gray-500 font-mono text-sm"><?php echo htmlspecialchars($cat['slug'] ?? '-'); ?></td>
@@ -222,7 +261,7 @@ function createSlug($str) {
                                 </td>
                                 <td class="p-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button onclick="editCategory(<?php echo $cat['Danhmuc_id']; ?>, '<?php echo addslashes($cat['Ten_danhmuc']); ?>')" 
+                                        <button onclick="editCategory(<?php echo $cat['Danhmuc_id']; ?>, '<?php echo addslashes($cat['Ten_danhmuc']); ?>', '<?php echo isset($cat['image_url']) ? addslashes($cat['image_url']) : ''; ?>')" 
                                                 class="w-8 h-8 rounded bg-yellow-400 hover:bg-yellow-500 text-gray-800 flex items-center justify-center transition" title="Sửa">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
@@ -248,18 +287,24 @@ function createSlug($str) {
         </main>
     </div>
 
-    <!-- Modal thêm danh mục -->
     <div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-plus"></i> Thêm danh mục</h3>
                 <button onclick="closeModal('addModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
-            <form method="POST" class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="p-6">
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tên danh mục <span class="text-red-500">*</span></label>
                     <input type="text" name="ten_danhmuc" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
-                    <p class="text-xs text-gray-500 mt-1">Ví dụ: Vợt cầu lông, Phụ kiện, Vợt Pickleball</p>
+                    <p class="text-xs text-gray-500 mt-1">Ví dụ: Vợt cầu lông, Phụ kiện</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Hình ảnh danh mục</label>
+                    <input type="file" name="image_url" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg" onchange="previewAddImage(this)">
+                    <div class="mt-3 hidden" id="addImgPreviewContainer">
+                        <img id="addImgPreview" src="" class="h-24 w-auto rounded-lg border border-gray-200 shadow-sm">
+                    </div>
                 </div>
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeModal('addModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition">Hủy</button>
@@ -269,18 +314,31 @@ function createSlug($str) {
         </div>
     </div>
 
-    <!-- Modal sửa danh mục -->
     <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-md mx-4 shadow-2xl animate-slide-in">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-edit"></i> Sửa danh mục</h3>
                 <button onclick="closeModal('editModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
-            <form method="POST" class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="p-6">
                 <input type="hidden" name="category_id" id="edit_category_id">
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tên danh mục <span class="text-red-500">*</span></label>
                     <input type="text" name="ten_danhmuc" id="edit_category_name" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Đổi hình ảnh (để trống nếu không đổi)</label>
+                    <input type="file" name="image_url" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg" onchange="previewEditImage(this)">
+                    <div class="mt-3 flex gap-4 items-center">
+                        <div id="currentImgContainer" class="hidden">
+                            <p class="text-xs text-gray-500 mb-1">Ảnh hiện tại:</p>
+                            <img id="currentImg" src="" class="h-16 w-auto rounded-lg border border-gray-200 opacity-70">
+                        </div>
+                        <div id="editImgPreviewContainer" class="hidden">
+                            <p class="text-xs text-green-600 mb-1 font-semibold">Ảnh mới sẽ thay thế:</p>
+                            <img id="editImgPreview" src="" class="h-16 w-auto rounded-lg border-2 border-green-500 shadow-sm">
+                        </div>
+                    </div>
                 </div>
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeModal('editModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition">Hủy</button>
@@ -295,11 +353,29 @@ function createSlug($str) {
             document.getElementById('addModal').classList.remove('hidden');
             document.getElementById('addModal').classList.add('flex');
             document.body.style.overflow = 'hidden';
+            
+            // Reset form
+            document.getElementById('addImgPreviewContainer').classList.add('hidden');
+            document.querySelector('#addModal form').reset();
         }
 
-        function editCategory(id, name) {
+        function editCategory(id, name, imgUrl) {
             document.getElementById('edit_category_id').value = id;
             document.getElementById('edit_category_name').value = name;
+            
+            // Reset preview ảnh mới
+            document.getElementById('editImgPreviewContainer').classList.add('hidden');
+            document.querySelector('input[name="image_url"]').value = '';
+            
+            // Hiển thị ảnh hiện tại nếu có
+            const currentImgContainer = document.getElementById('currentImgContainer');
+            if (imgUrl && imgUrl !== '') {
+                document.getElementById('currentImg').src = '../' + imgUrl;
+                currentImgContainer.classList.remove('hidden');
+            } else {
+                currentImgContainer.classList.add('hidden');
+            }
+
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editModal').classList.add('flex');
             document.body.style.overflow = 'hidden';
@@ -310,6 +386,40 @@ function createSlug($str) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             document.body.style.overflow = 'auto';
+        }
+        
+        // Xem trước ảnh khi Thêm
+        function previewAddImage(input) {
+            const previewContainer = document.getElementById('addImgPreviewContainer');
+            const preview = document.getElementById('addImgPreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        }
+        
+        // Xem trước ảnh khi Sửa
+        function previewEditImage(input) {
+            const previewContainer = document.getElementById('editImgPreviewContainer');
+            const preview = document.getElementById('editImgPreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    previewContainer.classList.add('block');
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewContainer.classList.add('hidden');
+                previewContainer.classList.remove('block');
+            }
         }
 
         function logout() {
