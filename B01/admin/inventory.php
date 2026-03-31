@@ -339,6 +339,28 @@ if (isset($_GET['get_report'])) {
             background-color: #f9fafb;
             transition: all 0.2s;
         }
+
+        /* Fix layout responsive cho filter */
+        @media (max-width: 768px) {
+            .flex-wrap.gap-3>div {
+                min-width: 100% !important;
+            }
+        }
+
+        /* Highlight row khi hover có filter */
+        .inventory-row-filtered {
+            animation: highlight 0.5s ease;
+        }
+
+        @keyframes highlight {
+            0% {
+                background-color: #fef3c7;
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
     </style>
 </head>
 
@@ -380,10 +402,11 @@ if (isset($_GET['get_report'])) {
                     <a href="users.php"
                         class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i
                             class="fas fa-users w-5"></i> Quản lý người dùng</a>
-                            <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
-</a>
-                            <a href="product.php"
+                    <a href="categories.php"
+                        class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                        <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+                    </a>
+                    <a href="product.php"
                         class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i
                             class="fas fa-box w-5"></i> Quản lý sản phẩm</a>
                     <a href="import.php"
@@ -439,26 +462,61 @@ if (isset($_GET['get_report'])) {
 
                     <!-- TAB 1: TỒN KHO -->
                     <div id="inventoryTab" class="tab-content">
+                        <!-- Thay thế phần filter trong tab inventory -->
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                                 <i class="fas fa-search text-primary mr-2"></i>
                                 Tra cứu tồn kho theo loại sản phẩm
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <select id="filterCategory"
-                                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                    <option value="">-- Tất cả danh mục --</option>
-                                    <?php foreach ($categories as $cat): ?>
-                                        <option value="<?php echo $cat['Danhmuc_id']; ?>">
-                                            <?php echo htmlspecialchars($cat['Ten_danhmuc']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <input type="date" id="inventoryDate"
-                                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                <button onclick="searchInventory()"
-                                    class="bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
-                                    <i class="fas fa-search mr-2"></i>Tra cứu
-                                </button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <!-- Filter danh mục -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Loại sản phẩm</label>
+                                    <select id="filterCategory"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                        <option value="">-- Tất cả danh mục --</option>
+                                        <?php foreach ($categories as $cat): ?>
+                                            <option value="<?php echo $cat['Danhmuc_id']; ?>">
+                                                <?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <!-- Filter ngưỡng tồn kho -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Ngưỡng tồn kho tối thiểu</label>
+                                    <input type="number" id="filterThreshold" min="0" placeholder="VD: 10"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                </div>
+
+                                <!-- Filter ngày (tuỳ chọn) -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Tính đến ngày</label>
+                                    <input type="date" id="inventoryDate"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                </div>
+
+                                <!-- Nút hành động -->
+                                <div class="flex items-end gap-2">
+                                    <button onclick="searchInventory()"
+                                        class="flex-1 bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                                        <i class="fas fa-search mr-2"></i>Áp dụng
+                                    </button>
+                                    <button onclick="resetInventoryFilter()"
+                                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                                        title="Xóa bộ lọc">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hiển thị trạng thái filter -->
+                            <div id="filterStatus" class="hidden text-sm text-gray-600 mb-2 p-2 bg-gray-50 rounded-lg">
+                                <i class="fas fa-filter mr-1"></i>
+                                <span id="filterStatusText"></span>
+                                <button onclick="resetInventoryFilter()" class="text-primary hover:underline ml-2">Xóa
+                                    lọc</button>
                             </div>
                         </div>
 
@@ -496,18 +554,22 @@ if (isset($_GET['get_report'])) {
                                             <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                                <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>
+                                            </td>
                                             <td
                                                 class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>">
-                                                <?php echo number_format($ton); ?></td>
+                                                <?php echo number_format($ton); ?>
+                                            </td>
                                             <td class="px-4 py-3 text-right"><?php echo number_format($p['tong_nhap']); ?>
                                             </td>
                                             <td class="px-4 py-3 text-right"><?php echo number_format($p['tong_xuat']); ?>
                                             </td>
                                             <td class="px-4 py-3 text-right">
-                                                <?php echo number_format($giavon, 0, ',', '.'); ?>đ</td>
+                                                <?php echo number_format($giavon, 0, ',', '.'); ?>đ
+                                            </td>
                                             <td class="px-4 py-3 text-right">
-                                                <?php echo number_format($tonggiatri, 0, ',', '.'); ?>đ</td>
+                                                <?php echo number_format($tonggiatri, 0, ',', '.'); ?>đ
+                                            </td>
                                             <td class="px-4 py-3 text-center">
                                                 <?php if ($ton == 0): ?>
                                                     <span class="badge-danger">🔴 Hết hàng</span>
@@ -527,6 +589,7 @@ if (isset($_GET['get_report'])) {
 
                     <!-- TAB 2: BÁO CÁO NHẬP - XUẤT (NGÀY OPTIONAL) -->
                     <div id="reportTab" class="tab-content hidden">
+                        <!-- Thay thế phần filter trong tab report -->
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                                 <i class="fas fa-chart-line text-primary mr-2"></i>
@@ -535,35 +598,50 @@ if (isset($_GET['get_report'])) {
                             <p class="text-sm text-blue-600 mb-3">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 <strong>Lưu ý:</strong> Bạn có thể để trống ngày để xem tất cả dữ liệu, hoặc chỉ chọn 1
-                                ngày (từ ngày hoặc đến ngày)
+                                ngày
                             </p>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                                <div class="flex gap-2">
-                                    <input type="date" id="reportFromDate"
-                                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary flex-1"
-                                        placeholder="Từ ngày">
-                                    <span class="self-center text-gray-400">-</span>
-                                    <input type="date" id="reportToDate"
-                                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary flex-1"
-                                        placeholder="Đến ngày">
+
+                            <!-- Layout được tổ chức lại tránh đè ô -->
+                            <div class="flex flex-wrap gap-3 mb-6 items-end">
+                                <!-- Khoảng thời gian -->
+                                <div class="flex-1 min-w-[280px]">
+                                    <label class="block text-xs text-gray-500 mb-1">Khoảng thời gian</label>
+                                    <div class="flex gap-2 items-center">
+                                        <input type="date" id="reportFromDate"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+                                            placeholder="Từ ngày">
+                                        <span class="text-gray-400">→</span>
+                                        <input type="date" id="reportToDate"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
+                                            placeholder="Đến ngày">
+                                    </div>
                                 </div>
-                                <select id="reportProduct"
-                                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
-                                    <option value="">-- Tất cả sản phẩm --</option>
-                                    <?php foreach ($products as $p): ?>
-                                        <option value="<?php echo $p['SanPham_id']; ?>">
-                                            SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?> -
-                                            <?php echo htmlspecialchars($p['TenSP']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <button onclick="generateReport()"
-                                    class="bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
-                                    <i class="fas fa-chart-bar mr-2"></i>Xem báo cáo
-                                </button>
-                                <button onclick="exportReport()"
-                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
-                                    <i class="fas fa-file-excel mr-2"></i>Xuất Excel
-                                </button>
+
+                                <!-- Filter sản phẩm -->
+                                <div class="flex-1 min-w-[200px]">
+                                    <label class="block text-xs text-gray-500 mb-1">Loại sản phẩm</label>
+                                    <select id="reportProduct"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm">
+                                        <option value="">-- Tất cả sản phẩm --</option>
+                                        <?php foreach ($products as $p): ?>
+                                            <option value="<?php echo $p['SanPham_id']; ?>">
+                                                <?php echo htmlspecialchars($p['TenSP']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <!-- Nút hành động -->
+                                <div class="flex gap-2">
+                                    <button onclick="generateReport()"
+                                        class="bg-gradient-custom text-white px-5 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium">
+                                        <i class="fas fa-chart-bar mr-1"></i>Xem báo cáo
+                                    </button>
+                                    <button onclick="exportReport()"
+                                        class="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition text-sm font-medium">
+                                        <i class="fas fa-file-excel mr-1"></i>Xuất Excel
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -599,12 +677,66 @@ if (isset($_GET['get_report'])) {
                                 <i class="fas fa-exclamation-triangle text-primary mr-2"></i>
                                 Cảnh báo sản phẩm sắp hết hàng
                             </h3>
-                            <p class="text-sm text-gray-500 mb-4">* Mỗi sản phẩm có thể thiết lập ngưỡng cảnh báo riêng
+                            <p class="text-sm text-gray-500 mb-4">* Lọc theo danh mục, ngưỡng tồn kho hoặc tên sản phẩm
                             </p>
+
+                            <!-- Filter cho tab cảnh báo -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                <!-- Filter danh mục -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Loại sản phẩm</label>
+                                    <select id="warningCategory"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                        <option value="">-- Tất cả danh mục --</option>
+                                        <?php foreach ($categories as $cat): ?>
+                                            <option value="<?php echo $cat['Danhmuc_id']; ?>">
+                                                <?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <!-- Filter ngưỡng tồn kho - SỬA LABEL CHO RÕ -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Ngưỡng cảnh báo ≥</label>
+                                    <input type="number" id="warningThreshold" min="0" placeholder="VD: 10"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                                        title="Lọc sản phẩm có ngưỡng cảnh báo >= giá trị nhập">
+                                </div>
+
+                                <!-- Filter tìm theo tên sản phẩm -->
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Tìm theo tên</label>
+                                    <input type="text" id="warningKeyword" placeholder="VD: Yonex..."
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                </div>
+
+                                <!-- Nút hành động -->
+                                <div class="flex items-end gap-2">
+                                    <button onclick="searchWarning()"
+                                        class="flex-1 bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                                        <i class="fas fa-search mr-2"></i>Áp dụng
+                                    </button>
+                                    <button onclick="resetWarningFilter()"
+                                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                                        title="Xóa bộ lọc">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hiển thị trạng thái filter -->
+                            <div id="warningFilterStatus"
+                                class="hidden text-sm text-gray-600 mb-2 p-2 bg-gray-50 rounded-lg">
+                                <i class="fas fa-filter mr-1"></i>
+                                <span id="warningFilterText"></span>
+                                <button onclick="resetWarningFilter()" class="text-primary hover:underline ml-2">Xóa
+                                    lọc</button>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto border border-gray-200 rounded-xl">
-                            <table class="w-full min-w-[800px]">
+                            <table class="w-full min-w-[800px]" id="warningTable">
                                 <thead class="bg-gradient-custom text-white">
                                     <tr>
                                         <th class="px-4 py-3 text-left">Mã SP</th>
@@ -616,13 +748,15 @@ if (isset($_GET['get_report'])) {
                                         <th class="px-4 py-3 text-center">Thao tác</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="warningTableBody">
                                     <?php foreach ($products as $p): ?>
                                         <?php
                                         $ton = $p['SoLuongTon'];
                                         $nguong = $p['canh_bao'];
                                         $statusClass = '';
                                         $statusText = '';
+                                        $showRow = true; // Mặc định hiển thị
+                                    
                                         if ($ton == 0) {
                                             $statusClass = 'badge-danger';
                                             $statusText = '🔴 Hết hàng';
@@ -632,18 +766,31 @@ if (isset($_GET['get_report'])) {
                                         } else {
                                             $statusClass = 'badge-success';
                                             $statusText = '✅ Bình thường';
+                                            // Có thể ẩn sản phẩm bình thường nếu muốn chỉ xem cảnh báo
+                                            // $showRow = false;
                                         }
+
+                                        // Data attributes để filter JS
+                                        $dataCategory = htmlspecialchars($p['Ten_danhmuc'] ?? '');
+                                        $dataName = htmlspecialchars($p['TenSP'] ?? '');
                                         ?>
-                                        <tr class="hover:bg-gray-50 transition">
+                                        <tr class="hover:bg-gray-50 transition warning-row"
+                                            data-category="<?php echo $dataCategory; ?>"
+                                            data-name="<?php echo $dataName; ?>" data-ton="<?php echo $ton; ?>"
+                                            data-nguong="<?php echo $nguong; ?>"
+                                            style="<?php echo $showRow ? '' : 'display:none;'; ?>">
                                             <td class="px-4 py-3 font-mono">
-                                                SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                                SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>
+                                            </td>
                                             <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
+                                                <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>
+                                            </td>
                                             <td
                                                 class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>">
-                                                <?php echo number_format($ton); ?></td>
+                                                <?php echo number_format($ton); ?>
+                                            </td>
                                             <td class="px-4 py-3 text-right">
                                                 <form method="POST" class="inline-flex items-center gap-2">
                                                     <input type="hidden" name="product_id"
@@ -651,19 +798,22 @@ if (isset($_GET['get_report'])) {
                                                     <input type="number" name="threshold" value="<?php echo $nguong; ?>"
                                                         class="w-20 px-2 py-1 border border-gray-300 rounded-lg text-center text-sm">
                                                     <button type="submit" name="update_threshold"
-                                                        class="text-blue-500 hover:text-blue-700 text-sm">
+                                                        class="text-blue-500 hover:text-blue-700 text-sm"
+                                                        title="Lưu ngưỡng">
                                                         <i class="fas fa-save"></i>
                                                     </button>
                                                 </form>
                                             </td>
                                             <td class="px-4 py-3 text-center">
-                                                <span
-                                                    class="px-2 py-1 rounded-full text-xs <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
+                                                <span class="px-2 py-1 rounded-full text-xs <?php echo $statusClass; ?>">
+                                                    <?php echo $statusText; ?>
+                                                </span>
                                             </td>
                                             <td class="px-4 py-3 text-center">
                                                 <?php if ($ton <= $nguong): ?>
-                                                    <a href="import.php" class="text-green-500 hover:text-green-700">
-                                                        <i class="fas fa-truck-loading"></i> Nhập hàng
+                                                    <a href="import.php?product_id=<?php echo $p['SanPham_id']; ?>"
+                                                        class="text-green-500 hover:text-green-700 font-medium">
+                                                        <i class="fas fa-truck-loading mr-1"></i>Nhập hàng
                                                     </a>
                                                 <?php else: ?>
                                                     <span class="text-gray-400">-</span>
@@ -675,16 +825,38 @@ if (isset($_GET['get_report'])) {
                             </table>
                         </div>
 
-                        <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-info-circle text-yellow-600 text-xl"></i>
-                                <div>
-                                    <p class="font-semibold text-yellow-800">Hướng dẫn</p>
-                                    <p class="text-sm text-yellow-700">Mỗi sản phẩm có thể thiết lập ngưỡng cảnh báo
-                                        riêng. Khi số lượng tồn kho <= ngưỡng, hệ thống sẽ cảnh báo "Sắp hết" .</p>
+                        <!-- Stats summary -->
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-circle text-red-500 text-lg"></i>
+                                    <div>
+                                        <p class="text-xs text-red-600 font-medium">HẾT HÀNG</p>
+                                        <p class="text-xl font-bold text-red-700" id="countOutStock">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 text-lg"></i>
+                                    <div>
+                                        <p class="text-xs text-yellow-600 font-medium">SẮP HẾT</p>
+                                        <p class="text-xl font-bold text-yellow-700" id="countLowStock">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                                    <div>
+                                        <p class="text-xs text-green-600 font-medium">ĐỦ HÀNG</p>
+                                        <p class="text-xl font-bold text-green-700" id="countOkStock">0</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </main>
@@ -715,17 +887,91 @@ if (isset($_GET['get_report'])) {
                 }
             }
 
+            // Hàm lọc tồn kho theo danh mục và ngưỡng
             function searchInventory() {
-                const category = document.getElementById('filterCategory').value;
-                let rows = document.querySelectorAll('#inventoryTableBody tr');
+                const categoryId = document.getElementById('filterCategory').value;
+                const threshold = document.getElementById('filterThreshold').value;
+                const rows = document.querySelectorAll('#inventoryTableBody tr');
+                let visibleCount = 0;
+                let filterText = [];
 
                 rows.forEach(row => {
-                    const rowCategory = row.cells[2]?.textContent.trim() || '';
-                    const selectedCategory = document.querySelector(`#filterCategory option[value="${category}"]`)?.textContent || '';
-                    const categoryMatch = category === '' || rowCategory === selectedCategory;
-                    row.style.display = categoryMatch ? '' : 'none';
+                    // Lấy dữ liệu từ các cột
+                    const rowCategorySelect = document.getElementById('filterCategory');
+                    const selectedCategoryText = rowCategorySelect.options[rowCategorySelect.selectedIndex]?.text || '';
+                    const rowCategoryCell = row.cells[2]?.textContent.trim() || '';
+
+                    // Lấy số lượng tồn kho (cột 3 - index 3)
+                    const tonText = row.cells[3]?.textContent.trim().replace(/\./g, '').replace(/[^0-9]/g, '') || '0';
+                    const tonKho = parseInt(tonText) || 0;
+
+                    // Lọc theo danh mục
+                    const categoryMatch = categoryId === '' || rowCategoryCell === selectedCategoryText;
+
+                    // Lọc theo ngưỡng tồn kho
+                    const thresholdMatch = threshold === '' || tonKho >= parseInt(threshold);
+
+                    // Hiển thị/ẩn row
+                    if (categoryMatch && thresholdMatch) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
                 });
+
+                // Hiển thị trạng thái filter
+                showFilterStatus(categoryId, threshold, visibleCount, rows.length);
             }
+
+            // Hàm hiển thị trạng thái filter
+            function showFilterStatus(categoryId, threshold, visible, total) {
+                const statusDiv = document.getElementById('filterStatus');
+                const statusText = document.getElementById('filterStatusText');
+                const parts = [];
+
+                if (categoryId) {
+                    const catName = document.querySelector(`#filterCategory option[value="${categoryId}"]`)?.text || '';
+                    parts.push(`Danh mục: ${catName}`);
+                }
+                if (threshold) {
+                    parts.push(`Tồn kho ≥ ${threshold}`);
+                }
+
+                if (parts.length > 0) {
+                    statusText.innerHTML = `<strong>${parts.join(' | ')}</strong> — Hiển thị ${visible}/${total} sản phẩm`;
+                    statusDiv.classList.remove('hidden');
+                } else {
+                    statusDiv.classList.add('hidden');
+                }
+            }
+
+            // Hàm reset filter
+            function resetInventoryFilter() {
+                document.getElementById('filterCategory').value = '';
+                document.getElementById('filterThreshold').value = '';
+                document.getElementById('inventoryDate').value = '';
+
+                // Hiển thị lại tất cả rows
+                const rows = document.querySelectorAll('#inventoryTableBody tr');
+                rows.forEach(row => row.style.display = '');
+
+                // Ẩn status filter
+                document.getElementById('filterStatus').classList.add('hidden');
+            }
+
+            // Cho phép Enter để áp dụng filter
+            document.addEventListener('DOMContentLoaded', function () {
+                const thresholdInput = document.getElementById('filterThreshold');
+                if (thresholdInput) {
+                    thresholdInput.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            searchInventory();
+                        }
+                    });
+                }
+            });
 
             function generateReport() {
                 const fromDate = document.getElementById('reportFromDate').value;
@@ -839,6 +1085,131 @@ if (isset($_GET['get_report'])) {
                         if (e.key === 'Enter') generateReport();
                     });
                 }
+            });
+            function searchWarning() {
+                const categoryId = document.getElementById('warningCategory').value;
+                const threshold = document.getElementById('warningThreshold').value;  // Ngưỡng cảnh báo cần lọc
+                const keyword = document.getElementById('warningKeyword').value.toLowerCase();
+                const rows = document.querySelectorAll('#warningTableBody tr.warning-row');
+
+                let visibleCount = 0;
+                let outStock = 0, lowStock = 0, okStock = 0;
+
+                rows.forEach(row => {
+                    const rowCategory = row.dataset.category || '';
+                    const rowName = (row.dataset.name || '').toLowerCase();
+                    const tonKho = parseInt(row.dataset.ton) || 0;
+                    const nguong = parseInt(row.dataset.nguong) || 10;  // Ngưỡng cảnh báo của sản phẩm
+
+                    // Lọc theo danh mục
+                    const categoryMatch = categoryId === '' ||
+                        rowCategory === document.querySelector(`#warningCategory option[value="${categoryId}"]`)?.text;
+
+                    //  SỬA: Lọc theo NGƯỠNG CẢNH BÁO (nguong), không phải tồn kho (tonKho)
+                    // Hiển thị sản phẩm có ngưỡng cảnh báo >= giá trị nhập
+                    const thresholdMatch = threshold === '' || nguong >= parseInt(threshold);
+
+                    // Lọc theo từ khóa tên sản phẩm
+                    const keywordMatch = keyword === '' || rowName.includes(keyword);
+
+                    // Hiển thị/ẩn row
+                    if (categoryMatch && thresholdMatch && keywordMatch) {
+                        row.style.display = '';
+                        visibleCount++;
+
+                        // Đếm thống kê (vẫn dựa trên trạng thái thực tế)
+                        if (tonKho === 0) outStock++;
+                        else if (tonKho <= nguong) lowStock++;
+                        else okStock++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Cập nhật stats
+                document.getElementById('countOutStock').textContent = outStock;
+                document.getElementById('countLowStock').textContent = lowStock;
+                document.getElementById('countOkStock').textContent = okStock;
+
+                // Hiển thị trạng thái filter
+                showWarningFilterStatus(categoryId, threshold, keyword, visibleCount, rows.length);
+            }
+
+            function showWarningFilterStatus(categoryId, threshold, keyword, visible, total) {
+                const statusDiv = document.getElementById('warningFilterStatus');
+                const statusText = document.getElementById('warningFilterText');
+                const parts = [];
+
+                if (categoryId) {
+                    const catName = document.querySelector(`#warningCategory option[value="${categoryId}"]`)?.text || '';
+                    parts.push(`Danh mục: ${catName}`);
+                }
+                // SỬA: Hiển thị "Ngưỡng ≥" thay vì "Tồn ≤"
+                if (threshold) {
+                    parts.push(`Ngưỡng cảnh báo ≥ ${threshold}`);
+                }
+                if (keyword) {
+                    parts.push(`Tên chứa: "${keyword}"`);
+                }
+
+                if (parts.length > 0) {
+                    statusText.innerHTML = `<strong>${parts.join(' | ')}</strong> — Hiển thị ${visible}/${total} sản phẩm`;
+                    statusDiv.classList.remove('hidden');
+                } else {
+                    statusDiv.classList.add('hidden');
+                }
+            }
+
+            // Reset filter warning
+            function resetWarningFilter() {
+                document.getElementById('warningCategory').value = '';
+                document.getElementById('warningThreshold').value = '';
+                document.getElementById('warningKeyword').value = '';
+
+                const rows = document.querySelectorAll('#warningTableBody tr.warning-row');
+                rows.forEach(row => row.style.display = '');
+
+                document.getElementById('warningFilterStatus').classList.add('hidden');
+
+                // Reset stats về tổng
+                updateWarningStats();
+            }
+
+            // Cập nhật thống kê ban đầu
+            function updateWarningStats() {
+                let outStock = 0, lowStock = 0, okStock = 0;
+
+                document.querySelectorAll('#warningTableBody tr.warning-row').forEach(row => {
+                    const tonKho = parseInt(row.dataset.ton) || 0;
+                    const nguong = parseInt(row.dataset.nguong) || 10;
+
+                    if (tonKho === 0) outStock++;
+                    else if (tonKho <= nguong) lowStock++;
+                    else okStock++;
+                });
+
+                document.getElementById('countOutStock').textContent = outStock;
+                document.getElementById('countLowStock').textContent = lowStock;
+                document.getElementById('countOkStock').textContent = okStock;
+            }
+
+            // Init stats khi load trang
+            document.addEventListener('DOMContentLoaded', function () {
+                updateWarningStats();
+
+                // Enter để filter warning
+                const warningInputs = ['warningThreshold', 'warningKeyword'];
+                warningInputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                searchWarning();
+                            }
+                        });
+                    }
+                });
             });
         </script>
 </body>
