@@ -1495,6 +1495,9 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                     </div>
                 </div>
             </div>
+
+            <?php require_once '../control/chatbot.php'; ?>
+
             <!-- JavaScript Form Validation & Toggle Password -->
             <script>
                 document.addEventListener('DOMContentLoaded', function () {

@@ -1515,6 +1515,8 @@ body.search-active #searchOverlay {
                 </div>
             </div>
 
+            <?php require_once '../control/chatbot.php'; ?>
+
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const form = document.getElementById('registerForm');

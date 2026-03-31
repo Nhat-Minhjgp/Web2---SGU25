@@ -383,6 +383,7 @@ function isStepCompleted($currentStatus, $stepStatus)
         </div>
     </footer>
 
+  
 </body>
 
 </html>

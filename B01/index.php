@@ -603,7 +603,7 @@ if ($is_logged_in) {
                                                                                     class="w-10 h-10 flex-shrink-0 mr-2">
                                                                                     <img src="./img/icons/logo-kamito.png"
                                                                                         alt="KAMITO"
-                                                                                        class="w-full h-full object-contain"
+                                                                                        class="w-full h-full object-contain">
                                                                                       
                                                                                 </div>
                                                                                 <span
@@ -1747,6 +1747,7 @@ if ($is_logged_in) {
                 </div>
             </div>
 
+            <?php require_once './control/chatbot.php'; ?>
             <!-- JavaScript -->
             <script>
                 document.addEventListener('DOMContentLoaded', function () {

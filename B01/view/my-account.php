@@ -1589,6 +1589,9 @@ body.search-active #searchOverlay {
             </div>
     </div>
 
+
+    <?php require_once '../control/chatbot.php'; ?>
+
     <!-- JavaScript -->
     <script>
         // === USER DROPDOWN TOGGLE ===

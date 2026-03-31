@@ -439,78 +439,152 @@ $user_info = [
             color: white;
         }
 
-  .scrollbar-hide {
+        .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
 
-/* === SEARCH === */
-#searchHeader { display: none; }
-body.search-active #defaultHeader { display: none; }
-body.search-active #searchHeader { display: flex; }
+        /* === SEARCH === */
+        #searchHeader {
+            display: none;
+        }
 
-body.search-active #searchOverlay {
-    opacity: 1;
-    pointer-events: auto;
-}
+        body.search-active #defaultHeader {
+            display: none;
+        }
 
-#searchSuggestions {
-    position: absolute;
-    left: 0; right: 0;
-    top: 100%;
-    margin-top: 8px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    border: 1px solid #f3f4f6;
-    overflow-y: auto;
-    max-height: 400px;
-    z-index: 50;
-    display: none;
-    animation: slideDown 0.2s ease;
-}
-#searchSuggestions.active { display: block; }
+        body.search-active #searchHeader {
+            display: flex;
+        }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+        body.search-active #searchOverlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-.suggestion-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background 0.2s;
-    text-decoration: none; color: inherit;
-}
-.suggestion-item:hover { background: #f9fafb; }
-.suggestion-item img {
-    width: 60px; height: 60px;
-    object-fit: cover; border-radius: 8px;
-    background: #f3f4f6; flex-shrink: 0;
-}
-.suggestion-info { flex: 1; min-width: 0; }
-.suggestion-info h4 {
-    font-size: 14px; font-weight: 500; color: #1f2937;
-    margin: 0 0 4px 0;
-    overflow: hidden; display: -webkit-box;
-    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-}
-.price-wrapper { display: flex; align-items: center; gap: 8px; }
-.price-wrapper .price { font-size: 15px; font-weight: 600; color: #dc2626; }
-.price-wrapper .old-price { font-size: 13px; color: #9ca3af; text-decoration: line-through; }
-.price-wrapper .discount-badge {
-    font-size: 11px; font-weight: 600; color: #dc2626;
-    background: #fef2f2; padding: 2px 6px; border-radius: 4px;
-}
-.view-all-link {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 14px; background: #f9fafb;
-    color: #dc2626; font-size: 14px; font-weight: 500;
-    text-decoration: none; border-top: 1px solid #f3f4f6;
-}
-.view-all-link:hover { background: #f3f4f6; }
-.no-results { padding: 32px 24px; text-align: center; color: #6b7280; }
+        #searchSuggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6;
+            overflow-y: auto;
+            max-height: 400px;
+            z-index: 50;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+
+        #searchSuggestions.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .suggestion-item:hover {
+            background: #f9fafb;
+        }
+
+        .suggestion-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+            flex-shrink: 0;
+        }
+
+        .suggestion-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .suggestion-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-wrapper .price {
+            font-size: 15px;
+            font-weight: 600;
+            color: #dc2626;
+        }
+
+        .price-wrapper .old-price {
+            font-size: 13px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .price-wrapper .discount-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .view-all-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            background: #f9fafb;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .view-all-link:hover {
+            background: #f3f4f6;
+        }
+
+        .no-results {
+            padding: 32px 24px;
+            text-align: center;
+            color: #6b7280;
+        }
     </style>
 </head>
 <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
@@ -1168,8 +1242,7 @@ body.search-active #searchOverlay {
                                 </button>
 
                                 <!-- Dropdown gợi ý tìm kiếm -->
-                                <div id="searchSuggestions"
-                                    class="absolute top-full left-0 right-0 z-50">
+                                <div id="searchSuggestions" class="absolute top-full left-0 right-0 z-50">
                                     <div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
                                     </div>
                                 </div>
@@ -1769,6 +1842,8 @@ body.search-active #searchOverlay {
             });
 
         </script>
+
+        <?php require_once '../control/chatbot.php'; ?>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {

@@ -1060,8 +1060,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                 </button>
 
                                 <!-- Dropdown gợi ý tìm kiếm -->
-                                <div id="searchSuggestions"
-                                    class="absolute top-full left-0 right-0 z-50">
+                                <div id="searchSuggestions" class="absolute top-full left-0 right-0 z-50">
                                     <div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
                                     </div>
                                 </div>
@@ -1285,529 +1284,537 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 <?php endif; ?>
             </div>
         </main>
-       
-       
 
-    <!-- Footer -->
-    <footer id="footer" class="bg-black text-white mt-12">
-        <div class="container mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="pl-5">
-                    <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
-                    <div class="flex space-x-3 mb-4">
-                        <a href="https://www.facebook.com/nvbplay" target="_blank"
-                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
-                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                            <i class="fab fa-tiktok"></i>
-                        </a>
-                        <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
-                            class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-                            <i class="fas fa-shopping-bag"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a>
-                        </li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
-                        </li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                TRẢ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
-                    <ul class="space-y-3">
-                        <li>
-                            <a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex">
-                                <span class="font-medium w-20">Địa chỉ:</span>
-                                <span class="text-gray-400">62 Lê Bình, Tân An, Cần Thơ</span>
-                            </a>
-                        </li>
-                        <li>
-                            <div class="flex">
-                                <span class="font-medium w-20">Giờ làm việc:</span>
-                                <span class="text-gray-400">08:00 - 21:00</span>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="tel:0987.879.243" class="flex">
-                                <span class="font-medium w-20">Hotline:</span>
-                                <span class="text-gray-400">0987.879.243</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 my-6"></div>
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="text-gray-500 text-sm mb-4 md:mb-0">
-                    <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
-                </div>
-                <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank">
-                    <img src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-                        alt="Bộ Công Thương" class="h-12 w-auto">
-                </a>
-            </div>
-        </div>
-    </footer>
-    </div>
-    <!-- Mobile Menu -->
-    <div id="main-menu"
-        class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-6">
-                <img src="../img/icons/logonvb.png" height="30" width="50" class="relative-top-left transform scale-75">
-                <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition"><i
-                        class="fas fa-times text-2xl text-gray-600"></i></button>
-            </div>
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                <?php if ($is_logged_in): ?>
-                    <div class="flex items-center text-gray-700">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                            <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
-                        </div>
-                        <div>
-                            <div class="font-medium"><?php echo htmlspecialchars($user_info['username']); ?></div>
-                            <span class="text-sm text-gray-500"><?php echo htmlspecialchars($user_info['email']); ?></span>
+
+        <!-- Footer -->
+        <footer id="footer" class="bg-black text-white">
+            <div class="container mx-auto px-4 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="pl-5">
+                        <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
+                        <div class="flex space-x-3 mb-4">
+                            <a href="https://www.facebook.com/nvbplay" target="_blank"
+                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
+                                    class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
+                                    class="fab fa-tiktok"></i></a>
+                            <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
+                                    class="fas fa-shopping-bag"></i></a>
                         </div>
                     </div>
-                    <a href="../control/logout.php" class="text-red-600 text-sm font-medium">Đăng xuất</a>
-                <?php else: ?>
-                    <a href="./login.php" class="flex items-center text-gray-700">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3"><i
-                                class="far fa-user text-xl text-gray-600"></i></div>
-                        <div>
-                            <div class="font-medium">Tài khoản</div><span class="text-sm text-gray-500">Đăng nhập / Đăng
-                                ký</span>
-                        </div>
-                    </a>
-                <?php endif; ?>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
+                        <ul class="space-y-2">
+                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a></li>
+                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
+                            </li>
+                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+                                    TRẢ</a></li>
+                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</a>
+                            </li>
+                            <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
+                        <ul class="space-y-3">
+                            <li><a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex"><span
+                                        class="font-medium w-20">Địa chỉ:</span><span class="text-gray-400">62 Lê Bình,
+                                        Tân An, Cần Thơ</span></a></li>
+                            <li>
+                                <div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
+                                        class="text-gray-400">08:00 - 21:00</span></div>
+                            </li>
+                            <li><a href="tel:0987.879.243" class="flex"><span
+                                        class="font-medium w-20">Hotline:</span><span
+                                        class="text-gray-400">0987.879.243</span></a></li>
+                            <li><a href="mailto:info@nvbplay.vn" class="flex"><span
+                                        class="font-medium w-20">Email:</span><span
+                                        class="text-gray-400">info@nvbplay.vn</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 my-6"></div>
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                        <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
+                        <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
+                    </div>
+                    <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank"><img
+                            src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
+                            alt="Bộ Công Thương" class="h-12 w-auto"></a>
+                </div>
             </div>
-            <!-- Mobile Menu Items - Danh mục chính -->
-            <div class="mb-4">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
+        </footer>
 
-                <!-- Cầu Lông -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="badminton">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+
+
+        <!-- Mobile Menu -->
+        <div id="main-menu"
+            class="fixed inset-0 bg-white z-50 transform -translate-x-full transition duration-300 md:hidden overflow-y-auto">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <img src="../img/icons/logonvb.png" height="30" width="50"
+                        class="relative-top-left transform scale-75">
+                    <button class="close-menu p-2 hover:bg-gray-100 rounded-full transition"><i
+                            class="fas fa-times text-2xl text-gray-600"></i></button>
+                </div>
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <?php if ($is_logged_in): ?>
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
                             </div>
-                            <span class="font-medium">Cầu Lông</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
-
-                    <!-- Submenu Cầu Lông -->
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
-                        <!-- Vợt cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-2 text-gray-700 font-medium">Vợt
-                                cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
-                                    class="block py-1 text-sm text-gray-600">Vợt Li-Ning</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
-                                    class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
-                                    class="block py-1 text-sm text-gray-600">Vợt Victor</a>
-                                <a href="./shop.php?danhmuc[]=vot-cau-long" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                            <div>
+                                <div class="font-medium"><?php echo htmlspecialchars($user_info['username']); ?></div>
+                                <span
+                                    class="text-sm text-gray-500"><?php echo htmlspecialchars($user_info['email']); ?></span>
                             </div>
                         </div>
-
-                        <!-- Áo cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-2 text-gray-700 font-medium">Áo
-                                cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Áo Yonex</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
-                                    class="block py-1 text-sm text-gray-600">Áo DS</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Áo Kamito</a>
-                                <a href="./shop.php?danhmuc[]=ao-cau-long" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                        <a href="../control/logout.php" class="text-red-600 text-sm font-medium">Đăng xuất</a>
+                    <?php else: ?>
+                        <a href="./login.php" class="flex items-center text-gray-700">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3"><i
+                                    class="far fa-user text-xl text-gray-600"></i></div>
+                            <div>
+                                <div class="font-medium">Tài khoản</div><span class="text-sm text-gray-500">Đăng nhập / Đăng
+                                    ký</span>
                             </div>
-                        </div>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <!-- Mobile Menu Items - Danh mục chính -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Danh mục</h3>
 
-                        <!-- Quần cầu lông -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=quan-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
-                                    class="block py-1 text-sm text-gray-600">Quần Yonex</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Quần Kamito</a>
-                                <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
-                                    class="block py-1 text-sm text-gray-600">Quần Adidas</a>
+                    <!-- Cầu Lông -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="badminton">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-caulong.png" alt="Cầu Lông" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Cầu Lông</span>
                             </div>
-                        </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
 
-                        <!-- Túi vợt -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=tui-vot-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Túi vợt</a>
-                        </div>
+                        <!-- Submenu Cầu Lông -->
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-badminton">
+                            <!-- Vợt cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Vợt
+                                    cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Vợt Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=li-ning"
+                                        class="block py-1 text-sm text-gray-600">Vợt Li-Ning</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=adidas"
+                                        class="block py-1 text-sm text-gray-600">Vợt Adidas</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long&thuonghieu[]=victor"
+                                        class="block py-1 text-sm text-gray-600">Vợt Victor</a>
+                                    <a href="./shop.php?danhmuc[]=vot-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
+                            </div>
 
-                        <!-- Balo -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=balo-cau-long"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
-                        </div>
+                            <!-- Áo cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=ao-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Áo
+                                    cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Áo Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=ds"
+                                        class="block py-1 text-sm text-gray-600">Áo DS</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Áo Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=ao-cau-long"
+                                        class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
+                            </div>
 
-                        <!-- Phụ kiện -->
-                        <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
-                                kiện</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=cước+đan"
-                                    class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quấn+cán"
-                                    class="block py-1 text-sm text-gray-600">Quấn cán</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien&search=quả+cầu"
-                                    class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
-                                    thêm</a>
+                            <!-- Quần cầu lông -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=quan-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Quần cầu lông</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=yonex"
+                                        class="block py-1 text-sm text-gray-600">Quần Yonex</a>
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Quần Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=quan-cau-long&thuonghieu[]=adidas"
+                                        class="block py-1 text-sm text-gray-600">Quần Adidas</a>
+                                </div>
+                            </div>
+
+                            <!-- Túi vợt -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=tui-vot-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Túi vợt</a>
+                            </div>
+
+                            <!-- Balo -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=balo-cau-long"
+                                    class="block py-2 text-gray-700 font-medium">Balo</a>
+                            </div>
+
+                            <!-- Phụ kiện -->
+                            <div>
+                                <a href="./shop.php?danhmuc[]=phu-kien" class="block py-2 text-gray-700 font-medium">Phụ
+                                    kiện</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=cước+đan"
+                                        class="block py-1 text-sm text-gray-600">Cước đan vợt</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=quấn+cán"
+                                        class="block py-1 text-sm text-gray-600">Quấn cán</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien&search=quả+cầu"
+                                        class="block py-1 text-sm text-gray-600">Quả cầu lông</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien" class="block py-1 text-sm text-red-600">Xem
+                                        thêm</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Pickleball -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="pickleball">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                    <!-- Pickleball -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="pickleball">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-pickleball.png" alt="Pickleball" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Pickleball</span>
                             </div>
-                            <span class="font-medium">Pickleball</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
 
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
-                        <div>
-                            <a href="./shop.php?danhmuc[]=vot-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
-                                    class="block py-1 text-sm text-gray-600">Vợt Joola</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
-                                    class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
-                                    class="block py-1 text-sm text-gray-600">Vợt Kamito</a>
-                                <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
-                                    class="block py-1 text-sm text-gray-600">Vợt Wika</a>
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-pickleball">
+                            <div>
                                 <a href="./shop.php?danhmuc[]=vot-pickleball"
-                                    class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                    class="block py-2 text-gray-700 font-medium">Vợt Pickleball</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=joola"
+                                        class="block py-1 text-sm text-gray-600">Vợt Joola</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=selkirk"
+                                        class="block py-1 text-sm text-gray-600">Vợt Selkirk</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=kamito"
+                                        class="block py-1 text-sm text-gray-600">Vợt Kamito</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball&thuonghieu[]=wika"
+                                        class="block py-1 text-sm text-gray-600">Vợt Wika</a>
+                                    <a href="./shop.php?danhmuc[]=vot-pickleball"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
-                            <div class="pl-4 mt-1 space-y-1">
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
-                                    class="block py-1 text-sm text-gray-600">Bóng Pickleball</a>
-                                <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
-                                    class="block py-1 text-sm text-gray-600">Lưới Pickleball</a>
+                            <div>
                                 <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
-                                    class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                    class="block py-2 text-gray-700 font-medium">Phụ kiện Pickleball</a>
+                                <div class="pl-4 mt-1 space-y-1">
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=bóng"
+                                        class="block py-1 text-sm text-gray-600">Bóng Pickleball</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball&search=lưới"
+                                        class="block py-1 text-sm text-gray-600">Lưới Pickleball</a>
+                                    <a href="./shop.php?danhmuc[]=phu-kien-pickleball"
+                                        class="block py-1 text-sm text-red-600">Xem thêm</a>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                                    class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
                             </div>
                         </div>
-                        <div>
-                            <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                    </div>
+
+                    <!-- Giày -->
+                    <div class="mb-2">
+                        <button
+                            class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
+                            data-category="giay">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 mr-3 flex-shrink-0">
+                                    <img src="../img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
+                                </div>
+                                <span class="font-medium">Giày</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
+                        </button>
+
+                        <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=yonex"
+                                    class="block py-2 text-gray-700">Giày Yonex</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=adidas"
+                                    class="block py-2 text-gray-700">Giày Adidas</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=mizuno"
+                                    class="block py-2 text-gray-700">Giày Mizuno</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=asics"
+                                    class="block py-2 text-gray-700">Giày Asics</a></div>
+                            <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=kamito"
+                                    class="block py-2 text-gray-700">Giày Kamito</a></div>
                         </div>
+                    </div>
+
+
+
+                </div>
+
+                <!-- Thông tin liên hệ Mobile -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">62 Lê Bình, Tân An, Cần Thơ</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-phone-alt text-red-600 w-5 mr-2"></i>
+                        <a href="tel:0987.879.243" class="text-sm text-gray-600">0987.879.243</a>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="far fa-clock text-red-600 w-5 mr-2"></i>
+                        <span class="text-sm text-gray-600">08:00 - 21:00</span>
                     </div>
                 </div>
 
-                <!-- Giày -->
-                <div class="mb-2">
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg category-toggle"
-                        data-category="giay">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 mr-3 flex-shrink-0">
-                                <img src="../img/icons/logo-giay.png" alt="Giày" class="w-full h-full">
-                            </div>
-                            <span class="font-medium">Giày</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm text-gray-500 transition-transform"></i>
-                    </button>
-
-                    <div class="pl-11 pr-3 mt-2 space-y-2 hidden category-submenu" id="submenu-giay">
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=yonex"
-                                class="block py-2 text-gray-700">Giày Yonex</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=adidas"
-                                class="block py-2 text-gray-700">Giày Adidas</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=mizuno"
-                                class="block py-2 text-gray-700">Giày Mizuno</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=asics"
-                                class="block py-2 text-gray-700">Giày Asics</a></div>
-                        <div><a href="./shop.php?danhmuc[]=giay&thuonghieu[]=kamito"
-                                class="block py-2 text-gray-700">Giày Kamito</a></div>
-                    </div>
-                </div>
 
 
-
+                <?php require_once '../control/chatbot.php'; ?>
             </div>
-
-            <!-- Thông tin liên hệ Mobile -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <div class="flex items-center mb-2">
-                    <i class="fas fa-map-marker-alt text-red-600 w-5 mr-2"></i>
-                    <span class="text-sm text-gray-600">62 Lê Bình, Tân An, Cần Thơ</span>
-                </div>
-                <div class="flex items-center mb-2">
-                    <i class="fas fa-phone-alt text-red-600 w-5 mr-2"></i>
-                    <a href="tel:0987.879.243" class="text-sm text-gray-600">0987.879.243</a>
-                </div>
-                <div class="flex items-center">
-                    <i class="far fa-clock text-red-600 w-5 mr-2"></i>
-                    <span class="text-sm text-gray-600">08:00 - 21:00</span>
-                </div>
-            </div>
-        </div>
-        <!-- JavaScript -->
-        <script>
-            // Change product image
-            function changeImage(src, btn) {
-                document.getElementById('main-product-image').src = src;
-                document.querySelectorAll('.thumbnail-btn').forEach(b => {
-                    b.classList.remove('border-red-600');
-                    b.classList.add('border-gray-200');
-                });
-                btn.classList.remove('border-gray-200');
-                btn.classList.add('border-red-600');
-            }
-
-            // Quantity controls
-            function decreaseQty() {
-                const qtyInput = document.getElementById('quantity');
-                if (qtyInput.disabled) return;
-                let currentValue = parseInt(qtyInput.value);
-                if (currentValue > 1) {
-                    qtyInput.value = currentValue - 1;
-                }
-            }
-
-            function increaseQty() {
-                const qtyInput = document.getElementById('quantity');
-                if (qtyInput.disabled) return;
-                const maxQty = parseInt(qtyInput.max);
-                let currentValue = parseInt(qtyInput.value);
-                if (currentValue < maxQty && maxQty > 0) {
-                    qtyInput.value = currentValue + 1;
-                }
-            }
-
-            function buyNow() {
-
-                const form = document.getElementById('addToCartForm');
-                if (!form) {
-                    alert('Lỗi: Không tìm thấy form!');
-                    return;
-                }
-
-                const formData = new FormData(form);
-                formData.append('buy_now', '1');
-
-                const buyBtn = document.getElementById('buyNowBtn');
-                const originalText = buyBtn.innerHTML;
-                buyBtn.disabled = true;
-                buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
-
-
-                fetch('cart.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'include'
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success && data.redirect) {
-                            const redirectUrl = new URL(data.redirect, window.location.href);
-                            redirectUrl.searchParams.set('t', Date.now());
-                            window.location.href = redirectUrl.toString();
-                        } else {
-                            throw new Error(data.message || 'Lỗi không xác định');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Có lỗi: ' + err.message);
-                        buyBtn.disabled = false;
-                        buyBtn.innerHTML = originalText;
+            <!-- JavaScript -->
+            <script>
+                // Change product image
+                function changeImage(src, btn) {
+                    document.getElementById('main-product-image').src = src;
+                    document.querySelectorAll('.thumbnail-btn').forEach(b => {
+                        b.classList.remove('border-red-600');
+                        b.classList.add('border-gray-200');
                     });
-            }
-
-
-            //  SHOW TOAST WHEN ADDED TO CART - REDIRECT VỀ CART.PHP
-            window.addEventListener('DOMContentLoaded', function () {
-                const urlParams = new URLSearchParams(window.location.search);
-
-                if (urlParams.get('added') === '1') {
-                    const toast = document.createElement('div');
-                    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
-                    toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Đã thêm vào giỏ hàng!';
-                    document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 3000);
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    btn.classList.remove('border-gray-200');
+                    btn.classList.add('border-red-600');
                 }
 
-                if (urlParams.get('error') === '1') {
-                    const toast = document.createElement('div');
-                    toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                    toast.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Có lỗi xảy ra!';
-                    document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 3000);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            });
-
-
-
-            // Validate add to cart
-            function validateAddToCart() {
-                const qtyInput = document.getElementById('quantity');
-                if (qtyInput && qtyInput.disabled) {
-                    alert('Sản phẩm hiện đã hết hàng!');
-                    return false;
-                }
-                const qty = parseInt(qtyInput?.value || 1);
-                if (qty < 1 || isNaN(qty)) {
-                    alert('Số lượng không hợp lệ!');
-                    return false;
-                }
-                return true;
-            }
-
-
-
-
-        </script>
-
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-
-                // === USER DROPDOWN TOGGLE ===
-                const userToggle = document.getElementById('userToggle');
-                const userMenu = document.getElementById('userMenu');
-                if (userToggle && userMenu) {
-                    userToggle.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        userMenu.classList.toggle('active');
-                    });
-                    document.addEventListener('click', function (e) {
-                        if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                            userMenu.classList.remove('active');
-                        }
-                    });
-                }
-
-                // === MEGA MENU ===
-                const menuTrigger = document.getElementById('mega-menu-trigger');
-                const menuDropdown = document.getElementById('mega-menu-dropdown');
-                const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
-                const menuContents = document.querySelectorAll('.menu-content');
-
-                if (menuTrigger) {
-                    menuTrigger.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        menuDropdown.classList.toggle('hidden');
-                    });
-                }
-
-                menuItems.forEach(item => {
-                    item.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        const menuId = this.getAttribute('data-menu');
-                        menuItems.forEach(el => {
-                            el.classList.remove('active', 'bg-red-50');
-                            const titleEl = el.querySelector('.font-bold');
-                            if (titleEl) titleEl.classList.remove('text-red-600');
-                        });
-                        this.classList.add('active', 'bg-red-50');
-                        const activeTitle = this.querySelector('.font-bold');
-                        if (activeTitle) activeTitle.classList.add('text-red-600');
-                        menuContents.forEach(content => { content.classList.add('hidden'); });
-                        const activeContent = document.getElementById(`content-${menuId}`);
-                        if (activeContent) { activeContent.classList.remove('hidden'); }
-                    });
-                });
-
-                document.addEventListener('click', function (e) {
-                    if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
-                        menuDropdown.classList.add('hidden');
+                // Quantity controls
+                function decreaseQty() {
+                    const qtyInput = document.getElementById('quantity');
+                    if (qtyInput.disabled) return;
+                    let currentValue = parseInt(qtyInput.value);
+                    if (currentValue > 1) {
+                        qtyInput.value = currentValue - 1;
                     }
-                });
-                menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
-
-                // === MOBILE MENU TOGGLE ===
-                const menuToggle = document.querySelector('.menu-toggle');
-                const closeMenu = document.querySelector('.close-menu');
-                const mobileMenu = document.getElementById('main-menu');
-
-                if (menuToggle) {
-                    menuToggle.addEventListener('click', function () {
-                        mobileMenu.classList.remove('-translate-x-full');
-                        document.body.style.overflow = 'hidden';
-                    });
-                }
-                if (closeMenu) {
-                    closeMenu.addEventListener('click', function () {
-                        mobileMenu.classList.add('-translate-x-full');
-                        document.body.style.overflow = '';
-                    });
                 }
 
-                // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA PATH) ==========
-                const searchToggle = document.getElementById('searchToggle');
-                const searchToggleMobile = document.getElementById('searchToggleMobile');
-                const closeSearchBtn = document.getElementById('closeSearchBtn');
-                const searchOverlay = document.getElementById('searchOverlay');
-                const searchInput = document.getElementById('searchInput');
-                const suggestionsContainer = document.getElementById('searchSuggestions');
-                const suggestionsList = document.getElementById('suggestionsList');
-
-                function debounce(func, delay) {
-                    let timeoutId;
-                    return function (...args) {
-                        clearTimeout(timeoutId);
-                        timeoutId = setTimeout(() => func.apply(this, args), delay);
-                    };
+                function increaseQty() {
+                    const qtyInput = document.getElementById('quantity');
+                    if (qtyInput.disabled) return;
+                    const maxQty = parseInt(qtyInput.max);
+                    let currentValue = parseInt(qtyInput.value);
+                    if (currentValue < maxQty && maxQty > 0) {
+                        qtyInput.value = currentValue + 1;
+                    }
                 }
 
-                async function fetchSearchSuggestions(query) {
-                    if (!query || query.length < 1) {
-                        suggestionsContainer?.classList.remove('active');
+                function buyNow() {
+
+                    const form = document.getElementById('addToCartForm');
+                    if (!form) {
+                        alert('Lỗi: Không tìm thấy form!');
                         return;
                     }
-                    try {
 
-                        const response = await fetch(`../control/search-suggest.php?q=${encodeURIComponent(query)}`);
-                        const result = await response.json();
-                        if (result.success && result.data.length > 0) {
-                            const limitedResults = result.data.slice(0, 8);
-                            suggestionsList.innerHTML = limitedResults.map(product => `
+                    const formData = new FormData(form);
+                    formData.append('buy_now', '1');
+
+                    const buyBtn = document.getElementById('buyNowBtn');
+                    const originalText = buyBtn.innerHTML;
+                    buyBtn.disabled = true;
+                    buyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+
+
+                    fetch('cart.php', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'include'
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.redirect) {
+                                const redirectUrl = new URL(data.redirect, window.location.href);
+                                redirectUrl.searchParams.set('t', Date.now());
+                                window.location.href = redirectUrl.toString();
+                            } else {
+                                throw new Error(data.message || 'Lỗi không xác định');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Có lỗi: ' + err.message);
+                            buyBtn.disabled = false;
+                            buyBtn.innerHTML = originalText;
+                        });
+                }
+
+
+                //  SHOW TOAST WHEN ADDED TO CART - REDIRECT VỀ CART.PHP
+                window.addEventListener('DOMContentLoaded', function () {
+                    const urlParams = new URLSearchParams(window.location.search);
+
+                    if (urlParams.get('added') === '1') {
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+                        toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Đã thêm vào giỏ hàng!';
+                        document.body.appendChild(toast);
+                        setTimeout(() => toast.remove(), 3000);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
+                    if (urlParams.get('error') === '1') {
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                        toast.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Có lỗi xảy ra!';
+                        document.body.appendChild(toast);
+                        setTimeout(() => toast.remove(), 3000);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                });
+
+
+
+                // Validate add to cart
+                function validateAddToCart() {
+                    const qtyInput = document.getElementById('quantity');
+                    if (qtyInput && qtyInput.disabled) {
+                        alert('Sản phẩm hiện đã hết hàng!');
+                        return false;
+                    }
+                    const qty = parseInt(qtyInput?.value || 1);
+                    if (qty < 1 || isNaN(qty)) {
+                        alert('Số lượng không hợp lệ!');
+                        return false;
+                    }
+                    return true;
+                }
+
+
+
+
+            </script>
+
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    // === USER DROPDOWN TOGGLE ===
+                    const userToggle = document.getElementById('userToggle');
+                    const userMenu = document.getElementById('userMenu');
+                    if (userToggle && userMenu) {
+                        userToggle.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            userMenu.classList.toggle('active');
+                        });
+                        document.addEventListener('click', function (e) {
+                            if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
+                                userMenu.classList.remove('active');
+                            }
+                        });
+                    }
+
+                    // === MEGA MENU ===
+                    const menuTrigger = document.getElementById('mega-menu-trigger');
+                    const menuDropdown = document.getElementById('mega-menu-dropdown');
+                    const menuItems = document.querySelectorAll('.icon-box-menu[data-menu]');
+                    const menuContents = document.querySelectorAll('.menu-content');
+
+                    if (menuTrigger) {
+                        menuTrigger.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            menuDropdown.classList.toggle('hidden');
+                        });
+                    }
+
+                    menuItems.forEach(item => {
+                        item.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const menuId = this.getAttribute('data-menu');
+                            menuItems.forEach(el => {
+                                el.classList.remove('active', 'bg-red-50');
+                                const titleEl = el.querySelector('.font-bold');
+                                if (titleEl) titleEl.classList.remove('text-red-600');
+                            });
+                            this.classList.add('active', 'bg-red-50');
+                            const activeTitle = this.querySelector('.font-bold');
+                            if (activeTitle) activeTitle.classList.add('text-red-600');
+                            menuContents.forEach(content => { content.classList.add('hidden'); });
+                            const activeContent = document.getElementById(`content-${menuId}`);
+                            if (activeContent) { activeContent.classList.remove('hidden'); }
+                        });
+                    });
+
+                    document.addEventListener('click', function (e) {
+                        if (!menuDropdown.contains(e.target) && !menuTrigger.contains(e.target)) {
+                            menuDropdown.classList.add('hidden');
+                        }
+                    });
+                    menuDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+                    // === MOBILE MENU TOGGLE ===
+                    const menuToggle = document.querySelector('.menu-toggle');
+                    const closeMenu = document.querySelector('.close-menu');
+                    const mobileMenu = document.getElementById('main-menu');
+
+                    if (menuToggle) {
+                        menuToggle.addEventListener('click', function () {
+                            mobileMenu.classList.remove('-translate-x-full');
+                            document.body.style.overflow = 'hidden';
+                        });
+                    }
+                    if (closeMenu) {
+                        closeMenu.addEventListener('click', function () {
+                            mobileMenu.classList.add('-translate-x-full');
+                            document.body.style.overflow = '';
+                        });
+                    }
+
+                    // ========== SEARCH FUNCTIONALITY (ĐÃ SỬA PATH) ==========
+                    const searchToggle = document.getElementById('searchToggle');
+                    const searchToggleMobile = document.getElementById('searchToggleMobile');
+                    const closeSearchBtn = document.getElementById('closeSearchBtn');
+                    const searchOverlay = document.getElementById('searchOverlay');
+                    const searchInput = document.getElementById('searchInput');
+                    const suggestionsContainer = document.getElementById('searchSuggestions');
+                    const suggestionsList = document.getElementById('suggestionsList');
+
+                    function debounce(func, delay) {
+                        let timeoutId;
+                        return function (...args) {
+                            clearTimeout(timeoutId);
+                            timeoutId = setTimeout(() => func.apply(this, args), delay);
+                        };
+                    }
+
+                    async function fetchSearchSuggestions(query) {
+                        if (!query || query.length < 1) {
+                            suggestionsContainer?.classList.remove('active');
+                            return;
+                        }
+                        try {
+
+                            const response = await fetch(`../control/search-suggest.php?q=${encodeURIComponent(query)}`);
+                            const result = await response.json();
+                            if (result.success && result.data.length > 0) {
+                                const limitedResults = result.data.slice(0, 8);
+                                suggestionsList.innerHTML = limitedResults.map(product => `
             <a href="${product.url}" class="suggestion-item">
            
                 <img src="../${product.image}" alt="${product.name}" loading="lazy"
@@ -1821,97 +1828,99 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                     </div>
                 </div>
             </a>`).join('');
-                            if (result.count > 8) {
+                                if (result.count > 8) {
 
-                                suggestionsList.innerHTML += `
+                                    suggestionsList.innerHTML += `
                 <a href="./shop.php?search=${encodeURIComponent(query)}" class="view-all-link">
                     <i class="fas fa-search"></i> Xem tất cả ${result.count} kết quả
                 </a>`;
+                                }
+                                suggestionsContainer.classList.add('active');
+                            } else {
+                                suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
+                                suggestionsContainer.classList.add('active');
                             }
-                            suggestionsContainer.classList.add('active');
-                        } else {
-                            suggestionsList.innerHTML = `<div class="no-results"><p>Không tìm thấy sản phẩm</p></div>`;
-                            suggestionsContainer.classList.add('active');
+                        } catch (error) {
+                            console.error('Lỗi tìm kiếm:', error);
                         }
-                    } catch (error) {
-                        console.error('Lỗi tìm kiếm:', error);
                     }
-                }
 
-                const debouncedSearch = debounce(fetchSearchSuggestions, 300);
+                    const debouncedSearch = debounce(fetchSearchSuggestions, 300);
 
-                function enableSearch() {
-                    document.body.classList.add('search-active');
-                    const defaultHeader = document.getElementById('defaultHeader');
-                    const searchHeader = document.getElementById('searchHeader');
-                    if (defaultHeader) defaultHeader.classList.add('hidden');
-                    if (searchHeader) {
-                        searchHeader.classList.remove('hidden');
-                        searchHeader.classList.add('flex');
+                    function enableSearch() {
+                        document.body.classList.add('search-active');
+                        const defaultHeader = document.getElementById('defaultHeader');
+                        const searchHeader = document.getElementById('searchHeader');
+                        if (defaultHeader) defaultHeader.classList.add('hidden');
+                        if (searchHeader) {
+                            searchHeader.classList.remove('hidden');
+                            searchHeader.classList.add('flex');
+                        }
+                        const searchOverlay = document.getElementById('searchOverlay');
+                        if (searchOverlay) {
+                            searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                            searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
+                        }
+                        setTimeout(() => searchInput?.focus(), 100);
                     }
-                    const searchOverlay = document.getElementById('searchOverlay');
-                    if (searchOverlay) {
-                        searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                        searchOverlay.classList.add('opacity-100', 'pointer-events-auto');
-                    }
-                    setTimeout(() => searchInput?.focus(), 100);
-                }
 
-                function disableSearch() {
-                    document.body.classList.remove('search-active');
-                    suggestionsContainer?.classList.remove('active');
-                    const defaultHeader = document.getElementById('defaultHeader');
-                    const searchHeader = document.getElementById('searchHeader');
-                    if (defaultHeader) defaultHeader.classList.remove('hidden');
-                    if (searchHeader) {
-                        searchHeader.classList.add('hidden');
-                        searchHeader.classList.remove('flex');
+                    function disableSearch() {
+                        document.body.classList.remove('search-active');
+                        suggestionsContainer?.classList.remove('active');
+                        const defaultHeader = document.getElementById('defaultHeader');
+                        const searchHeader = document.getElementById('searchHeader');
+                        if (defaultHeader) defaultHeader.classList.remove('hidden');
+                        if (searchHeader) {
+                            searchHeader.classList.add('hidden');
+                            searchHeader.classList.remove('flex');
+                        }
+                        const searchOverlay = document.getElementById('searchOverlay');
+                        if (searchOverlay) {
+                            searchOverlay.classList.add('opacity-0', 'pointer-events-none');
+                            searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+                        }
+                        if (searchInput) searchInput.value = '';
                     }
-                    const searchOverlay = document.getElementById('searchOverlay');
-                    if (searchOverlay) {
-                        searchOverlay.classList.add('opacity-0', 'pointer-events-none');
-                        searchOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-                    }
-                    if (searchInput) searchInput.value = '';
-                }
 
-                if (searchToggle) searchToggle.addEventListener('click', enableSearch);
-                if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
-                if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
-                if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
+                    if (searchToggle) searchToggle.addEventListener('click', enableSearch);
+                    if (searchToggleMobile) searchToggleMobile.addEventListener('click', enableSearch);
+                    if (closeSearchBtn) closeSearchBtn.addEventListener('click', disableSearch);
+                    if (searchOverlay) searchOverlay.addEventListener('click', disableSearch);
 
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
-                        disableSearch();
-                    }
-                });
-
-                if (searchInput) {
-                    searchInput.addEventListener('input', function (e) {
-                        debouncedSearch(e.target.value.trim());
-                    });
-                    searchInput.addEventListener('keypress', function (e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            const query = searchInput.value.trim();
-                            if (query) {
-                                // ✅ SỬA: ./shop.php (không có view/)
-                                window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
-                            }
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && document.body.classList.contains('search-active')) {
+                            disableSearch();
                         }
                     });
-                }
 
-                document.addEventListener('click', function (e) {
-                    if (searchInput && suggestionsContainer &&
-                        !searchInput.contains(e.target) &&
-                        !suggestionsContainer.contains(e.target)) {
-                        suggestionsContainer.classList.remove('active');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function (e) {
+                            debouncedSearch(e.target.value.trim());
+                        });
+                        searchInput.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const query = searchInput.value.trim();
+                                if (query) {
+                                    // ✅ SỬA: ./shop.php (không có view/)
+                                    window.location.href = `./shop.php?search=${encodeURIComponent(query)}`;
+                                }
+                            }
+                        });
                     }
-                });
 
-            }); 
-        </script>
+                    document.addEventListener('click', function (e) {
+                        if (searchInput && suggestionsContainer &&
+                            !searchInput.contains(e.target) &&
+                            !suggestionsContainer.contains(e.target)) {
+                            suggestionsContainer.classList.remove('active');
+                        }
+                    });
+
+                }); 
+            </script>
+
+
 </body>
 
 </html>

@@ -1762,6 +1762,7 @@ function getStatusBadge($status)
             </div>
         </div>
 
+<?php require_once '../../control/chatbot.php'; ?>
 
         <script>
             // Toggle order details
@@ -2000,6 +2001,8 @@ function getStatusBadge($status)
                 });
 
             });</script>
+
+            
 </body>
 
 </html>
