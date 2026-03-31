@@ -1285,50 +1285,8 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                 <?php endif; ?>
             </div>
         </main>
-        <!-- Related Products -->
-        <?php if ($related_products->num_rows > 0): ?>
-            <div class="mb-12">
-                <h3 class="text-xl font-bold text-gray-900 mb-6 uppercase">Sản phẩm tương tự</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    <?php while ($related = $related_products->fetch_assoc()):
-                        $related_discount = calculateDiscount($related['GiaNhapTB'], $related['GiaBan']);
-                        ?>
-                        <!-- Product Item -->
-                        <div class="group">
-                            <div class="bg-white rounded-lg overflow-hidden shadow-sm mb-2 relative aspect-square">
-                                <?php if ($related_discount > 0): ?>
-                                    <div class="absolute top-2 right-2 z-10">
-                                        <span
-                                            class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">-<?php echo $related_discount; ?>%</span>
-                                    </div>
-                                <?php endif; ?>
-                                <a href="product.php?id=<?php echo $related['SanPham_id']; ?>" class="hover:text-red-600">
-                                    <img src="../<?php echo htmlspecialchars($related['image_url']); ?>" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105
-                            transition-transform">
-                                </a>
-                            </div>
-                            <h4 class="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-1">
-                                <a href="product.php?id=<?php echo $related['SanPham_id']; ?>" class="hover:text-red-600">
-                                    <?php echo htmlspecialchars($related['TenSP']); ?>
-                                </a>
-                            </h4>
-                            <div class="flex items-center gap-2">
-                                <div class="text-red-600 font-bold">
-                                    <?php echo formatPrice($related['GiaBan']); ?>
-                                </div>
-                                <?php if ($related_discount > 0): ?>
-                                    <div class="text-gray-400 text-xs line-through">
-                                        <?php echo formatPrice($related['GiaNhapTB']); ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-    </main>
+       
+       
 
     <!-- Footer -->
     <footer id="footer" class="bg-black text-white mt-12">

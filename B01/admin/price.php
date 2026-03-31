@@ -174,6 +174,9 @@ $categories = getCategories($conn);
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-users w-5"></i> Quản lý người dùng
                 </a>
+                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+</a>
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-box w-5"></i> Quản lý sản phẩm
                 </a>

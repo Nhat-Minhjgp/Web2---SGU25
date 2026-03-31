@@ -324,32 +324,35 @@ $revenue_formatted = formatMoney($revenue_this_month);
     </header>
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>Danh mục chức năng</h3>
+        
+        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
             </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="menu-btn active">
-                    <i class="fas fa-home"></i> Dashboard
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5 ">
+                    <i class="fas fa-home w-5 text-center"></i> Dashboard
                 </a>
-                <a href="users.php" class="menu-btn">
-                    <i class="fas fa-users"></i> Quản lý người dùng
+                <a href="users.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
                 </a>
-                <a href="product.php" class="menu-btn">
-                    <i class="fas fa-box"></i> Quản lý sản phẩm
+                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+                    </a>
+                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
                 </a>
-                <a href="import.php" class="menu-btn">
-                    <i class="fas fa-arrow-down"></i> Quản lý nhập hàng
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
                 </a>
-                <a href="price.php" class="menu-btn">
-                    <i class="fas fa-tag"></i> Quản lý giá bán
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
                 </a>
-                <a href="orders.php" class="menu-btn">
-                    <i class="fas fa-receipt"></i> Quản lý đơn hàng
+                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
                 </a>
-                <a href="inventory.php" class="menu-btn">
-                    <i class="fas fa-warehouse"></i> Tồn kho & Báo cáo
+                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
                 </a>
             </nav>
         </aside>

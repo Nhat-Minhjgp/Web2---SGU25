@@ -4,12 +4,12 @@ require_once __DIR__ . '/../control/connect.php';
 require_once __DIR__ . '/../control/function.php';
 
 // Lấy thông tin admin
-$admin_name = $_SESSION['Username'] ?? '';
+$admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_role = $_SESSION['admin_role'] ?? '';
 $admin_username = $_SESSION['admin_username'] ?? '';
 
 // Kiểm tra đăng nhập
-if (!isset($_SESSION['admin_logged_in'])) {
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: index.php');
     exit();
 }
@@ -104,7 +104,7 @@ $users_json = json_encode($users);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý người dùng</title>
+    <title>Quản lý người dùng - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -120,21 +120,70 @@ $users_json = json_encode($users);
     <style>
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .menu-btn i {
+            width: 20px;
+            color: #9ca3af;
+        }
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: #667eea;
+        }
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .menu-btn.active i {
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-   <header class="bg-white shadow-md sticky top-0 z-50">
+    <!-- HEADER - ĐỒNG BỘ VỚI DASHBOARD -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="text-2xl font-bold text-gradient-custom">NVBPlay Admin Panel</h1>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-lg">
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm text-gray-800"><?php echo htmlspecialchars($admin_username); ?></p>
-                        <p class="text-xs text-gray-500">Quản trị viên</p>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
                     </div>
                 </div>
                 <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
@@ -146,23 +195,45 @@ $users_json = json_encode($users);
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
         
+        <!-- SIDEBAR - ĐỒNG BỘ VỚI DASHBOARD -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
-            <div class="p-6 border-b border-gray-100"><h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3></div>
-            <nav class="p-4 space-y-2">
-                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
-                <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5"><i class="fas fa-users w-5 text-center"></i> Quản lý người dùng</a>
-                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm</a>
-                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng</a>
-                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán</a>
-                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng</a>
-                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition"><i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo</a>
-            </nav>
-        </aside>
+    <div class="p-6 border-b border-gray-100">
+        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
+    </div>
+    <nav class="p-4 space-y-2">
+        <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-home w-5 text-center"></i> Dashboard
+        </a>
+        <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+            <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
+        </a>
+        <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+</a>
+        <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
+        </a>
+        <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
+        </a>
+        <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
+        </a>
+        <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
+        </a>
+        <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+            <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
+        </a>
+    </nav>
+</aside>
 
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b-2 border-gray-100 gap-4">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3"><i class="fas fa-users text-primary"></i> Quản lý người dùng</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                        <i class="fas fa-users text-primary"></i> Quản lý người dùng
+                    </h2>
                     <button onclick="openModal('addModal')" class="bg-gradient-custom hover:opacity-90 text-white px-6 py-2.5 rounded-lg font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-user-plus"></i> Thêm tài khoản
                     </button>
@@ -206,7 +277,7 @@ $users_json = json_encode($users);
                                 <th class="p-4 font-medium text-sm">Trạng thái</th>
                                 <th class="p-4 font-medium text-sm">Ngày tạo</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
-                            </tr>
+                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <?php foreach ($users as $user): ?>
@@ -319,7 +390,7 @@ $users_json = json_encode($users);
                 <button onclick="closeModal('viewModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6 overflow-y-auto" id="viewContent">
-                </div>
+            </div>
             <div class="p-5 border-t border-gray-100 flex justify-end bg-gray-50 rounded-b-xl">
                 <button onclick="closeModal('viewModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Đóng</button>
             </div>
@@ -460,7 +531,6 @@ $users_json = json_encode($users);
                 document.getElementById('editEmail').value = user.email || '';
                 document.getElementById('editPhone').value = user.SDT || '';
                 
-                // Set đúng value 1 hoặc 0 cho select
                 document.getElementById('editRole').value = (user.role == 1) ? '1' : '0';
                 document.getElementById('editStatus').value = (user.status == 1) ? '1' : '0';
                 
@@ -470,7 +540,7 @@ $users_json = json_encode($users);
             }
         }
 
-        // Filter Table (Tìm chuỗi text theo select)
+        // Filter Table
         document.getElementById('searchInput').addEventListener('keyup', filterTable);
         document.getElementById('roleFilter').addEventListener('change', filterTable);
         document.getElementById('statusFilter').addEventListener('change', filterTable);
