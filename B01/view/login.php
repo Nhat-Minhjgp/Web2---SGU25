@@ -1211,20 +1211,20 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </main>
-        <!-- Footer  -->
+        <!-- Footer -->
         <footer id="footer" class="bg-black text-white">
             <div class="container mx-auto px-4 py-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="pl-5">
                         <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
                         <div class="flex space-x-3 mb-4">
-                            <a href="https://www.facebook.com/nvbplay" target="_blank"
+                            <a href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
                                     class="fab fa-facebook-f"></i></a>
-                            <a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+                            <a href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
                                     class="fab fa-tiktok"></i></a>
-                            <a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+                            <a href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
                                     class="fas fa-shopping-bag"></i></a>
                         </div>
@@ -1245,8 +1245,8 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                     <div>
                         <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
                         <ul class="space-y-3">
-                            <li><a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex"><span
-                                        class="font-medium w-20">Địa chỉ:</span><span class="text-gray-400">62 Lê Bình,
+                            <li><a href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
+                                        chỉ:</span><span class="text-gray-400">62 Lê Bình,
                                         Tân An, Cần Thơ</span></a></li>
                             <li>
                                 <div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
@@ -1267,9 +1267,8 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
                         <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                     </div>
-                    <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank"><img
-                            src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-                            alt="Bộ Công Thương" class="h-12 w-auto"></a>
+                    <a href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
+                            class="h-12 w-auto"></a>
                 </div>
             </div>
         </footer>

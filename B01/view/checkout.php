@@ -355,206 +355,280 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			margin: -10px;
 		}
 
-	 /* === USER DROPDOWN STYLES === */
-        .user-dropdown {
-            position: relative;
-        }
+		/* === USER DROPDOWN STYLES === */
+		.user-dropdown {
+			position: relative;
+		}
 
-        .user-menu {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-top: 8px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border: 1px solid #f3f4f6;
-            min-width: 220px;
-            z-index: 50;
-            display: none;
-            animation: slideDown 0.2s ease;
-        }
+		.user-menu {
+			position: absolute;
+			right: 0;
+			top: 100%;
+			margin-top: 8px;
+			background: white;
+			border-radius: 12px;
+			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+			border: 1px solid #f3f4f6;
+			min-width: 220px;
+			z-index: 50;
+			display: none;
+			animation: slideDown 0.2s ease;
+		}
 
-        .user-menu.active {
-            display: block;
-        }
+		.user-menu.active {
+			display: block;
+		}
 
-        .user-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            color: #374151;
-            text-decoration: none;
-            transition: background 0.2s;
-            font-size: 14px;
-        }
+		.user-menu-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 12px 16px;
+			color: #374151;
+			text-decoration: none;
+			transition: background 0.2s;
+			font-size: 14px;
+		}
 
-        .user-menu-item:hover {
-            background: #f9fafb;
-        }
+		.user-menu-item:hover {
+			background: #f9fafb;
+		}
 
-        .user-menu-item i {
-            width: 18px;
-            color: #6b7280;
-        }
+		.user-menu-item i {
+			width: 18px;
+			color: #6b7280;
+		}
 
-        .user-menu-divider {
-            border-top: 1px solid #f3f4f6;
-            margin: 4px 0;
-        }
+		.user-menu-divider {
+			border-top: 1px solid #f3f4f6;
+			margin: 4px 0;
+		}
 
-        .user-menu-item.logout {
-            color: #dc2626;
-        }
+		.user-menu-item.logout {
+			color: #dc2626;
+		}
 
-        .user-menu-item.logout i {
-            color: #dc2626;
-        }
+		.user-menu-item.logout i {
+			color: #dc2626;
+		}
 
-        /* Role badge styles */
-        .role-badge-staff {
-            background: #dc2626;
-        }
+		/* Role badge styles */
+		.role-badge-staff {
+			background: #dc2626;
+		}
 
-        .role-badge-admin {
-            background: #7c3aed;
-        }
+		.role-badge-admin {
+			background: #7c3aed;
+		}
 
-        .role-badge-user {
-            background: #6b7280;
-        }
+		.role-badge-user {
+			background: #6b7280;
+		}
 
-        @media (max-width: 768px) {
-            .suggestion-item img {
-                width: 40px;
-                height: 40px;
-            }
+		@media (max-width: 768px) {
+			.suggestion-item img {
+				width: 40px;
+				height: 40px;
+			}
 
-            .suggestion-info h4 {
-                font-size: 14px;
-            }
+			.suggestion-info h4 {
+				font-size: 14px;
+			}
 
-            .suggestion-info .price {
-                font-size: 13px;
-            }
-        }
+			.suggestion-info .price {
+				font-size: 13px;
+			}
+		}
 
-        /* === CSS CHO SEARCH INPUT  ===*/
-        #searchInput {
-            background-color: #EEEEEE;
-            transition: all 0.2s ease;
-        }
+		/* === CSS CHO SEARCH INPUT  ===*/
+		#searchInput {
+			background-color: #EEEEEE;
+			transition: all 0.2s ease;
+		}
 
-        #searchInput:focus {
-            background-color: #EEEEEE;
-            border-color: #ffffff;
-            box-shadow: 0 0 0 3px rgb(255, 255, 255);
-        }
+		#searchInput:focus {
+			background-color: #EEEEEE;
+			border-color: #ffffff;
+			box-shadow: 0 0 0 3px rgb(255, 255, 255);
+		}
 
-        #searchInput::placeholder {
-            color: #1a1919;
-            font-size: 15px;
-            font-weight: 400;
-        }
+		#searchInput::placeholder {
+			color: #1a1919;
+			font-size: 15px;
+			font-weight: 400;
+		}
 
-        /* Nút search và đóng trong header */
-        .search-action-btn {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 9999px;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
+		/* Nút search và đóng trong header */
+		.search-action-btn {
+			width: 40px;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 9999px;
+			transition: all 0.2s;
+			cursor: pointer;
+		}
 
-        .search-action-btn:hover {
-            background-color: #ffffff;
-        }
+		.search-action-btn:hover {
+			background-color: #ffffff;
+		}
 
-        .close-btn {
-            color: #ffffff;
-        }
+		.close-btn {
+			color: #ffffff;
+		}
 
-        .close-btn:hover {
-            background-color: #ffffff;
-            color: white;
-        }
+		.close-btn:hover {
+			background-color: #ffffff;
+			color: white;
+		}
 
-  .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+		.scrollbar-hide {
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
 
-/* === SEARCH === */
-#searchHeader { display: none; }
-body.search-active #defaultHeader { display: none; }
-body.search-active #searchHeader { display: flex; }
+		/* === SEARCH === */
+		#searchHeader {
+			display: none;
+		}
 
-body.search-active #searchOverlay {
-    opacity: 1;
-    pointer-events: auto;
-}
+		body.search-active #defaultHeader {
+			display: none;
+		}
 
-#searchSuggestions {
-    position: absolute;
-    left: 0; right: 0;
-    top: 100%;
-    margin-top: 8px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    border: 1px solid #f3f4f6;
-    overflow-y: auto;
-    max-height: 400px;
-    z-index: 50;
-    display: none;
-    animation: slideDown 0.2s ease;
-}
-#searchSuggestions.active { display: block; }
+		body.search-active #searchHeader {
+			display: flex;
+		}
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+		body.search-active #searchOverlay {
+			opacity: 1;
+			pointer-events: auto;
+		}
 
-.suggestion-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background 0.2s;
-    text-decoration: none; color: inherit;
-}
-.suggestion-item:hover { background: #f9fafb; }
-.suggestion-item img {
-    width: 60px; height: 60px;
-    object-fit: cover; border-radius: 8px;
-    background: #f3f4f6; flex-shrink: 0;
-}
-.suggestion-info { flex: 1; min-width: 0; }
-.suggestion-info h4 {
-    font-size: 14px; font-weight: 500; color: #1f2937;
-    margin: 0 0 4px 0;
-    overflow: hidden; display: -webkit-box;
-    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-}
-.price-wrapper { display: flex; align-items: center; gap: 8px; }
-.price-wrapper .price { font-size: 15px; font-weight: 600; color: #dc2626; }
-.price-wrapper .old-price { font-size: 13px; color: #9ca3af; text-decoration: line-through; }
-.price-wrapper .discount-badge {
-    font-size: 11px; font-weight: 600; color: #dc2626;
-    background: #fef2f2; padding: 2px 6px; border-radius: 4px;
-}
-.view-all-link {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 14px; background: #f9fafb;
-    color: #dc2626; font-size: 14px; font-weight: 500;
-    text-decoration: none; border-top: 1px solid #f3f4f6;
-}
-.view-all-link:hover { background: #f3f4f6; }
-.no-results { padding: 32px 24px; text-align: center; color: #6b7280; }
+		#searchSuggestions {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 100%;
+			margin-top: 8px;
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+			border: 1px solid #f3f4f6;
+			overflow-y: auto;
+			max-height: 400px;
+			z-index: 50;
+			display: none;
+			animation: slideDown 0.2s ease;
+		}
+
+		#searchSuggestions.active {
+			display: block;
+		}
+
+		@keyframes slideDown {
+			from {
+				opacity: 0;
+				transform: translateY(-10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.suggestion-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 16px;
+			border-bottom: 1px solid #f3f4f6;
+			transition: background 0.2s;
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.suggestion-item:hover {
+			background: #f9fafb;
+		}
+
+		.suggestion-item img {
+			width: 60px;
+			height: 60px;
+			object-fit: cover;
+			border-radius: 8px;
+			background: #f3f4f6;
+			flex-shrink: 0;
+		}
+
+		.suggestion-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.suggestion-info h4 {
+			font-size: 14px;
+			font-weight: 500;
+			color: #1f2937;
+			margin: 0 0 4px 0;
+			overflow: hidden;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+		}
+
+		.price-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.price-wrapper .price {
+			font-size: 15px;
+			font-weight: 600;
+			color: #dc2626;
+		}
+
+		.price-wrapper .old-price {
+			font-size: 13px;
+			color: #9ca3af;
+			text-decoration: line-through;
+		}
+
+		.price-wrapper .discount-badge {
+			font-size: 11px;
+			font-weight: 600;
+			color: #dc2626;
+			background: #fef2f2;
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+
+		.view-all-link {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			padding: 14px;
+			background: #f9fafb;
+			color: #dc2626;
+			font-size: 14px;
+			font-weight: 500;
+			text-decoration: none;
+			border-top: 1px solid #f3f4f6;
+		}
+
+		.view-all-link:hover {
+			background: #f3f4f6;
+		}
+
+		.no-results {
+			padding: 32px 24px;
+			text-align: center;
+			color: #6b7280;
+		}
 
 		@keyframes spin {
 			to {
@@ -1237,8 +1311,7 @@ body.search-active #searchOverlay {
 							</button>
 
 							<!-- Dropdown gợi ý tìm kiếm -->
-							<div id="searchSuggestions"
-								class="absolute top-full left-0 right-0 z-50">
+							<div id="searchSuggestions" class="absolute top-full left-0 right-0 z-50">
 								<div id="suggestionsList" class="max-h-96 overflow-y-auto custom-scrollbar">
 								</div>
 							</div>
@@ -1603,20 +1676,20 @@ body.search-active #searchOverlay {
 		</div>
 	</div>
 
-	<!-- ============ FOOTER ============ -->
-	<footer id="footer" class="bg-black text-white mt-12">
+	<!-- Footer -->
+	<footer id="footer" class="bg-black text-white">
 		<div class="container mx-auto px-4 py-8">
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 				<div class="pl-5">
 					<h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
 					<div class="flex space-x-3 mb-4">
-						<a href="https://www.facebook.com/nvbplay" target="_blank"
+						<a href="" target="_blank"
 							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
 								class="fab fa-facebook-f"></i></a>
-						<a href="https://www.tiktok.com/@nvbplay.vn" target="_blank"
+						<a href="" target="_blank"
 							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
 								class="fab fa-tiktok"></i></a>
-						<a href="https://s.shopee.vn/6AV9qQcpMz" target="_blank"
+						<a href="" target="_blank"
 							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
 								class="fas fa-shopping-bag"></i></a>
 					</div>
@@ -1625,19 +1698,21 @@ body.search-active #searchOverlay {
 					<h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
 					<ul class="space-y-2">
 						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a></li>
-						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a></li>
-						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI TRẢ</a>
+						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
 						</li>
-						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</a></li>
+						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+								TRẢ</a></li>
+						<li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</a>
+						</li>
 						<li><a href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</a></li>
 					</ul>
 				</div>
 				<div>
 					<h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
 					<ul class="space-y-3">
-						<li><a href="https://maps.app.goo.gl/mwqaes9hQJks8FSu5" target="_blank" class="flex"><span
-									class="font-medium w-20">Địa chỉ:</span><span class="text-gray-400">62 Lê Bình, Tân
-									An, Cần Thơ</span></a></li>
+						<li><a href="" target="_blank" class="flex"><span class="font-medium w-20">Địa chỉ:</span><span
+									class="text-gray-400">62 Lê Bình,
+									Tân An, Cần Thơ</span></a></li>
 						<li>
 							<div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
 									class="text-gray-400">08:00 - 21:00</span></div>
@@ -1656,13 +1731,11 @@ body.search-active #searchOverlay {
 					<p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
 					<p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
 				</div>
-				<a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank"><img
-						src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
-						alt="Bộ Công Thương" class="h-12 w-auto"></a>
+				<a href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
+						class="h-12 w-auto"></a>
 			</div>
 		</div>
 	</footer>
-	<!-- ============ END FOOTER ============ -->
 
 
 	<!-- Mobile Menu -->
