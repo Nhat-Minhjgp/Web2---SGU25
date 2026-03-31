@@ -1357,7 +1357,7 @@ if ($is_logged_in) {
                         <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                     </div>
                     <a href="http://online.gov.vn/Home/WebDetails/129261" target="_blank"><img
-                            src="https://nvbplay.vn/wp-content/uploads/2024/09/Logo-Bo-Cong-Thuong-Xanh.png"
+                            src="./img/icons/logoBCT.png"
                             alt="Bộ Công Thương" class="h-12 w-auto"></a>
                 </div>
             </div>
