@@ -477,11 +477,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">% Lợi nhuận (từ sản phẩm)</label>
-                    <input type="text" class="profit-display w-full px-3 py-2 rounded-lg border text-sm bg-gray-100"
-                        readonly value="20%">
-                </div>
+               
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Giá bán dự kiến</label>
                     <input type="text" class="selling-price w-full px-3 py-2 rounded-lg border text-sm bg-gray-100"
@@ -513,18 +509,46 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
         }
 
+        //  Hàm addItemRow() duy nhất - đã sửa
         function addItemRow() {
             const container = document.getElementById('itemsContainer');
             const template = document.getElementById('itemTemplate');
             const clone = template.content.cloneNode(true);
 
-            const selects = clone.querySelectorAll('select[name*="INDEX"]');
-            const inputs = clone.querySelectorAll('input[name*="INDEX"]');
+            //  Replace INDEX bằng itemIndex cho tất cả inputs
+            const allInputs = clone.querySelectorAll('input[name*="INDEX"], select[name*="INDEX"]');
+            for (let i = 0; i < allInputs.length; i++) {
+                const el = allInputs[i];
+                el.name = el.name.replace('INDEX', itemIndex);
+                // Gán ID cho product-search-input để dễ tìm
+                if (el.classList && el.classList.contains('product-search-input')) {
+                    el.id = 'search-' + itemIndex;
+                }
+            }
 
-            selects.forEach(el => el.name = el.name.replace('INDEX', itemIndex));
-            inputs.forEach(el => el.name = el.name.replace('INDEX', itemIndex));
+            //  Cập nhật ID cho results div
+            const resultsDiv = clone.querySelector('.search-results');
+            if (resultsDiv) {
+                resultsDiv.id = 'results-' + itemIndex;
+            }
 
+            //  Thêm vào container
             container.appendChild(clone);
+
+            //  Gắn event listener cho input search mới (dùng function expression để tránh hoisting)
+            const newSearchInput = container.lastElementChild.querySelector('.product-search-input');
+            if (newSearchInput) {
+                newSearchInput.addEventListener('input', function (e) {
+                    debouncedSearch(e.target);
+                });
+                newSearchInput.addEventListener('keydown', function (e) {
+                    handleSearchKeydown(e, e.target);
+                });
+                newSearchInput.addEventListener('focus', function () {
+                    if (this.value.length >= 2) handleProductSearch(this);
+                });
+            }
+
             itemIndex++;
             calcTotal();
         }
@@ -594,44 +618,102 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             }
         }
 
-        // Render danh sách kết quả tìm kiếm
         function renderSearchResults(products, container, searchInput) {
-            if (products.length === 0) {
+            if (!products || products.length === 0) {
                 container.innerHTML = '<div class="search-no-result">🔍 Không tìm thấy sản phẩm</div>';
                 return;
             }
 
-            container.innerHTML = products.map((product, index) => `
-        <div class="search-result-item" 
-             data-index="${index}"
-             onclick="selectProduct(this, '${searchInput.id || 'search-' + Date.now()}')">
-            <div class="search-result-name">${escapeHtml(product.name)}</div>
-            <div class="search-result-meta">
-                <span>📦 Mã: ${product.id}</span>
-                <span>📊 Tồn: ${product.ton}</span>
-                <span>💰 Nhập: ${formatCurrency(product.gia_nhap)}</span>
-                <span>🎯 Lợi: ${(product.loi * 100).toFixed(0)}%</span>
-            </div>
-        </div>
-    `).join('');
+            container.innerHTML = products.map(function (product) {
+                //  Lưu toàn bộ data vào data-* attributes để selectProduct() đọc được
+                return '<div class="search-result-item" ' +
+                    'data-id="' + product.id + '" ' +
+                    'data-name="' + escapeHtml(product.name) + '" ' +
+                    'data-gianhap="' + product.gia_nhap + '" ' +
+                    'data-giaban="' + product.gia_ban + '" ' +
+                    'data-ton="' + product.ton + '" ' +
+                    'data-loi="' + product.loi + '" ' +
+                    'onclick="selectProduct(this)">' +
+                    '<div class="search-result-name">' + escapeHtml(product.name) + '</div>' +
+                    '<div class="search-result-meta">' +
+                    '<span>📦 Mã: ' + product.id + '</span>' +
+                    '<span>📊 Tồn: ' + product.ton + '</span>' +
+                    '<span>💰 Nhập: ' + formatCurrency(product.gia_nhap) + '</span>' +
+                    '<span>🎯 Lợi: ' + (product.loi * 100).toFixed(0) + '%</span>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
         }
 
         // Chọn sản phẩm từ kết quả tìm kiếm
-        function selectProduct(element, searchInputId) {
+        function selectProduct(element) {
+            // ✅ Tìm đúng card chứa item này (quan trọng!)
             const card = element.closest('.item-card');
-            const index = element.dataset.index;
+            if (!card) {
+                console.error('Không tìm thấy item-card');
+                return;
+            }
+
             const resultsDiv = card.querySelector('.search-results');
             const searchInput = card.querySelector('.product-search-input');
             const productIdInput = card.querySelector('.product-id-input');
+            const qtyInput = card.querySelector('.qty-input');
+            const priceInput = card.querySelector('.price-input');
+            const profitDisplay = card.querySelector('.profit-display');
+            const sellingPriceInput = card.querySelector('.selling-price');
+            const infoBox = card.querySelector('.selected-product-info');
 
-            // Lấy data từ kết quả (cần fetch lại hoặc lưu tạm)
-            const productData = JSON.parse(element.dataset.product || '{}');
+            // ✅ Lấy data từ data-* attributes (đã được renderSearchResults() gán)
+            const productId = element.dataset.id;
+            const productName = element.dataset.name;
+            const giaNhap = element.dataset.gianhap;
+            const giaBan = element.dataset.giaban;
+            const tonKho = element.dataset.ton;
+            const loiNhuan = element.dataset.loi;
 
-            // Hoặc gọi API lấy chi tiết (tuỳ chọn)
-            fetchProductDetails(element.textContent.trim(), card);
+            // ✅ Cập nhật hidden input ID
+            if (productIdInput) productIdInput.value = productId;
 
-            // Đóng dropdown
-            resultsDiv.classList.remove('show');
+            // ✅ Cập nhật tên sản phẩm vào ô search (readonly)
+            if (searchInput) {
+                searchInput.value = productName;
+                searchInput.readOnly = true;
+            }
+
+            // ✅ Cập nhật giá nhập nếu có
+            if (priceInput && giaNhap && giaNhap !== '0' && giaNhap !== 'null') {
+                priceInput.value = parseFloat(giaNhap);
+            }
+
+            // ✅ Cập nhật % lợi nhuận
+            if (profitDisplay && loiNhuan && loiNhuan !== 'null') {
+                const profitPercent = (parseFloat(loiNhuan) * 100).toFixed(0);
+                profitDisplay.value = profitPercent + '%';
+                profitDisplay.dataset.value = loiNhuan;
+            }
+
+            // ✅ Hiển thị info box sản phẩm đã chọn
+            if (infoBox) {
+                infoBox.classList.remove('hidden');
+                const nameEl = infoBox.querySelector('.selected-product-name');
+                const stockEl = infoBox.querySelector('.selected-product-stock');
+                const profitEl = infoBox.querySelector('.selected-product-profit');
+                if (nameEl) nameEl.textContent = productName;
+                if (stockEl) stockEl.textContent = tonKho || '0';
+                if (profitEl) profitEl.textContent = (loiNhuan ? (parseFloat(loiNhuan) * 100).toFixed(0) : '20') + '%';
+            }
+
+            // ✅ Tính lại tổng tiền item và tổng form
+            if (qtyInput && priceInput) {
+                calcItemTotal(qtyInput);
+                calcSellingPrice(priceInput);
+            }
+
+            // ✅ Đóng dropdown kết quả
+            if (resultsDiv) {
+                resultsDiv.classList.remove('show');
+                resultsDiv.innerHTML = '';
+            }
         }
 
         // Lấy chi tiết sản phẩm và cập nhật form
@@ -727,38 +809,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
         // Debounced version của handleProductSearch
         const debouncedSearch = debounce(handleProductSearch, 300);
 
-        // Cập nhật hàm addItemRow để gắn event listener mới
-        function addItemRow() {
-            const container = document.getElementById('itemsContainer');
-            const template = document.getElementById('itemTemplate');
-            const clone = template.content.cloneNode(true);
 
-            // Replace INDEX
-            const selects = clone.querySelectorAll('select[name*="INDEX"], input[name*="INDEX"]');
-            selects.forEach(el => {
-                el.name = el.name.replace('INDEX', itemIndex);
-                if (el.classList.contains('product-search-input')) {
-                    el.id = `search-${itemIndex}`;
-                }
-            });
-
-            // Cập nhật ID cho results div
-            const resultsDiv = clone.querySelector('.search-results');
-            if (resultsDiv) {
-                resultsDiv.id = `results-${itemIndex}`;
-            }
-
-            container.appendChild(clone);
-
-            // Gắn event listener cho input search mới
-            const newSearchInput = container.lastElementChild.querySelector('.product-search-input');
-            if (newSearchInput) {
-                newSearchInput.addEventListener('input', (e) => debouncedSearch(e.target));
-            }
-
-            itemIndex++;
-            calcTotal();
-        }
 
         // Đóng dropdown khi click outside
         document.addEventListener('click', (e) => {
