@@ -573,6 +573,21 @@ function getFilterDisplayName($type, $slug)
             background-color: #ffffff;
             color: white;
         }
+
+        /* === GUEST USER DROPDOWN === */
+        .guest-user-menu {
+            min-width: 100px;
+        }
+
+        .guest-user-menu .user-menu-item {
+            justify-content: left;
+            font-weight: 500;
+        }
+
+        .guest-user-menu .user-menu-item i {
+            width: 20px;
+            text-align: center;
+        }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
@@ -1177,25 +1192,39 @@ function getFilterDisplayName($type, $slug)
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <a href="./my-account.php" class="user-menu-item"><i
+                                                <a href="./view/my-account.php" class="user-menu-item"><i
                                                         class="fas fa-user"></i><span>Tài khoản của tôi</span></a>
-                                                <a href="./my-account/orders.php" class="user-menu-item"><i
+                                                <a href="./view/my-account/orders.php" class="user-menu-item"><i
                                                         class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a>
-                                                <a href="./my-account/address-book.php" class="user-menu-item"><i
+                                                <a href="./view/my-account/address-book.php" class="user-menu-item"><i
                                                         class="fas fa-map-marker-alt"></i><span>Sổ địa chỉ</span></a>
                                                 <div class="user-menu-divider"></div>
                                                 <a href="../control/logout.php" class="user-menu-item logout"><i
                                                         class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
                                             </div>
                                         <?php else: ?>
-                                            <a href="./login.php"
-                                                class="flex items-center text-gray-700 hover:text-red-600">
-                                                <i class="far fa-user text-xl"></i>
-                                                <span class="text-sm ml-1">Đăng nhập</span>
-                                            </a>
+                                            <!-- Guest User Dropdown -->
+                                            <button id="guestUserToggle"
+                                                class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition"
+                                                type="button">
+                                                <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                                                <span class="text-sm font-medium text-gray-700 hidden sm:inline">Tài
+                                                    khoản</span>
+                                                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                            </button>
+                                            <div id="guestUserMenu" class="user-menu guest-user-menu">
+                                                <a href="./login.php" class="user-menu-item">
+                                                    <i class="fas fa-sign-in-alt p-1"></i>
+                                                    <span>Đăng nhập</span>
+                                                </a>
+                                                <div class="user-menu-divider"></div>
+                                                <a href="./register.php" class="user-menu-item">
+                                                    <i class="fas fa-user-plus p-1"></i>
+                                                    <span>Đăng ký</span>
+                                                </a>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
-
                                     <!-- Cart -->
                                     <a href="./cart.php" class="relative p-2">
                                         <i class="fas fa-shopping-basket text-gray-700 hover:text-red-600 text-xl"></i>
@@ -1901,20 +1930,66 @@ function getFilterDisplayName($type, $slug)
                     if (warning) warning.style.display = 'none';
                 }
 
-                // === USER DROPDOWN TOGGLE ===
+                // ========== USER DROPDOWN TOGGLE ==========
                 const userToggle = document.getElementById('userToggle');
                 const userMenu = document.getElementById('userMenu');
+                const guestUserToggle = document.getElementById('guestUserToggle');
+                const guestUserMenu = document.getElementById('guestUserMenu');
+
+                // Dropdown cho user đã đăng nhập (click để toggle)
                 if (userToggle && userMenu) {
                     userToggle.addEventListener('click', function (e) {
                         e.stopPropagation();
                         userMenu.classList.toggle('active');
-                    });
-                    document.addEventListener('click', function (e) {
-                        if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                            userMenu.classList.remove('active');
-                        }
+                        // Đóng guest menu nếu đang mở
+                        if (guestUserMenu) guestUserMenu.classList.remove('active');
                     });
                 }
+
+                // Dropdown cho guest user (hover để hiện, click để đóng)
+                if (guestUserToggle && guestUserMenu) {
+                    let guestMenuTimeout;
+
+                    // Hiển thị dropdown khi hover
+                    guestUserToggle.addEventListener('mouseenter', function () {
+                        clearTimeout(guestMenuTimeout);
+                        guestUserMenu.classList.add('active');
+                    });
+
+                    // Ẩn dropdown khi rời khỏi button (có delay để tránh flicker)
+                    guestUserToggle.addEventListener('mouseleave', function () {
+                        guestMenuTimeout = setTimeout(() => {
+                            guestUserMenu.classList.remove('active');
+                        }, 200);
+                    });
+
+                    // Giữ dropdown mở khi hover vào menu
+                    guestUserMenu.addEventListener('mouseenter', function () {
+                        clearTimeout(guestMenuTimeout);
+                    });
+
+                    // Ẩn dropdown khi rời khỏi menu
+                    guestUserMenu.addEventListener('mouseleave', function () {
+                        guestUserMenu.classList.remove('active');
+                    });
+
+                    // Đóng khi click ra ngoài
+                    guestUserToggle.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    });
+                }
+
+                // Đóng tất cả dropdown khi click ra ngoài
+                document.addEventListener('click', function (e) {
+                    // Đóng user menu
+                    if (userMenu && !userToggle?.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.remove('active');
+                    }
+                    // Đóng guest user menu
+                    if (guestUserMenu && !guestUserToggle?.contains(e.target) && !guestUserMenu.contains(e.target)) {
+                        guestUserMenu.classList.remove('active');
+                    }
+                });
 
                 // === SEARCH INPUT SQL INJECTION CHECK ===
                 const searchInput = document.getElementById('search-input');
@@ -2162,6 +2237,8 @@ function getFilterDisplayName($type, $slug)
 
 
         </script>
+
+
     </div>
 
 </body>

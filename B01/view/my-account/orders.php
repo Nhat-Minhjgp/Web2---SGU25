@@ -1236,10 +1236,7 @@ function getStatusBadge($status)
                                         class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition"><img
                                             src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address"><span
                                             class="text-sm md:text-base">Sổ địa chỉ</span></a></li>
-                                <li><a href="../../control/logout.php"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition"><img
-                                            src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout"><span
-                                            class="text-sm md:text-base">Đăng xuất</span></a></li>
+                                <li>
                             </ul>
                         </nav>
                     </div>
@@ -1460,10 +1457,7 @@ function getStatusBadge($status)
                                 class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg"><img
                                     src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address"><span>Sổ địa
                                     chỉ</span></a></li>
-                        <li><a href="../../control/logout.php"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg"><img
-                                    src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout"><span>Đăng
-                                    xuất</span></a></li>
+                       
                     </ul>
                 </nav>
             </div>

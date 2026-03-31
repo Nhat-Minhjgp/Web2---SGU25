@@ -1432,31 +1432,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 								<input type="hidden" name="selected_address_id" id="selected_address_id"
 									value="<?php echo $default_address['add_id'] ?? ''; ?>">
 
-								<!-- Someone Else Receive -->
-								<div class="pt-2">
-									<label class="flex items-center gap-2 cursor-pointer">
-										<input type="checkbox" id="nhan_hang_giup" name="someoneReceive" value="1"
-											class="w-4 h-4 text-[#FF3F1A] rounded">
-										<span class="text-gray-700"> Nhờ người khác nhận hàng</span>
-									</label>
-									<div id="additional_fields" class="grid grid-2 gap-4 mt-3 pt-3 border-t hidden">
-										<div>
-											<label class="block text-sm font-medium text-gray-700 mb-1">Tên người
-												nhận</label>
-											<input type="text" name="recipient_name" id="recipient_name"
-												class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
-												oninput="this.value=this.value.replace(/[0-9]/g,'')" maxlength="50">
-										</div>
-										<div>
-											<label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại
-												người nhận</label>
-											<input type="tel" name="recipient_phone" id="recipient_phone"
-												class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF3F1A] outline-none"
-												oninput="this.value=this.value.replace(/[^0-9]/g,'').substring(0,10)"
-												maxlength="10">
-										</div>
-									</div>
-								</div>
+								
+								
 
 							</div>
 
@@ -2165,21 +2142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 					if (e.key === 'Escape') closePopup();
 				});
 
-				// === User Dropdown ===
-				const userToggle = document.getElementById('userToggle');
-				const userMenu = document.getElementById('userMenu');
-				if (userToggle && userMenu) {
-					userToggle.addEventListener('click', function (e) {
-						e.stopPropagation();
-						userMenu.classList.toggle('active');
-					});
-					document.addEventListener('click', function (e) {
-						if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-							userMenu.classList.remove('active');
-						}
-					});
-				}
-			});
+				
 
 			// === Copy Account Number (outside DOMContentLoaded vì gọi từ onclick HTML) ===
 			function copyAccountNumber() {

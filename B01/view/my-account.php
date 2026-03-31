@@ -1199,13 +1199,7 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                                         Sổ địa chỉ
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="../control/logout.php"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
-                                        <img src="../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
-                                        Đăng xuất
-                                    </a>
-                                </li>
+                               
                             </ul>
                         </nav>
                     </div>
@@ -1364,13 +1358,7 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                                 <span>Sổ địa chỉ</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="../control/logout.php"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
-                                <span>Đăng xuất</span>
-                            </a>
-                        </li>
+                       
                     </ul>
                 </nav>
             </div>

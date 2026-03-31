@@ -1,22 +1,29 @@
 <?php
 session_start();
 require_once '../control/connect.php';
-
 $errors = [];
 $success = '';
-$form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
+$form_data = [
+    'username' => '',
+    'ho_ten' => '',
+    'email' => '',
+    'sdt' => '',
+    'tinh_thanhpho' => '',
+    'quan_huyen' => '',
+    'dia_chi_chitiet' => ''
+];
 
-//  Nếu đã đăng nhập thì redirect về trang chủ ===
+// Nếu đã đăng nhập thì redirect về trang chủ
 if (isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit();
 }
 
-
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
 }
+
 // Xử lý buy_now mode (nếu có)
 if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
     $cart_count += array_sum($_SESSION['buy_now_cart']);
@@ -28,6 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form_data['ho_ten'] = trim(htmlspecialchars($_POST['ho_ten'] ?? '', ENT_QUOTES, 'UTF-8'));
     $form_data['email'] = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
     $form_data['sdt'] = trim(preg_replace('/[^0-9]/', '', $_POST['sdt'] ?? ''));
+    $form_data['tinh_thanhpho'] = trim(htmlspecialchars($_POST['tinh_thanhpho'] ?? '', ENT_QUOTES, 'UTF-8'));
+    $form_data['quan_huyen'] = trim(htmlspecialchars($_POST['quan_huyen'] ?? '', ENT_QUOTES, 'UTF-8'));
+    $form_data['dia_chi_chitiet'] = trim(htmlspecialchars($_POST['dia_chi_chitiet'] ?? '', ENT_QUOTES, 'UTF-8'));
+
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $terms = isset($_POST['terms']);
@@ -69,10 +80,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (!filter_var($form_data['email'], FILTER_VALIDATE_EMAIL))
         $errors[] = "Email không hợp lệ";
 
+    // ✅ VALIDATE SỐ ĐIỆN THOẠI VIỆT NAM (Bắt đầu bằng 09, 10 số)
     if (empty($form_data['sdt']))
         $errors[] = "Số điện thoại không được để trống";
-    elseif (!preg_match('/^0[0-9]{9}$/', $form_data['sdt']))
-        $errors[] = "Số điện thoại phải bắt đầu bằng số 0 và có 10 số";
+    elseif (!preg_match('/^09[0-9]{8}$/', $form_data['sdt']))
+        $errors[] = "Số điện thoại phải bắt đầu bằng 09 và có 10 số";
+
+    // ✅ VALIDATE ĐỊA CHỈ
+    if (empty($form_data['tinh_thanhpho']))
+        $errors[] = "Tỉnh/Thành phố không được để trống";
+    elseif (strlen($form_data['tinh_thanhpho']) < 2)
+        $errors[] = "Tỉnh/Thành phố phải có ít nhất 2 ký tự";
+
+    if (empty($form_data['quan_huyen']))
+        $errors[] = "Quận/Huyện không được để trống";
+    elseif (strlen($form_data['quan_huyen']) < 2)
+        $errors[] = "Quận/Huyện phải có ít nhất 2 ký tự";
+
+    if (empty($form_data['dia_chi_chitiet']))
+        $errors[] = "Địa chỉ chi tiết không được để trống";
+    elseif (strlen($form_data['dia_chi_chitiet']) < 5)
+        $errors[] = "Địa chỉ chi tiết phải có ít nhất 5 ký tự";
 
     if (empty($password))
         $errors[] = "Mật khẩu không được để trống";
@@ -85,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$terms)
         $errors[] = "Bạn phải đồng ý với điều khoản sử dụng";
 
-    // === 3. DATABASE OPERATIONS (Prepared Statements) ===
+    // === 3. DATABASE OPERATIONS ===
     if (empty($errors)) {
         try {
             // Kiểm tra Username trùng
@@ -110,8 +138,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
             }
 
-            // Insert vào DB
+            // Insert vào DB users
             if (empty($errors)) {
+                $conn->begin_transaction();
+
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $role = 0;
                 $status = 1;
@@ -128,18 +158,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $status
                 );
 
-                if ($stmt->execute()) {
-                    $success = "Đăng ký thành công! Chuyển hướng...";
-                    $form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => ''];
-                    header("Refresh: 2; URL=./login.php");
-                    exit();
-                } else {
-                    $errors[] = "Lỗi hệ thống: " . $conn->error;
+                if (!$stmt->execute()) {
+                    throw new Exception("Lỗi đăng ký tài khoản: " . $stmt->error);
                 }
+
+                $user_id = $stmt->insert_id;
                 $stmt->close();
+
+                // ✅ TẠO ĐỊA CHỈ MẶC ĐỊNH
+                $stmt_addr = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, 1)");
+                $stmt_addr->bind_param(
+                    "issssss",
+                    $user_id,
+                    $form_data['ho_ten'],
+                    $form_data['sdt'],
+                    $form_data['dia_chi_chitiet'],
+                    $form_data['quan_huyen'],
+                    $form_data['tinh_thanhpho'],
+                    $form_data['dia_chi_chitiet']
+                );
+
+                if (!$stmt_addr->execute()) {
+                    throw new Exception("Lỗi lưu địa chỉ: " . $stmt_addr->error);
+                }
+                $stmt_addr->close();
+
+                $conn->commit();
+
+                $success = "Đăng ký thành công! Chuyển hướng...";
+                $form_data = ['username' => '', 'ho_ten' => '', 'email' => '', 'sdt' => '', 'tinh_thanhpho' => '', 'quan_huyen' => '', 'dia_chi_chitiet' => ''];
+                header("Refresh: 2; URL=./login.php");
+                exit();
             }
         } catch (Exception $e) {
-            // Không hiển thị lỗi chi tiết cho user (security)
+            $conn->rollback();
             error_log("Register Error: " . $e->getMessage());
             $errors[] = "Lỗi hệ thống. Vui lòng thử lại sau.";
         }
@@ -525,6 +577,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 32px 24px;
             text-align: center;
             color: #6b7280;
+        }
+
+        /* === GUEST USER DROPDOWN === */
+        .guest-user-menu {
+            min-width: 100px;
+        }
+
+        .guest-user-menu .user-menu-item {
+            justify-content: left;
+            font-weight: 500;
+        }
+
+        .guest-user-menu .user-menu-item i {
+            width: 20px;
+            text-align: center;
         }
     </style>
     <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
@@ -1089,11 +1156,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <!-- Account Dropdown -->
                                     <div class="user-dropdown relative">
 
-                                        <a href="./login.php"
-                                            class="flex items-center text-gray-700 hover:text-red-600">
-                                            <i class="far fa-user text-xl"></i>
-                                            <span class="text-sm ml-1">Đăng nhập</span>
-                                        </a>
+                                        <!-- Guest User Dropdown -->
+                                        <button id="guestUserToggle"
+                                            class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition"
+                                            type="button">
+                                            <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                                            <span class="text-sm font-medium text-gray-700 hidden sm:inline">Tài
+                                                khoản</span>
+                                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                        </button>
+                                        <div id="guestUserMenu" class="user-menu guest-user-menu">
+                                            <a href="./login.php" class="user-menu-item">
+                                                <i class="fas fa-sign-in-alt p-1"></i>
+                                                <span>Đăng nhập</span>
+                                            </a>
+                                            <div class="user-menu-divider"></div>
+                                            <a href="./register.php" class="user-menu-item">
+                                                <i class="fas fa-user-plus p-1"></i>
+                                                <span>Đăng ký</span>
+                                            </a>
+                                        </div>
 
                                     </div>
 
@@ -1162,17 +1244,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         <main id="main" class="bg-white mt-20 mb-20">
-            <div class="page-wrapper my-account mb">
+            <div class="page-wrapper my-account">
                 <div class="container mx-auto px-5" role="main">
                     <div class="woocommerce">
                         <div class="account-container lightbox-inner max-w-6xl mx-auto">
                             <div class="flex flex-col md:flex-row">
-                                <!-- Banner Image -->
+                                <!-- Banner Image - giảm width xuống để form rộng hơn -->
                                 <div class="hidden md:block banner-login md:w-3/4 mr-10">
                                     <img decoding="async"
                                         src="https://nvbplay.vn/wp-content/themes/nvbplayvn/assets/img/Login-Place.png"
-                                        alt="Banner Register" title="My account" class="w-full h-full object-cover"
-                                        style="min-height: 600px;">
+                                        alt="Banner Register" title="My account" class="w-full h-full "
+                                        style="min-width: 600px">
                                 </div>
 
                                 <!-- Register Form -->
@@ -1185,29 +1267,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <i class="fas fa-shield-alt"></i>
                                             <strong>Cảnh báo bảo mật:</strong> <span id="sqlInjectionMessage">Phát hiện
                                                 ký tự không an toàn</span>
-                                        </div>
-
-                                        <!-- Thông báo lỗi -->
-                                        <?php if (!empty($errors)): ?>
-                                            <div class="alert-error p-3 rounded mb-4 text-sm">
-                                                <ul class="list-disc list-inside">
-                                                    <?php foreach ($errors as $error): ?>
-                                                        <li><?php echo htmlspecialchars($error); ?></li>
-                                                    <?php endforeach; ?>
-                                                </ul>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <!-- Thông báo thành công -->
-                                        <?php if ($success): ?>
-                                            <div class="alert-success p-3 rounded mb-4 text-sm">
-                                                <i
-                                                    class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <form id="registerForm" class="space-y-4" method="POST" action="" novalidate>
+                                        </div><!-- Form đăng ký - chiếm 2/3 chiều rộng còn lại -->
+                                        <form id="registerForm" class="space-y-4  pb-8" method="POST" action=""
+                                            novalidate>
                                             <!-- Tên đăng nhập -->
+                                            <h1></h1>
                                             <div>
                                                 <input type="text" id="username" name="username"
                                                     placeholder="Tên đăng nhập *"
@@ -1215,7 +1279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     value="<?php echo htmlspecialchars($form_data['username']); ?>"
                                                     required>
                                                 <div class="error-text" id="username-error">Tên đăng nhập phải có ít
-                                                    nhất 3 ký tự</div>
+                                                    nhất 3 ký
+                                                    tự</div>
                                             </div>
 
                                             <!-- Họ tên -->
@@ -1239,23 +1304,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                             <!-- Số điện thoại -->
                                             <div>
-                                                <input type="tel" id="sdt" name="sdt" placeholder="Số điện thoại *"
+                                                <input type="tel" id="sdt" name="sdt"
+                                                    placeholder="Số điện thoại * (09xxxxxxxx)"
                                                     class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                                                    value="<?php echo htmlspecialchars($form_data['sdt']); ?>" required>
-                                                <div class="error-text" id="sdt-error">Số điện thoại phải bắt đầu bằng 0
-                                                    và có 10 số</div>
+                                                    value="<?php echo htmlspecialchars($form_data['sdt']); ?>"
+                                                    maxlength="10" required>
+                                                <div class="error-text" id="sdt-error">Số điện thoại phải bắt đầu bằng
+                                                    09 và có
+                                                    10 số</div>
                                             </div>
-
                                             <!-- Mật khẩu -->
                                             <div>
                                                 <input type="password" id="password" name="password"
                                                     placeholder="Mật khẩu *"
                                                     class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                     required>
-                                                <div class="password-strength" id="password-strength-bar"></div>
-                                                <div class="strength-text" id="password-strength-text"></div>
                                                 <div class="error-text" id="password-error">Mật khẩu phải có ít nhất 6
-                                                    ký tự</div>
+                                                    ký tự
+                                                </div>
                                             </div>
 
                                             <!-- Xác nhận mật khẩu -->
@@ -1265,8 +1331,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                     required>
                                                 <div class="error-text" id="confirm_password-error">Mật khẩu xác nhận
-                                                    không khớp</div>
+                                                    không khớp
+                                                </div>
                                             </div>
+
+                                            <!-- === ĐỊA CHỈ GIAO HÀNG === -->
+                                            <div class="border-t pt-4">
+                                                <h4 class="font-medium text-gray-700 mb-3"> Địa chỉ giao hàng</h4>
+
+                                                <!-- Tỉnh/Thành phố -->
+                                                <div class="mb-3">
+                                                    <input type="text" id="tinh_thanhpho" name="tinh_thanhpho"
+                                                        placeholder="Tỉnh/Thành phố *"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                                        value="<?php echo htmlspecialchars($form_data['tinh_thanhpho']); ?>"
+                                                        required>
+                                                    <div class="error-text" id="tinh_error">Vui lòng nhập tỉnh/thành phố
+                                                    </div>
+                                                </div>
+
+                                                <!-- Quận/Huyện -->
+                                                <div class="mb-3">
+                                                    <input type="text" id="quan_huyen" name="quan_huyen"
+                                                        placeholder="Quận/Huyện *"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                                        value="<?php echo htmlspecialchars($form_data['quan_huyen']); ?>"
+                                                        required>
+                                                    <div class="error-text" id="quan_error">Vui lòng nhập quận/huyện
+                                                    </div>
+                                                </div>
+
+                                                <!-- Địa chỉ chi tiết -->
+                                                <div class="mb-3">
+                                                    <input type="text" id="dia_chi_chitiet" name="dia_chi_chitiet"
+                                                        placeholder="Địa chỉ chi tiết * (Số nhà, tên đường...)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                                                        value="<?php echo htmlspecialchars($form_data['dia_chi_chitiet']); ?>"
+                                                        required>
+                                                    <div class="error-text" id="chitiet_error">Vui lòng nhập địa chỉ chi
+                                                        tiết
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
 
                                             <!-- Điều khoản -->
                                             <div class="flex items-start gap-2 text-xs">
@@ -1274,7 +1382,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <label for="terms" class="text-gray-600">Tôi đồng ý với <a
                                                         href="../chinh-sach-bao-mat.php"
                                                         class="text-[#FF3F1A] hover:underline">điều khoản sử dụng và
-                                                        chính sách bảo mật</a></label>
+                                                        chính sách
+                                                        bảo mật</a></label>
                                             </div>
                                             <div class="error-text" id="terms-error">Bạn phải đồng ý với điều khoản
                                             </div>
@@ -1298,8 +1407,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
         </main>
 
         <!-- Footer -->
@@ -1716,39 +1823,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     function validateSdt() {
                         if (!sdt) return true;
-                        // Lấy giá trị và chỉ giữ số
                         const rawValue = sdt.value.trim();
                         const value = rawValue.replace(/[^0-9]/g, '');
                         const error = document.getElementById('sdt-error');
 
-                        // Check SQL injection trên raw value (trước khi sanitize)
+                        // Check SQL injection
                         if (checkSQLInjection(rawValue, 'số điện thoại')) {
                             sdt.classList.add('input-invalid');
                             sdt.classList.remove('input-valid');
                             return false;
                         }
 
-                        // Update input value với số đã sanitize (UX tốt hơn)
+                        // Tự động xóa ký tự không phải số
                         if (rawValue !== value) {
                             sdt.value = value;
                         }
 
-                        // Validate: 10 số, bắt đầu bằng 0
-                        if (value.length !== 10) {
+                        // Kiểm tra định dạng: bắt đầu bằng 09, đúng 10 số
+                        const phoneRegex = /^09[0-9]{8}$/;
+                        if (!phoneRegex.test(value)) {
                             sdt.classList.add('input-invalid');
                             sdt.classList.remove('input-valid');
                             if (error) {
-                                error.textContent = value.length < 10 ? 'Số điện thoại phải có đủ 10 số' : 'Số điện thoại không được quá 10 số';
-                                error.style.display = 'block';
-                            }
-                            return false;
-                        }
-
-                        if (value.charAt(0) !== '0') {
-                            sdt.classList.add('input-invalid');
-                            sdt.classList.remove('input-valid');
-                            if (error) {
-                                error.textContent = 'Số điện thoại phải bắt đầu bằng số 0';
+                                error.textContent = 'Số điện thoại phải bắt đầu bằng 09 và có đúng 10 số';
                                 error.style.display = 'block';
                             }
                             return false;
@@ -1760,7 +1857,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         hideSQLInjectionWarning();
                         return true;
                     }
-
                     function validatePassword() {
                         if (!password) return true;
                         const value = password.value;
@@ -1865,6 +1961,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         sdt.addEventListener('input', function () {
                             // Auto-format: chỉ giữ số
                             this.value = this.value.replace(/[^0-9]/g, '');
+                            validateSdt();          // <-- thêm dòng này để cập nhật lỗi ngay
                             checkFormValidity();
                         });
                     }
@@ -1922,20 +2019,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
 
-                    // === USER DROPDOWN TOGGLE ===
+                    // ========== USER DROPDOWN TOGGLE ==========
                     const userToggle = document.getElementById('userToggle');
                     const userMenu = document.getElementById('userMenu');
+                    const guestUserToggle = document.getElementById('guestUserToggle');
+                    const guestUserMenu = document.getElementById('guestUserMenu');
+
+                    // Dropdown cho user đã đăng nhập (click để toggle)
                     if (userToggle && userMenu) {
                         userToggle.addEventListener('click', function (e) {
                             e.stopPropagation();
                             userMenu.classList.toggle('active');
-                        });
-                        document.addEventListener('click', function (e) {
-                            if (!userToggle.contains(e.target) && !userMenu.contains(e.target)) {
-                                userMenu.classList.remove('active');
-                            }
+                            // Đóng guest menu nếu đang mở
+                            if (guestUserMenu) guestUserMenu.classList.remove('active');
                         });
                     }
+
+                    // Dropdown cho guest user (hover để hiện, click để đóng)
+                    if (guestUserToggle && guestUserMenu) {
+                        let guestMenuTimeout;
+
+                        // Hiển thị dropdown khi hover
+                        guestUserToggle.addEventListener('mouseenter', function () {
+                            clearTimeout(guestMenuTimeout);
+                            guestUserMenu.classList.add('active');
+                        });
+
+                        // Ẩn dropdown khi rời khỏi button (có delay để tránh flicker)
+                        guestUserToggle.addEventListener('mouseleave', function () {
+                            guestMenuTimeout = setTimeout(() => {
+                                guestUserMenu.classList.remove('active');
+                            }, 200);
+                        });
+
+                        // Giữ dropdown mở khi hover vào menu
+                        guestUserMenu.addEventListener('mouseenter', function () {
+                            clearTimeout(guestMenuTimeout);
+                        });
+
+                        // Ẩn dropdown khi rời khỏi menu
+                        guestUserMenu.addEventListener('mouseleave', function () {
+                            guestUserMenu.classList.remove('active');
+                        });
+
+                        // Đóng khi click ra ngoài
+                        guestUserToggle.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                        });
+                    }
+
+                    // Đóng tất cả dropdown khi click ra ngoài
+                    document.addEventListener('click', function (e) {
+                        // Đóng user menu
+                        if (userMenu && !userToggle?.contains(e.target) && !userMenu.contains(e.target)) {
+                            userMenu.classList.remove('active');
+                        }
+                        // Đóng guest user menu
+                        if (guestUserMenu && !guestUserToggle?.contains(e.target) && !guestUserMenu.contains(e.target)) {
+                            guestUserMenu.classList.remove('active');
+                        }
+                    });
 
                     // === MEGA MENU ===
                     const menuTrigger = document.getElementById('mega-menu-trigger');

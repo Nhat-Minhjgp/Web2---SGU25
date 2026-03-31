@@ -1314,13 +1314,7 @@ $user_info = [
                                         <span class="text-sm md:text-base">Sổ địa chỉ</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="../../control/logout.php"
-                                        class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF3F1A] transition">
-                                        <img src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
-                                        <span class="text-sm md:text-base">Đăng xuất</span>
-                                    </a>
-                                </li>
+                                
                             </ul>
                         </nav>
                     </div>
@@ -1487,13 +1481,7 @@ $user_info = [
                                 <span>Sổ địa chỉ</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="../../control/logout.php"
-                                class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-                                <img src="../../img/icons/logout.svg" class="w-5 h-5 mr-3" alt="Logout">
-                                <span>Đăng xuất</span>
-                            </a>
-                        </li>
+                       
                     </ul>
                 </nav>
             </div>
