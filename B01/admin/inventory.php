@@ -696,7 +696,7 @@ if (isset($_GET['get_report'])) {
                                     </select>
                                 </div>
 
-                                <!-- Filter ngưỡng tồn kho - SỬA LABEL CHO RÕ -->
+                                <!-- Filter ngưỡng tồn kho  -->
                                 <div>
                                     <label class="block text-xs text-gray-500 mb-1">Ngưỡng cảnh báo ≥</label>
                                     <input type="number" id="warningThreshold" min="0" placeholder="VD: 10"
