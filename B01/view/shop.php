@@ -2022,9 +2022,18 @@ function getFilterDisplayName($type, $slug)
 
                     const minPrice = document.getElementById('price-min');
                     const maxPrice = document.getElementById('price-max');
+
                     if (minPrice && maxPrice) {
                         const minVal = parseInt(minPrice.value.replace(/\./g, ''));
                         const maxVal = parseInt(maxPrice.value.replace(/\./g, ''));
+
+                        //  THÊM VALIDATION: Min > Max
+                        if (minVal > maxVal) {
+                            alert('Giá trị "Từ" không được lớn hơn giá trị "Đến"!');
+                            minPrice.focus();
+                            return; // Dừng hàm, không redirect
+                        }
+
                         if (minVal >= 0 && minVal <= 50000000) params.set('min_price', minVal);
                         if (maxVal >= 0 && maxVal <= 50000000) params.set('max_price', maxVal);
                     }
