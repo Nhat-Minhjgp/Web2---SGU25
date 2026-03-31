@@ -80,13 +80,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (!filter_var($form_data['email'], FILTER_VALIDATE_EMAIL))
         $errors[] = "Email không hợp lệ";
 
-    // ✅ VALIDATE SỐ ĐIỆN THOẠI VIỆT NAM (Bắt đầu bằng 09, 10 số)
+    //  VALIDATE SỐ ĐIỆN THOẠI VIỆT NAM (Bắt đầu bằng 09, 10 số)
     if (empty($form_data['sdt']))
         $errors[] = "Số điện thoại không được để trống";
     elseif (!preg_match('/^09[0-9]{8}$/', $form_data['sdt']))
         $errors[] = "Số điện thoại phải bắt đầu bằng 09 và có 10 số";
 
-    // ✅ VALIDATE ĐỊA CHỈ
+    if (empty($password))
+        $errors[] = "Mật khẩu không được để trống";
+    elseif (strlen($password) < 6)
+        $errors[] = "Mật khẩu phải có ít nhất 6 ký tự";
+
+    if ($password !== $confirm_password)
+        $errors[] = "Mật khẩu không khớp";
+
+
+    //  VALIDATE ĐỊA CHỈ - KHÔNG ĐƯỢC ĐỂ TRỐNG
     if (empty($form_data['tinh_thanhpho']))
         $errors[] = "Tỉnh/Thành phố không được để trống";
     elseif (strlen($form_data['tinh_thanhpho']) < 2)
@@ -102,13 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (strlen($form_data['dia_chi_chitiet']) < 5)
         $errors[] = "Địa chỉ chi tiết phải có ít nhất 5 ký tự";
 
-    if (empty($password))
-        $errors[] = "Mật khẩu không được để trống";
-    elseif (strlen($password) < 6)
-        $errors[] = "Mật khẩu phải có ít nhất 6 ký tự";
-
-    if ($password !== $confirm_password)
-        $errors[] = "Mật khẩu không khớp";
 
     if (!$terms)
         $errors[] = "Bạn phải đồng ý với điều khoản sử dụng";
@@ -122,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
-                $errors[] = "Tên đăng nhập đã tồn tại";
+                $errors[] = "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
             }
             $stmt->close();
 
@@ -133,7 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
                 $stmt->store_result();
                 if ($stmt->num_rows > 0) {
-                    $errors[] = "Email đã được đăng ký";
+                    $errors[] = "Email đã được đăng ký. Vui lòng sử dụng email khác.";
+                }
+                $stmt->close();
+            }
+
+            //  KIỂM TRA SỐ ĐIỆN THOẠI TRÙNG
+            if (empty($errors)) {
+                $stmt = $conn->prepare("SELECT User_id FROM users WHERE SDT = ?");
+                $stmt->bind_param("s", $form_data['sdt']);
+                $stmt->execute();
+                $stmt->store_result();
+                if ($stmt->num_rows > 0) {
+                    $errors[] = "Số điện thoại đã được đăng ký. Vui lòng sử dụng số khác.";
                 }
                 $stmt->close();
             }
@@ -165,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_id = $stmt->insert_id;
                 $stmt->close();
 
-                // ✅ TẠO ĐỊA CHỈ MẶC ĐỊNH
+                //  TẠO ĐỊA CHỈ MẶC ĐỊNH
                 $stmt_addr = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, 1)");
                 $stmt_addr->bind_param(
                     "issssss",
@@ -1261,7 +1275,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="md:w-1/4 flex items-center mt-3 justify-center md:p-4 bg-white">
                                     <div class="w-full">
                                         <h1 class="text-center text-lg font-medium mb-4">Đăng ký tài khoản</h1>
-
+                                        <?php if (!empty($errors)): ?>
+                                            <div class="alert-error p-3 rounded mb-4 text-sm">
+                                               
+                                                <ul class=" list-inside">
+                                                    <?php foreach ($errors as $error): ?>
+                                                        <li>
+                                                            <?php echo htmlspecialchars($error); ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </div>
+                                        <?php endif; ?>
                                         <!-- SQL Injection Warning -->
                                         <div id="sqlInjectionWarning" class="sql-injection-warning">
                                             <i class="fas fa-shield-alt"></i>
@@ -1336,6 +1361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </div>
 
                                             <!-- === ĐỊA CHỈ GIAO HÀNG === -->
+
                                             <div class="border-t pt-4">
                                                 <h4 class="font-medium text-gray-700 mb-3"> Địa chỉ giao hàng</h4>
 
@@ -1346,8 +1372,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                         value="<?php echo htmlspecialchars($form_data['tinh_thanhpho']); ?>"
                                                         required>
-                                                    <div class="error-text" id="tinh_error">Vui lòng nhập tỉnh/thành phố
-                                                    </div>
+                                                    <div class="error-text" id="tinh_error">Tỉnh/Thành phố không được để
+                                                        trống</div>
                                                 </div>
 
                                                 <!-- Quận/Huyện -->
@@ -1357,8 +1383,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                         value="<?php echo htmlspecialchars($form_data['quan_huyen']); ?>"
                                                         required>
-                                                    <div class="error-text" id="quan_error">Vui lòng nhập quận/huyện
-                                                    </div>
+                                                    <div class="error-text" id="quan_error">Quận/Huyện không được để
+                                                        trống</div>
                                                 </div>
 
                                                 <!-- Địa chỉ chi tiết -->
@@ -1368,9 +1394,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                                                         value="<?php echo htmlspecialchars($form_data['dia_chi_chitiet']); ?>"
                                                         required>
-                                                    <div class="error-text" id="chitiet_error">Vui lòng nhập địa chỉ chi
-                                                        tiết
-                                                    </div>
+                                                    <div class="error-text" id="chitiet_error">Địa chỉ chi tiết không
+                                                        được để trống</div>
                                                 </div>
                                             </div>
 
@@ -1705,6 +1730,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const sdt = document.getElementById('sdt');
                     const password = document.getElementById('password');
                     const confirmPassword = document.getElementById('confirm_password');
+                    const tinhInput = document.getElementById('tinh_thanhpho');
+                    const quanInput = document.getElementById('quan_huyen');
+                    const chitietInput = document.getElementById('dia_chi_chitiet');
                     const terms = document.getElementById('terms');
                     const submitBtn = document.getElementById('submitBtn');
                     const sqlInjectionWarning = document.getElementById('sqlInjectionWarning');
@@ -1904,6 +1932,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (error) error.style.display = 'none';
                         return true;
                     }
+                    // === VALIDATE ĐỊA CHỈ - KHÔNG ĐƯỢC ĐỂ TRỐNG ===
+                    function validateTinhThanhPho() {
+                        const input = document.getElementById('tinh_thanhpho');
+                        if (!input) return true;
+                        const value = input.value.trim();
+                        const error = document.getElementById('tinh_error');
+
+                        //  Ràng buộc không được để trống
+                        if (value.length === 0) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Tỉnh/Thành phố không được để trống';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        if (value.length < 2) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Tỉnh/Thành phố phải có ít nhất 2 ký tự';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        input.classList.add('input-valid');
+                        input.classList.remove('input-invalid');
+                        if (error) error.style.display = 'none';
+                        return true;
+                    }
+
+                    function validateQuanHuyen() {
+                        const input = document.getElementById('quan_huyen');
+                        if (!input) return true;
+                        const value = input.value.trim();
+                        const error = document.getElementById('quan_error');
+
+                        //  Ràng buộc không được để trống
+                        if (value.length === 0) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Quận/Huyện không được để trống';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        if (value.length < 2) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Quận/Huyện phải có ít nhất 2 ký tự';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        input.classList.add('input-valid');
+                        input.classList.remove('input-invalid');
+                        if (error) error.style.display = 'none';
+                        return true;
+                    }
+
+                    function validateDiaChiChiTiet() {
+                        const input = document.getElementById('dia_chi_chitiet');
+                        if (!input) return true;
+                        const value = input.value.trim();
+                        const error = document.getElementById('chitiet_error');
+
+                        //  Ràng buộc không được để trống
+                        if (value.length === 0) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Địa chỉ chi tiết không được để trống';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        if (value.length < 5) {
+                            input.classList.add('input-invalid');
+                            input.classList.remove('input-valid');
+                            if (error) {
+                                error.textContent = 'Địa chỉ chi tiết phải có ít nhất 5 ký tự';
+                                error.style.display = 'block';
+                            }
+                            return false;
+                        }
+
+                        input.classList.add('input-valid');
+                        input.classList.remove('input-invalid');
+                        if (error) error.style.display = 'none';
+                        return true;
+                    }
 
                     function validateTerms() {
                         if (!terms) return true;
@@ -1922,6 +2049,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             validateHoTen() &&
                             validateEmail() &&
                             validateSdt() &&
+                            validateTinhThanhPho() &&
+                            validateQuanHuyen() &&
+                            validateDiaChiChiTiet() &&
                             validatePassword() &&
                             validateConfirmPassword() &&
                             validateTerms();
@@ -1976,6 +2106,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (confirmPassword) {
                         confirmPassword.addEventListener('input', function () {
                             validateConfirmPassword();
+                            checkFormValidity();
+                        });
+                    }
+                    if (tinhInput) {
+                        tinhInput.addEventListener('blur', validateTinhThanhPho);
+                        tinhInput.addEventListener('input', function () {
+                            validateTinhThanhPho();
+                            checkFormValidity();
+                        });
+                    }
+
+                    if (quanInput) {
+                        quanInput.addEventListener('blur', validateQuanHuyen);
+                        quanInput.addEventListener('input', function () {
+                            validateQuanHuyen();
+                            checkFormValidity();
+                        });
+                    }
+
+                    if (chitietInput) {
+                        chitietInput.addEventListener('blur', validateDiaChiChiTiet);
+                        chitietInput.addEventListener('input', function () {
+                            validateDiaChiChiTiet();
                             checkFormValidity();
                         });
                     }
