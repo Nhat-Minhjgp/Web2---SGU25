@@ -8,6 +8,8 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit();
 }
 
+$admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
+$admin_role = $_SESSION['admin_role'] ?? '';
 $admin_username = $_SESSION['admin_username'] ?? '';
 $admin_id = $_SESSION['admin_id'] ?? 1;
 
@@ -206,20 +208,59 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
         .btn-disabled { background: #9ca3af; color: white; cursor: not-allowed; }
         
         /* Sidebar styles */
-        .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; padding: 20px 0; }
-        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid #e5e7eb; margin-bottom: 20px; }
-        .sidebar-header h3 { font-size: 12px; font-weight: 600; color: #9ca3af; text-transform: uppercase; }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-        .menu-btn { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: #4b5563; transition: all 0.2s; text-decoration: none; font-size: 14px; }
-        .menu-btn i { width: 20px; color: #9ca3af; }
-        .menu-btn:hover { background-color: #f3f4f6; color: #667eea; }
-        .menu-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .menu-btn.active i { color: white; }
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .sidebar-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .menu-btn i {
+            width: 20px;
+            color: #9ca3af;
+        }
+        .menu-btn:hover {
+            background-color: #f3f4f6;
+            color: #667eea;
+        }
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .menu-btn.active i {
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- HEADER -->
+    <!-- HEADER - ĐỒNG BỘ VỚI DASHBOARD -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex justify-between items-center px-6 py-4">
             <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-custom">NVBPlay Admin Panel</h1>
@@ -228,9 +269,11 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                     <div class="w-10 h-10 rounded-full bg-gradient-custom flex items-center justify-center text-white font-bold">
                         <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
                     </div>
-                    <div><p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p></div>
+                    <div>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($admin_username); ?></p>
+                    </div>
                 </div>
-                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md">
+                <button onclick="logout()" class="bg-gradient-custom text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                 </button>
             </div>
@@ -238,8 +281,9 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
     </header>
 
     <div class="flex w-full min-h-[calc(100vh-70px)]">
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
+        
+        <!-- SIDEBAR - ĐỒNG BỘ VỚI DASHBOARD -->
+       <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
             </div>
@@ -270,7 +314,6 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                 </a>
             </nav>
         </aside>
-
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b">
@@ -313,6 +356,7 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                 <div class="overflow-x-auto border border-gray-200 rounded-xl">
                     <table class="w-full min-w-[1000px]" id="ordersTable">
                         <thead class="bg-gradient-custom text-white">
+                            应用
                                 <th class="px-4 py-3 text-left">ID</th>
                                 <th class="px-4 py-3 text-left">Mã đơn</th>
                                 <th class="px-4 py-3 text-left">Khách hàng</th>
@@ -322,8 +366,7 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                                 <th class="px-4 py-3 text-left">Ngày đặt</th>
                                 <th class="px-4 py-3 text-left">Trạng thái</th>
                                 <th class="px-4 py-3 text-center">Thao tác</th>
-                            </tr>
-                        </thead>
+                            </thead>
                         <tbody id="ordersTableBody">
                             <?php foreach ($orders as $order):
                                 $status = intval($order['TrangThai']);
@@ -428,7 +471,7 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                 .then(res => res.json())
                 .then(data => {
                     if (data.length > 0) {
-                        let html = '<h4 class="font-semibold mb-3">Sản phẩm đã đặt</h4><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-2">Sản phẩm</th><th class="p-2 text-right">SL</th><th class="p-2 text-right">Đơn giá</th><th class="p-2 text-right">Thành tiền</th></tr></thead><tbody>';
+                        let html = '<h4 class="font-semibold mb-3">Sản phẩm đã đặt</h4><table class="w-full text-sm"><thead class="bg-gray-100">应<th class="p-2">Sản phẩm</th><th class="p-2 text-right">SL</th><th class="p-2 text-right">Đơn giá</th><th class="p-2 text-right">Thành tiền</th> </thead><tbody>';
                         let total = 0;
                         data.forEach(item => {
                             let sub = item.SoLuong * item.Gia;
