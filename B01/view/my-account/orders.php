@@ -48,6 +48,7 @@ $user_info = [
 // === 3. XỬ LÝ FILTER & SEARCH ===
 $status_filter = $_GET['status'] ?? 'all';
 $search_query = trim($_GET['search'] ?? '');
+$search_query = preg_replace('/[^0-9]/', '', $_GET['search'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $per_page = 10;
 $offset = ($page - 1) * $per_page;
@@ -71,13 +72,14 @@ if ($status_filter !== 'all' && isset($status_map_int[$status_filter])) {
     $types .= "i";
 }
 
+
 // Search by order ID or product name
 if (!empty($search_query)) {
-    $where_clauses[] = "(d.DonHang_id LIKE ? OR sp.TenSP LIKE ?)";
+    // Chỉ search theo DonHang_id (số) vì search_query giờ chỉ chứa số
+    $where_clauses[] = "d.DonHang_id LIKE ?";
     $search_param = "%$search_query%";
     $params[] = $search_param;
-    $params[] = $search_param;
-    $types .= "ss";
+    $types .= "s";  // chỉ 1 param thay vì 2
 }
 
 $where_sql = implode(" AND ", $where_clauses);
@@ -1250,10 +1252,13 @@ function getStatusBadge($status)
                                 <!-- Search Orders -->
                                 <form method="GET" class="flex flex-col sm:flex-row gap-3">
                                     <div class="relative flex-1">
+                                        <!-- Sửa input search này -->
                                         <input type="text" name="search"
                                             placeholder="Tìm kiếm đơn hàng (Mã đơn, tên sản phẩm...)"
                                             value="<?php echo htmlspecialchars($search_query); ?>"
-                                            class="w-full px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition pl-10 text-sm md:text-base">
+                                            class="w-full px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition pl-10 text-sm md:text-base"
+                                            oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                                            onkeydown="return event.key.length===1 && !/[0-9]/.test(event.key) ? false : true">
                                         <i
                                             class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                     </div>
@@ -1457,7 +1462,7 @@ function getStatusBadge($status)
                                 class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg"><img
                                     src="../../img/icons/diachi.svg" class="w-5 h-5 mr-3" alt="Address"><span>Sổ địa
                                     chỉ</span></a></li>
-                       
+
                     </ul>
                 </nav>
             </div>
@@ -1991,6 +1996,35 @@ function getStatusBadge($status)
                 });
 
             });</script>
+        <script>
+            // === CHẶN NHẬP CHỮ - CHỈ CHO PHÉP SỐ TRONG Ô SEARCH ĐƠN HÀNG ===
+            document.addEventListener('DOMContentLoaded', function () {
+                const searchInput = document.querySelector('input[name="search"]');
+
+                if (searchInput) {
+                    // Chặn ký tự không phải số khi gõ
+                    searchInput.addEventListener('keydown', function (e) {
+                        // Cho phép: số (0-9), Backspace, Delete, Tab, Escape, Enter, Mũi tên
+                        const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+
+                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+
+                    // Auto-remove ký tự không phải số khi paste/drag
+                    searchInput.addEventListener('input', function () {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+
+                    // Validate khi blur (để chắc chắn)
+                    searchInput.addEventListener('blur', function () {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+                }
+            });
+        </script>
 
 
 </body>
