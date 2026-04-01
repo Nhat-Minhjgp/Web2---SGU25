@@ -14,24 +14,125 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
+// ========== HÀM KIỂM TRA SQL INJECTION ==========
+function hasSQLInjection($value) {
+    $patterns = [
+        '/\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i',
+        '/(--|\/\*|\*\/|#)/',
+        '/\bOR\b\s+[\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+|\bAND\b\s+[\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+/i',
+        '/\bxp_\w+|sp_\w+/i',
+        '/\b(WAITFOR|BENCHMARK|SLEEP)\b/i',
+        '/%00|%27|%22/i',
+        '/;/'
+    ];
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $value)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ========== HÀM VALIDATE TÊN ĐĂNG NHẬP ==========
+function validateUsername($username, &$errors) {
+    $username = trim($username);
+    if (empty($username)) {
+        $errors[] = "Tên đăng nhập không được để trống";
+        return false;
+    }
+    if (strlen($username) < 3) {
+        $errors[] = "Tên đăng nhập phải có ít nhất 3 ký tự";
+        return false;
+    }
+    if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
+        $errors[] = "Tên đăng nhập chỉ chứa chữ và số";
+        return false;
+    }
+    if (hasSQLInjection($username)) {
+        $errors[] = "Tên đăng nhập chứa ký tự không an toàn";
+        return false;
+    }
+    return true;
+}
+
+// ========== HÀM VALIDATE MẬT KHẨU ==========
+function validatePassword($password, &$errors) {
+    if (empty($password)) {
+        $errors[] = "Mật khẩu không được để trống";
+        return false;
+    }
+    if (strlen($password) < 6) {
+        $errors[] = "Mật khẩu phải có ít nhất 6 ký tự";
+        return false;
+    }
+    return true;
+}
+
+// ========== HÀM VALIDATE HỌ TÊN ==========
+function validateFullname($fullname, &$errors) {
+    $fullname = trim($fullname);
+    if (!empty($fullname) && strlen($fullname) < 2) {
+        $errors[] = "Họ tên phải có ít nhất 2 ký tự";
+        return false;
+    }
+    if (!empty($fullname) && hasSQLInjection($fullname)) {
+        $errors[] = "Họ tên chứa ký tự không an toàn";
+        return false;
+    }
+    return true;
+}
+
+// ========== HÀM VALIDATE EMAIL ==========
+function validateEmail($email, &$errors) {
+    $email = trim($email);
+    if (!empty($email)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Email không hợp lệ";
+            return false;
+        }
+        if (hasSQLInjection($email)) {
+            $errors[] = "Email chứa ký tự không an toàn";
+            return false;
+        }
+    }
+    return true;
+}
+
+// ========== HÀM VALIDATE SỐ ĐIỆN THOẠI ==========
+function validatePhone($phone, &$errors) {
+    $phone = trim($phone);
+    if (!empty($phone)) {
+        if (!preg_match('/^09[0-9]{8}$/', $phone)) {
+            $errors[] = "Số điện thoại phải có 10 số, bắt đầu bằng 09";
+            return false;
+        }
+        if (hasSQLInjection($phone)) {
+            $errors[] = "Số điện thoại chứa ký tự không an toàn";
+            return false;
+        }
+    }
+    return true;
+}
+
 // Xử lý các action từ URL (Khóa/Mở khóa)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $user_id = intval($_GET['id']);
     
     if ($_GET['action'] == 'lock') {
-        toggleUserStatus($conn, $user_id, '0'); // 0 = Khóa
+        toggleUserStatus($conn, $user_id, '0');
         $_SESSION['message'] = 'Đã khóa tài khoản thành công!';
         header('Location: users.php');
         exit();
     } elseif ($_GET['action'] == 'unlock') {
-        toggleUserStatus($conn, $user_id, '1'); // 1 = Hoạt động
+        toggleUserStatus($conn, $user_id, '1');
         $_SESSION['message'] = 'Đã mở khóa tài khoản thành công!';
         header('Location: users.php');
         exit();
     }
 }
 
-// Lấy thông báo từ Session (nếu có redirect)
+// Lấy thông báo từ Session
 if (isset($_SESSION['message'])) {
     $message = $_SESSION['message'];
     unset($_SESSION['message']);
@@ -39,38 +140,87 @@ if (isset($_SESSION['message'])) {
 
 // Xử lý thêm user từ form
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
-    $data = [
-        'username' => trim($_POST['username']),
-        'password' => $_POST['password'],
-        'ho_ten' => trim($_POST['fullname']),
-        'email' => trim($_POST['email']),
-        'sdt' => trim($_POST['phone']),
-        'role' => intval($_POST['role']), // 1 = Nhân viên, 0 = Khách hàng
-        'status' => 1 // Mặc định khi tạo mới là 1 (Đang hoạt động)
-    ];
+    $errors = [];
     
-    if (addUser($conn, $data)) {
-        $message = 'Thêm tài khoản thành công!';
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+    $ho_ten = trim($_POST['fullname']);
+    $email = trim($_POST['email']);
+    $sdt = trim($_POST['phone']);
+    $role = intval($_POST['role']);
+    
+    // Server-side validation
+    $valid = true;
+    $valid = $valid && validateUsername($username, $errors);
+    $valid = $valid && validatePassword($password, $errors);
+    $valid = $valid && validateFullname($ho_ten, $errors);
+    $valid = $valid && validateEmail($email, $errors);
+    $valid = $valid && validatePhone($sdt, $errors);
+    
+    if (!$valid) {
+        $error = implode('<br>', $errors);
     } else {
-        $error = 'Có lỗi xảy ra khi thêm tài khoản!';
+        // Kiểm tra username đã tồn tại
+        $check = $conn->prepare("SELECT User_id FROM users WHERE Username = ?");
+        $check->bind_param("s", $username);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $error = 'Tên đăng nhập đã tồn tại!';
+        } else {
+            $data = [
+                'username' => $username,
+                'password' => $password,
+                'ho_ten' => $ho_ten,
+                'email' => $email,
+                'sdt' => $sdt,
+                'role' => $role,
+                'status' => 1
+            ];
+            
+            if (addUser($conn, $data)) {
+                $message = 'Thêm tài khoản thành công!';
+            } else {
+                $error = 'Có lỗi xảy ra khi thêm tài khoản!';
+            }
+        }
+        $check->close();
     }
 }
 
 // Xử lý cập nhật user
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
-    $user_id = intval($_POST['user_id']);
-    $data = [
-        'ho_ten' => trim($_POST['fullname']),
-        'email' => trim($_POST['email']),
-        'sdt' => trim($_POST['phone']),
-        'role' => intval($_POST['role']), // 1 = Nhân viên, 0 = Khách hàng
-        'status' => intval($_POST['status']) // 1 = Đang hoạt động, 0 = Đã khóa
-    ];
+    $errors = [];
     
-    if (updateUser($conn, $user_id, $data)) {
-        $message = 'Cập nhật tài khoản thành công!';
+    $user_id = intval($_POST['user_id']);
+    $ho_ten = trim($_POST['fullname']);
+    $email = trim($_POST['email']);
+    $sdt = trim($_POST['phone']);
+    $role = intval($_POST['role']);
+    $status = intval($_POST['status']);
+    
+    // Server-side validation
+    $valid = true;
+    $valid = $valid && validateFullname($ho_ten, $errors);
+    $valid = $valid && validateEmail($email, $errors);
+    $valid = $valid && validatePhone($sdt, $errors);
+    
+    if (!$valid) {
+        $error = implode('<br>', $errors);
     } else {
-        $error = 'Có lỗi xảy ra khi cập nhật!';
+        $data = [
+            'ho_ten' => $ho_ten,
+            'email' => $email,
+            'sdt' => $sdt,
+            'role' => $role,
+            'status' => $status
+        ];
+        
+        if (updateUser($conn, $user_id, $data)) {
+            $message = 'Cập nhật tài khoản thành công!';
+        } else {
+            $error = 'Có lỗi xảy ra khi cập nhật!';
+        }
     }
 }
 
@@ -79,7 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_to_default'])) {
     $user_id = intval($_POST['user_id']);
     $default_password = '123456';
     
-    // Hash mật khẩu trước khi lưu
     $hashed_password = password_hash($default_password, PASSWORD_DEFAULT);
     
     $stmt = $conn->prepare("UPDATE users SET password = ? WHERE User_id = ?");
@@ -169,6 +318,15 @@ $users_json = json_encode($users);
         .menu-btn.active i {
             color: white;
         }
+        
+        /* Validation styles */
+        .input-valid { border-color: #10b981 !important; }
+        .input-invalid { border-color: #ef4444 !important; }
+        .error-text { color: #ef4444; font-size: 11px; margin-top: 4px; display: none; }
+        .field-error { background: #fef2f2; padding: 4px 8px; border-radius: 6px; margin-top: 4px; font-size: 11px; color: #dc2626; }
+        .field-error i { margin-right: 4px; font-size: 10px; }
+        .sql-injection-warning { background-color: #fef2f2; border: 2px solid #dc2626; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none; }
+        .sql-injection-warning i { margin-right: 8px; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -197,36 +355,36 @@ $users_json = json_encode($users);
         
         <!-- SIDEBAR - ĐỒNG BỘ VỚI DASHBOARD -->
         <aside class="w-64 bg-white shadow-lg hidden lg:block flex-shrink-0 border-r border-gray-100">
-    <div class="p-6 border-b border-gray-100">
-        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
-    </div>
-    <nav class="p-4 space-y-2">
-        <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-home w-5 text-center"></i> Dashboard
-        </a>
-        <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-            <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
-        </a>
-        <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
-</a>
-        <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
-        </a>
-        <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
-        </a>
-        <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
-        </a>
-        <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
-        </a>
-        <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-            <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
-        </a>
-    </nav>
-</aside>
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider">Danh mục chức năng</h3>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-home w-5 text-center"></i> Dashboard
+                </a>
+                <a href="users.php" class="flex items-center gap-3 px-4 py-3 bg-gradient-custom text-white rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fas fa-users w-5 text-center"></i> Quản lý người dùng
+                </a>
+                <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+                </a>
+                <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-box w-5 text-center"></i> Quản lý sản phẩm
+                </a>
+                <a href="import.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-arrow-down w-5 text-center"></i> Quản lý nhập hàng
+                </a>
+                <a href="price.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-tag w-5 text-center"></i> Quản lý giá bán
+                </a>
+                <a href="orders.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-receipt w-5 text-center"></i> Quản lý đơn hàng
+                </a>
+                <a href="inventory.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
+                    <i class="fas fa-warehouse w-5 text-center"></i> Tồn kho & Báo cáo
+                </a>
+            </nav>
+        </aside>
 
         <main class="flex-1 p-6 lg:p-8 overflow-x-hidden bg-gray-50">
             <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8 min-h-full">
@@ -277,7 +435,7 @@ $users_json = json_encode($users);
                                 <th class="p-4 font-medium text-sm">Trạng thái</th>
                                 <th class="p-4 font-medium text-sm">Ngày tạo</th>
                                 <th class="p-4 font-medium text-sm text-center">Thao tác</th>
-                             </tr>
+                               </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <?php foreach ($users as $user): ?>
@@ -339,33 +497,43 @@ $users_json = json_encode($users);
         </main>
     </div>
 
+    <!-- Modal thêm tài khoản (giữ nguyên nội dung) -->
     <div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-user-plus"></i> Thêm tài khoản mới</h3>
                 <button onclick="closeModal('addModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <form method="POST" class="flex-1 overflow-y-auto p-6">
+            <form method="POST" class="flex-1 overflow-y-auto p-6" id="addUserForm">
+                <div id="sqlInjectionWarning" class="sql-injection-warning">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Cảnh báo bảo mật:</strong> <span id="sqlInjectionMessage">Phát hiện ký tự không an toàn</span>
+                </div>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tên đăng nhập <span class="text-red-500">*</span></label>
-                        <input type="text" name="username" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="text" name="username" id="add_username" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="username-error">Tên đăng nhập phải có ít nhất 3 ký tự, chỉ chứa chữ và số</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Mật khẩu <span class="text-red-500">*</span></label>
-                        <input type="password" name="password" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="password" name="password" id="add_password" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="password-error">Mật khẩu phải có ít nhất 6 ký tự</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Họ tên</label>
-                        <input type="text" name="fullname" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="text" name="fullname" id="add_fullname" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="fullname-error">Họ tên phải có ít nhất 2 ký tự</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                        <input type="email" name="email" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="email" name="email" id="add_email" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="email-error">Email không hợp lệ</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
-                        <input type="text" name="phone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="text" name="phone" id="add_phone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition" maxlength="10">
+                        <div class="error-text" id="phone-error">Số điện thoại phải có 10 số, bắt đầu bằng 09</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
@@ -377,33 +545,34 @@ $users_json = json_encode($users);
                 </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="closeModal('addModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
-                    <button type="submit" name="add_user" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Lưu tài khoản</button>
+                    <button type="submit" name="add_user" id="addSubmitBtn" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Lưu tài khoản</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Modal xem chi tiết (giữ nguyên) -->
     <div id="viewModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-info-circle"></i> Chi tiết tài khoản</h3>
                 <button onclick="closeModal('viewModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto" id="viewContent">
-            </div>
+            <div class="p-6 overflow-y-auto" id="viewContent"></div>
             <div class="p-5 border-t border-gray-100 flex justify-end bg-gray-50 rounded-b-xl">
                 <button onclick="closeModal('viewModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Đóng</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal chỉnh sửa tài khoản (giữ nguyên) -->
     <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[1000] backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-lg mx-4 shadow-2xl animate-slide-in flex flex-col max-h-[90vh]">
             <div class="bg-gradient-custom text-white p-5 rounded-t-xl flex justify-between items-center">
                 <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-edit"></i> Chỉnh sửa tài khoản</h3>
                 <button onclick="closeModal('editModal')" class="text-white hover:text-gray-200 transition text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <form method="POST" class="flex-1 overflow-y-auto p-6">
+            <form method="POST" class="flex-1 overflow-y-auto p-6" id="editUserForm">
                 <input type="hidden" name="user_id" id="editUserId">
                 <div class="space-y-4">
                     <div>
@@ -413,14 +582,17 @@ $users_json = json_encode($users);
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Họ tên</label>
                         <input type="text" name="fullname" id="editFullname" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="edit_fullname-error">Họ tên phải có ít nhất 2 ký tự</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" id="editEmail" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <div class="error-text" id="edit_email-error">Email không hợp lệ</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
-                        <input type="text" name="phone" id="editPhone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
+                        <input type="text" name="phone" id="editPhone" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition" maxlength="10">
+                        <div class="error-text" id="edit_phone-error">Số điện thoại phải có 10 số, bắt đầu bằng 09</div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Vai trò</label>
@@ -439,7 +611,7 @@ $users_json = json_encode($users);
                 </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="closeModal('editModal')" class="px-5 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">Hủy</button>
-                    <button type="submit" name="update_user" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Cập nhật</button>
+                    <button type="submit" name="update_user" id="editSubmitBtn" class="px-5 py-2.5 rounded-lg bg-gradient-custom text-white hover:opacity-90 transition font-medium shadow-lg">Cập nhật</button>
                 </div>
             </form>
         </div>
@@ -453,6 +625,221 @@ $users_json = json_encode($users);
     <script>
         const users = <?php echo $users_json; ?>;
 
+        // SQL Injection Detection Patterns
+        const sqlInjectionPatterns = [
+            /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i,
+            /(--|\/\*|\*\/|#)/,
+            /\bOR\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|\bAND\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+/i,
+            /\bxp_\w+|sp_\w+/i,
+            /\b(WAITFOR|BENCHMARK|SLEEP)\b/i,
+            /%00|%27|%22/i
+        ];
+
+        function hasSQLInjection(value) {
+            if (!value || !/[;'"\\<>%]/.test(value)) return false;
+            for (let pattern of sqlInjectionPatterns) {
+                if (pattern.test(value)) return true;
+            }
+            return false;
+        }
+
+        function showSQLWarning(input, message) {
+            let warning = input.parentElement.querySelector('.field-error');
+            if (!warning) {
+                warning = document.createElement('div');
+                warning.className = 'field-error text-red-500 text-xs mt-1 flex items-center gap-1';
+                input.parentElement.appendChild(warning);
+            }
+            warning.innerHTML = `<i class="fas fa-shield-alt"></i> ${message}`;
+            warning.style.display = 'block';
+            input.classList.add('border-red-500');
+        }
+
+        function hideSQLWarning(input) {
+            const warning = input.parentElement.querySelector('.field-error');
+            if (warning) warning.remove();
+            input.classList.remove('border-red-500');
+        }
+
+        // Validation functions (giống trang đăng ký)
+        function validateUsername(input, errorId) {
+            const value = input.value.trim();
+            const error = document.getElementById(errorId);
+            
+            if (value.length === 0) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Tên đăng nhập không được để trống'; error.style.display = 'block'; }
+                return false;
+            }
+            if (value.length < 3) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự'; error.style.display = 'block'; }
+                return false;
+            }
+            if (!/^[a-zA-Z0-9]+$/.test(value)) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Tên đăng nhập chỉ chứa chữ và số'; error.style.display = 'block'; }
+                return false;
+            }
+            if (hasSQLInjection(value)) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Tên đăng nhập chứa ký tự không an toàn'; error.style.display = 'block'; }
+                return false;
+            }
+            input.classList.add('input-valid');
+            input.classList.remove('input-invalid');
+            if (error) error.style.display = 'none';
+            return true;
+        }
+
+        function validatePassword(input, errorId) {
+            const value = input.value;
+            const error = document.getElementById(errorId);
+            
+            if (value.length === 0) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Mật khẩu không được để trống'; error.style.display = 'block'; }
+                return false;
+            }
+            if (value.length < 6) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Mật khẩu phải có ít nhất 6 ký tự'; error.style.display = 'block'; }
+                return false;
+            }
+            input.classList.add('input-valid');
+            input.classList.remove('input-invalid');
+            if (error) error.style.display = 'none';
+            return true;
+        }
+
+        function validateFullname(input, errorId) {
+            const value = input.value.trim();
+            const error = document.getElementById(errorId);
+            
+            if (value.length > 0 && value.length < 2) {
+                input.classList.add('input-invalid');
+                if (error) { error.textContent = 'Họ tên phải có ít nhất 2 ký tự'; error.style.display = 'block'; }
+                return false;
+            }
+            input.classList.add('input-valid');
+            input.classList.remove('input-invalid');
+            if (error) error.style.display = 'none';
+            return true;
+        }
+
+        function validateEmail(input, errorId) {
+            const value = input.value.trim();
+            const error = document.getElementById(errorId);
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (value.length > 0) {
+                if (!emailRegex.test(value)) {
+                    input.classList.add('input-invalid');
+                    if (error) { error.textContent = 'Email không hợp lệ'; error.style.display = 'block'; }
+                    return false;
+                }
+                if (hasSQLInjection(value)) {
+                    input.classList.add('input-invalid');
+                    if (error) { error.textContent = 'Email chứa ký tự không an toàn'; error.style.display = 'block'; }
+                    return false;
+                }
+            }
+            input.classList.add('input-valid');
+            input.classList.remove('input-invalid');
+            if (error) error.style.display = 'none';
+            return true;
+        }
+
+        function validatePhone(input, errorId) {
+            const value = input.value.trim();
+            const error = document.getElementById(errorId);
+            const phoneRegex = /^0[0-9]{9}$/;
+            
+            if (value.length > 0) {
+                if (!phoneRegex.test(value)) {
+                    input.classList.add('input-invalid');
+                    if (error) { error.textContent = 'Số điện thoại phải có 10 số, bắt đầu bằng 09'; error.style.display = 'block'; }
+                    return false;
+                }
+                if (hasSQLInjection(value)) {
+                    input.classList.add('input-invalid');
+                    if (error) { error.textContent = 'Số điện thoại chứa ký tự không an toàn'; error.style.display = 'block'; }
+                    return false;
+                }
+            }
+            input.classList.add('input-valid');
+            input.classList.remove('input-invalid');
+            if (error) error.style.display = 'none';
+            return true;
+        }
+
+        // Add Form Validation
+        const addForm = document.getElementById('addUserForm');
+        if (addForm) {
+            const addUsername = document.getElementById('add_username');
+            const addPassword = document.getElementById('add_password');
+            const addFullname = document.getElementById('add_fullname');
+            const addEmail = document.getElementById('add_email');
+            const addPhone = document.getElementById('add_phone');
+            
+            addUsername?.addEventListener('input', () => validateUsername(addUsername, 'username-error'));
+            addPassword?.addEventListener('input', () => validatePassword(addPassword, 'password-error'));
+            addFullname?.addEventListener('input', () => validateFullname(addFullname, 'fullname-error'));
+            addEmail?.addEventListener('input', () => validateEmail(addEmail, 'email-error'));
+            addPhone?.addEventListener('input', () => validatePhone(addPhone, 'phone-error'));
+            
+            addForm.addEventListener('submit', function(e) {
+                const isUsernameValid = validateUsername(addUsername, 'username-error');
+                const isPasswordValid = validatePassword(addPassword, 'password-error');
+                const isFullnameValid = validateFullname(addFullname, 'fullname-error');
+                const isEmailValid = validateEmail(addEmail, 'email-error');
+                const isPhoneValid = validatePhone(addPhone, 'phone-error');
+                
+                if (!isUsernameValid || !isPasswordValid || !isFullnameValid || !isEmailValid || !isPhoneValid) {
+                    e.preventDefault();
+                    const firstError = addForm.querySelector('.input-invalid');
+                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+
+        // Edit Form Validation
+        const editForm = document.getElementById('editUserForm');
+        if (editForm) {
+            const editFullname = document.getElementById('editFullname');
+            const editEmail = document.getElementById('editEmail');
+            const editPhone = document.getElementById('editPhone');
+            
+            editFullname?.addEventListener('input', () => validateFullname(editFullname, 'edit_fullname-error'));
+            editEmail?.addEventListener('input', () => validateEmail(editEmail, 'edit_email-error'));
+            editPhone?.addEventListener('input', () => validatePhone(editPhone, 'edit_phone-error'));
+            
+            editForm.addEventListener('submit', function(e) {
+                const isFullnameValid = validateFullname(editFullname, 'edit_fullname-error');
+                const isEmailValid = validateEmail(editEmail, 'edit_email-error');
+                const isPhoneValid = validatePhone(editPhone, 'edit_phone-error');
+                
+                if (!isFullnameValid || !isEmailValid || !isPhoneValid) {
+                    e.preventDefault();
+                    const firstError = editForm.querySelector('.input-invalid');
+                    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+
+        // Search Input Validation
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                if (hasSQLInjection(e.target.value)) {
+                    showSQLWarning(e.target, '⚠️ Phát hiện ký tự không an toàn trong tìm kiếm!');
+                } else {
+                    hideSQLWarning(e.target);
+                }
+            });
+        }
+
+        // Other functions
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('hidden');
@@ -488,7 +875,6 @@ $users_json = json_encode($users);
 
         function viewUser(userId) {
             const user = users.find(u => u.User_id == userId);
-            
             if (user) {
                 const statusText = (user.status == 1) ? 'Đang hoạt động' : 'Đã khóa';
                 const statusColor = (user.status == 1) ? 'text-green-600' : 'text-red-600';
@@ -514,7 +900,6 @@ $users_json = json_encode($users);
                         <div class="text-gray-800">${new Date(user.created_at).toLocaleDateString('vi-VN')}</div>
                     </div>
                 `;
-                
                 document.getElementById('viewContent').innerHTML = html;
                 openModal('viewModal');
             } else {
@@ -530,20 +915,13 @@ $users_json = json_encode($users);
                 document.getElementById('editFullname').value = user.Ho_ten || '';
                 document.getElementById('editEmail').value = user.email || '';
                 document.getElementById('editPhone').value = user.SDT || '';
-                
                 document.getElementById('editRole').value = (user.role == 1) ? '1' : '0';
                 document.getElementById('editStatus').value = (user.status == 1) ? '1' : '0';
-                
                 openModal('editModal');
             } else {
                 alert('Không tìm thấy người dùng!');
             }
         }
-
-        // Filter Table
-        document.getElementById('searchInput').addEventListener('keyup', filterTable);
-        document.getElementById('roleFilter').addEventListener('change', filterTable);
-        document.getElementById('statusFilter').addEventListener('change', filterTable);
 
         function filterTable() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
@@ -565,6 +943,10 @@ $users_json = json_encode($users);
                 row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
             });
         }
+
+        document.getElementById('searchInput')?.addEventListener('keyup', filterTable);
+        document.getElementById('roleFilter')?.addEventListener('change', filterTable);
+        document.getElementById('statusFilter')?.addEventListener('change', filterTable);
 
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
