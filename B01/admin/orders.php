@@ -89,7 +89,7 @@ if (isset($_GET['action']) && isset($_GET['id']) && isset($_GET['status'])) {
                 }
                 // NẾU ĐÃ GIAO HÀNG (Chuyển từ 1 -> 2)
                 elseif ($current_status == 1 && $new_status == 2) {
-                    $update_px = $conn->prepare("UPDATE phieuxuat SET NgayXuat = NOW() WHERE DonHang_id = ?");
+                    $update_px = $conn->prepare("UPDATE phieuxuat SET TrangThai = 'DaGiao' WHERE DonHang_id = ?");
                     $update_px->bind_param("i", $order_id);
                     $update_px->execute();
                     $message = "Đã cập nhật đơn hàng thành Đã giao!";
@@ -501,29 +501,112 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
             const modal = document.getElementById('trackModal');
             const content = document.getElementById('trackModalContent');
             modal.classList.add('show');
-            content.innerHTML = '<div class="text-center  py -12"><i class="fas fa -s pinner fa-spin text-3xl"></i><p>Đang tải...</p></div>';
-            fetch(`?get_detail = 1& id=${orderId}`).then(res => res.json()).then(data => {
-                if (data.leng t h > 0){
-                let html = ' <h4 class="font-semibold mb-3">Sản phẩm đã đặt</h4><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-2">Sản phẩm</th><th class="p-2 text-right">SL</th><th class="p-2 text-right">Đơn giá</th><th class="p-2 text-right">Thành tiền</th></tr></thead><tbody>';
-                let total = 0;
-                data.f orEach(item => { let sub = item.SoLuong * item.Gia; total += sub; html += `<tr><td class="p-2"><div class="flex gap-2">${item.image_url ? `<img src="../${item.image_url}" class="w-10 h-10 object-cover rounded">` : '<div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center"><i class="fas fa-image"></i></div>'}<span>${item.TenSP}</span></div></td><td class="p-2 text-right">${item.SoLuong}</td><td class="p-2 text-right">${new Intl.NumberFormat('vi-VN').format(item.Gia)}đ</td><td class="p-2 text-right">${new Intl.NumberFormat('vi-VN').format(sub)}đ</td></tr>`; });
-                html += `<tr class= " bg-gray-50 font-semibold"><td colspan="3" class="p-2 text-right">Tổng cộng:</td><td class="p-2 text-right text-indigo-600">${new Intl.NumberFormat('vi-VN').format(total)}đ</td></tr></tbody></table>`;
-                content.innerHTML = h t ml;
-            }else c on tent.innerHTML = '< d iv class="text-center py-12 text-gray-500">Không có chi tiết</div>';
-        }).catch (() => content.innerHTML = '<div class="text-center py-12 text-red-500">Lỗi tải dữ liệu</div>');
+            content.innerHTML = '<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-3xl"></i><p>Đang tải...</p></div>';
+
+            fetch(`?get_detail=1&id=${orderId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        let html = '<h4 class="font-semibold mb-3">Sản phẩm đã đặt</h4><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-2">Sản phẩm</th><th class="p-2 text-right">SL</th><th class="p-2 text-right">Đơn giá</th><th class="p-2 text-right">Thành tiền</th></tr></thead><tbody>';
+                        let total = 0;
+                        data.forEach(item => {
+                            let sub = item.SoLuong * item.Gia;
+                            total += sub;
+                            html += `<tr>
+                            <td class="p-2"><div class="flex gap-2">
+                                ${item.image_url ? `<img src="../${item.image_url}" class="w-10 h-10 object-cover rounded">` : '<div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center"><i class="fas fa-image"></i></div>'}
+                                <span>${item.TenSP}</span>
+                            </div></td>
+                            <td class="p-2 text-right">${item.SoLuong}</td>
+                            <td class="p-2 text-right">${new Intl.NumberFormat('vi-VN').format(item.Gia)}đ</td>
+                            <td class="p-2 text-right">${new Intl.NumberFormat('vi-VN').format(sub)}đ</td>
+                        </tr>`;
+                        });
+                        html += `<tr class="bg-gray-50 font-semibold">
+                        <td colspan="3" class="p-2 text-right">Tổng cộng:</td>
+                        <td class="p-2 text-right text-indigo-600">${new Intl.NumberFormat('vi-VN').format(total)}đ</td>
+                    </tr></tbody></table>`;
+                        content.innerHTML = html;
+                    } else {
+                        content.innerHTML = '<div class="text-center py-12 text-gray-500">Không có chi tiết</div>';
+                    }
+                })
+                .catch(() => {
+                    content.innerHTML = '<div class="text-center py-12 text-red-500">Lỗi tải dữ liệu</div>';
+                });
         }
-        function closeModal() {d o cumen t.getElementById('trackModal').classList.re m o ve('show'); }
-        function filterByDate() {l e t f = d o cument.getElementById('fromDate').value, t = docu ment.getElementById('toDate').value; document.querySelector Al l('#ord e rsTableBody tr').forEach(r => { let d = r.cell s [6] ?.textContent.split(' ')[0]; if (!d) return; let [day, month, year] = d.split('/'); let rd = new Date(`${yea r}- $ { mon th } - ${ d ay }`);let show=true;if(f&&rd<new Date (f) ) show =false; if(t&&rd>new Date(t))show=false;r.st yle . disp lay=show?'':'no n e' ;}) ;} 
-                 function filterByStat u s(){l e t s=document.getElementById('statusFilter' ). valu e;docum ent.query S electorAll('#ordersTableBody tr').forEach(r =>{let s p =r.cells[7]?.querySelector('span');let va l='';if(sp?.t ex tC o ntent. i ncludes('Chờ xử lý'))val='0 '; els e  i f(sp?.textContent.includes( 'Đ ã x ác nhận' ))v al='1 ' ;else if(sp?.textCon tent. i ncludes('Đã giao'))v al='2' ;el se if(sp?.text Co ntent.includes('Đã hủy '))val='3';r.style.display=(s===''||val===s)?'':'none';});}
-        function sortByWard(){let o=document.getElementById('sortWard'). value;if (! o )retu r n;let tbody=document.getE lementById('ordersTableBody');let rows=Array.from(tbody.qu er y Select o rAll('tr'));rows.sort((a,b)=>{let wa= a. get Attr i bute('data-ward')||'',wb=b.getAttribu te ('d ata-w a rd')||'';return o==='asc'?wa.localeCo mp are (wb,'vi'):wb.lo c aleCompare(wa,' vi ');});rows.forEa ch (r=>tbody.appendCh i ld ( r));}
-          document.getElementById('searchOrder').addEventListener('keyup ',function(){let v=this.value.toLowerCase();document.querySelectorAll('#ordersTableBody tr').forEach(r=>{let id=r.cells[0]?.textContent.toLowerCase()||'',name=r.cells[2]?.textContent.toLowerCase()||'',phone=r.cells[3]?.textContent.toLowerCase()||'';r.style.display=(id.includes(v)||name.includes(v)||phone.includes(v))?'':'none';});});
-        document.getElementById('fromDate').addEventListener('change ',filterByDate);
-        document.getElementById('toDate').addEventListener('change',filter ByDate);
-        document.getElementById('statusFilter').addEventListener('chan ge',filterByStatus);
-        document.getEleme n tB yId('sortWard').addEven tListener('change',s o rtByWard);
-         function logou t ( ){ i f( confirm('Đăng xuất?'))window.location. href='logout. php';}
-    window.onclick=e=>{if(e.target.classList.contains('modal'))closeModal();}
-</scrip
-t>
+
+        function closeModal() {
+            document.getElementById('trackModal').classList.remove('show');
+        }
+
+        function filterByDate() {
+            let f = document.getElementById('fromDate').value;
+            let t = document.getElementById('toDate').value;
+            document.querySelectorAll('#ordersTableBody tr').forEach(r => {
+                let d = r.cells[6]?.textContent.split(' ')[0];
+                if (!d) return;
+                let [day, month, year] = d.split('/');
+                let rd = new Date(`${year}-${month}-${day}`);
+                let show = true;
+                if (f && rd < new Date(f)) show = false;
+                if (t && rd > new Date(t)) show = false;
+                r.style.display = show ? '' : 'none';
+            });
+        }
+
+        function filterByStatus() {
+            let s = document.getElementById('statusFilter').value;
+            document.querySelectorAll('#ordersTableBody tr').forEach(r => {
+                let sp = r.cells[7]?.querySelector('span');
+                let val = '';
+                if (sp?.textContent.includes('Chờ xử lý')) val = '0';
+                else if (sp?.textContent.includes('Đã xác nhận')) val = '1';
+                else if (sp?.textContent.includes('Đã giao')) val = '2';
+                else if (sp?.textContent.includes('Đã hủy')) val = '3';
+                r.style.display = (s === '' || val === s) ? '' : 'none';
+            });
+        }
+
+        function sortByWard() {
+            let o = document.getElementById('sortWard').value;
+            if (!o) return;
+            let tbody = document.getElementById('ordersTableBody');
+            let rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                let wa = a.getAttribute('data-ward') || '';
+                let wb = b.getAttribute('data-ward') || '';
+                return o === 'asc' ? wa.localeCompare(wb, 'vi') : wb.localeCompare(wa, 'vi');
+            });
+            rows.forEach(r => tbody.appendChild(r));
+        }
+
+        // Search
+        document.getElementById('searchOrder').addEventListener('keyup', function () {
+            let v = this.value.toLowerCase();
+            document.querySelectorAll('#ordersTableBody tr').forEach(r => {
+                let id = r.cells[0]?.textContent.toLowerCase() || '';
+                let name = r.cells[2]?.textContent.toLowerCase() || '';
+                let phone = r.cells[3]?.textContent.toLowerCase() || '';
+                r.style.display = (id.includes(v) || name.includes(v) || phone.includes(v)) ? '' : 'none';
+            });
+        });
+
+        // Event listeners
+        document.getElementById('fromDate').addEventListener('change', filterByDate);
+        document.getElementById('toDate').addEventListener('change', filterByDate);
+        document.getElementById('statusFilter').addEventListener('change', filterByStatus);
+        document.getElementById('sortWard').addEventListener('change', sortByWard);
+
+        function logout() {
+            if (confirm('Đăng xuất?')) window.location.href = 'logout.php';
+        }
+
+        window.onclick = e => {
+            if (e.target.classList.contains('modal')) closeModal();
+        }
+    </script>
+    t>
 </body>
+
 </html>
