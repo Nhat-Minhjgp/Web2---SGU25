@@ -58,7 +58,7 @@ $where_clauses = ["d.User_id = ?"];
 $params = [$user_id];
 $types = "i";
 
-//  FIX: Filter by status integer (0,1,2,3)
+ //  FIX: Filter by status integer (0,1,2,3)
 $status_map_int = [
     'pending' => 0,        // Chờ xác nhận
     'confirmed' => 1,      // Đã xác nhận
