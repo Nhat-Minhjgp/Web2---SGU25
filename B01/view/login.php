@@ -125,6 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
     $form_data['username'] = htmlspecialchars($_COOKIE['remember_user']);
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -487,7 +489,8 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
             text-align: center;
             color: #6b7280;
         }
-         /* === GUEST USER DROPDOWN === */
+
+        /* === GUEST USER DROPDOWN === */
         .guest-user-menu {
             min-width: 100px;
         }
@@ -1061,28 +1064,28 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
 
                                     <!-- Account Dropdown -->
                                     <div class="user-dropdown relative">
-                                       
-                                            <!-- Guest User Dropdown -->
-                                            <button id="guestUserToggle"
-                                                class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition"
-                                                type="button">
-                                                <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
-                                                <span class="text-sm font-medium text-gray-700 hidden sm:inline">Tài
-                                                    khoản</span>
-                                                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
-                                            </button>
-                                            <div id="guestUserMenu" class="user-menu guest-user-menu">
-                                                <a href="./login.php" class="user-menu-item">
-                                                    <i class="fas fa-sign-in-alt p-1"></i>
-                                                    <span>Đăng nhập</span>
-                                                </a>
-                                                <div class="user-menu-divider"></div>
-                                                <a href="./register.php" class="user-menu-item">
-                                                    <i class="fas fa-user-plus p-1"></i>
-                                                    <span>Đăng ký</span>
-                                                </a>
-                                            </div>
-                                 
+
+                                        <!-- Guest User Dropdown -->
+                                        <button id="guestUserToggle"
+                                            class="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition"
+                                            type="button">
+                                            <img src="../img/icons/account.svg" class="w-6 h-6" alt="Account">
+                                            <span class="text-sm font-medium text-gray-700 hidden sm:inline">Tài
+                                                khoản</span>
+                                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                        </button>
+                                        <div id="guestUserMenu" class="user-menu guest-user-menu">
+                                            <a href="./login.php" class="user-menu-item">
+                                                <i class="fas fa-sign-in-alt p-1"></i>
+                                                <span>Đăng nhập</span>
+                                            </a>
+                                            <div class="user-menu-divider"></div>
+                                            <a href="./register.php" class="user-menu-item">
+                                                <i class="fas fa-user-plus p-1"></i>
+                                                <span>Đăng ký</span>
+                                            </a>
+                                        </div>
+
                                     </div>
 
                                     <!-- Cart -->
@@ -1180,6 +1183,16 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                                     class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($success); ?>
                                             </div>
                                         <?php endif; ?>
+                                        <?php if (isset($_SESSION['login_required'])): ?>
+                                            <div class="alert-error p-3 rounded mb-4 text-sm">
+                                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                                <?php
+                                                echo htmlspecialchars($_SESSION['login_required']);
+                                                unset($_SESSION['login_required']);
+                                                ?>
+                                            </div>
+                                        <?php endif; ?>
+
                                         <!-- Thông báo thành công -->
                                         <?php if ($success): ?>
                                             <div class="alert-success p-3 rounded mb-4 text-sm">

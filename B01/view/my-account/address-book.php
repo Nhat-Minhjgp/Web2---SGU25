@@ -29,8 +29,8 @@ if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
     $cart_count += array_sum($_SESSION['buy_now_cart']);
 }
 
-// === KIỂM TRA ĐĂNG NHẬP BẮT BUỘC ===
 if (!isset($_SESSION['user_id'])) {
+    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
     header("Location: ../login.php?redirect=my-account");
     exit();
 }

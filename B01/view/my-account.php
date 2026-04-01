@@ -15,11 +15,10 @@ if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
 
 // === KIỂM TRA ĐĂNG NHẬP BẮT BUỘC ===
 if (!isset($_SESSION['user_id'])) {
-    // Chưa đăng nhập → chuyển về trang đăng nhập
+    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
     header("Location: login.php?redirect=my-account");
     exit();
 }
-
 // === CHẶN ROLE 1 (Staff/Admin) ===
 if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
     session_destroy();
