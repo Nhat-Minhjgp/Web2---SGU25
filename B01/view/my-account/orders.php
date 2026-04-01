@@ -1779,7 +1779,7 @@ function getStatusBadge($status)
             function cancelOrder(orderId) {
                 if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
                     // Implement cancel logic here
-                    alert('Chức năng hủy đơn đang được phát triển');
+                    alert('Liên hệ hỗ trợ trong chatbot!!');
                 }
             }
 
