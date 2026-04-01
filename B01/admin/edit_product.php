@@ -311,16 +311,16 @@ $phan_tram_hien_thi = $product['PhanTramLoiNhuan'];
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tỷ lệ lợi nhuận (dạng thập phân)</label>
-                            <input type="number" name="phan_tram_loi_nhuan" id="phan_tram" value="<?php echo $phan_tram_hien_thi; ?>" step="0.01" class="form-control" oninput="tinhGiaBan()">
-                            <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
+                            <input type="number" name="phan_tram_loi_nhuan" id="phan_tram" value="<?php echo $phan_tram_hien_thi; ?>" step="0.01" readonly class="form-control" oninput="tinhGiaBan()">
+                            <p class="text-xs text-gray-500 mt-1">* Tỷ lệ lợi nhuận chỉ được thay đổi bên mục quản lý giá bán</p>
                         </div>
                         <div class="form-group">
                             <label class="form-label">
                                 Giá bán (VNĐ)
-                                <span class="info-badge">Tự động tính</span>
+                                <span class="info-badge">Tự động tính</span>        
                             </label>
                             <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
-                            <p class="text-xs text-gray-500 mt-1">* Giá bán = Giá nhập × (1 + tỷ lệ lợi nhuận)</p>
+                            <p class="text-xs text-gray-500 mt-1">* Giá bán sẽ được tự động tính</p>
                         </div>
                     </div>
                     
