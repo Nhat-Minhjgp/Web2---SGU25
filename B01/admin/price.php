@@ -13,52 +13,101 @@ $admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_role = $_SESSION['admin_role'] ?? '';
 $admin_username = $_SESSION['admin_username'] ?? '';
 
+// ========== HÀM KIỂM TRA SQL INJECTION ==========
+function hasSQLInjection($value) {
+    $patterns = [
+        '/\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i',
+        '/(--|\/\*|\*\/|#)/',
+        '/\bOR\b\s+[\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+|\bAND\b\s+[\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+/i',
+        '/\bxp_\w+|sp_\w+/i',
+        '/\b(WAITFOR|BENCHMARK|SLEEP)\b/i',
+        '/%00|%27|%22/i',
+        '/;/'
+    ];
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $value)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ========== HÀM VALIDATE TỶ LỆ LỢI NHUẬN ==========
+function validateProfit($profit, &$errors) {
+    if (!is_numeric($profit)) {
+        $errors[] = "Tỷ lệ lợi nhuận phải là số";
+        return false;
+    }
+    if ($profit < 0 || $profit > 2) {
+        $errors[] = "Tỷ lệ lợi nhuận phải từ 0 đến 2 (0% - 200%)";
+        return false;
+    }
+    return true;
+}
+
 // Xử lý cập nhật tỷ lệ lợi nhuận cho sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product_profit'])) {
+    $errors = [];
     $product_id = intval($_POST['product_id']);
-    $profit_percent = floatval($_POST['profit_percent']); // Giữ nguyên dạng thập phân
+    $profit_percent = floatval($_POST['profit_percent']);
     
-    $product = getProductById($conn, $product_id);
-    if ($product) {
-        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
-        
-        $sql = "UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ddi", $profit_percent, $new_price, $product_id);
-        
-        if ($stmt->execute()) {
-            $message = 'Cập nhật tỷ lệ lợi nhuận thành công!';
-        } else {
-            $error = 'Có lỗi xảy ra!';
+    // Server-side validation
+    $valid = validateProfit($profit_percent, $errors);
+    
+    if (!$valid) {
+        $error = implode('<br>', $errors);
+    } else {
+        $product = getProductById($conn, $product_id);
+        if ($product) {
+            $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
+            
+            $sql = "UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ddi", $profit_percent, $new_price, $product_id);
+            
+            if ($stmt->execute()) {
+                $message = 'Cập nhật tỷ lệ lợi nhuận thành công!';
+            } else {
+                $error = 'Có lỗi xảy ra!';
+            }
         }
     }
 }
 
 // Xử lý cập nhật tỷ lệ lợi nhuận cho loại sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit'])) {
+    $errors = [];
     $category_id = intval($_POST['category_id']);
-    $profit_percent = floatval($_POST['category_profit']); // Giữ nguyên dạng thập phân
+    $profit_percent = floatval($_POST['category_profit']);
     
-    $sql = "SELECT SanPham_id, GiaNhapTB FROM sanpham WHERE Danhmuc_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $category_id);
-    $stmt->execute();
-    $products = $stmt->get_result();
+    // Server-side validation
+    $valid = validateProfit($profit_percent, $errors);
     
-    $success_count = 0;
-    while ($product = $products->fetch_assoc()) {
-        $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
-        $update = $conn->prepare("UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?");
-        $update->bind_param("ddi", $profit_percent, $new_price, $product['SanPham_id']);
-        if ($update->execute()) {
-            $success_count++;
-        }
-    }
-    
-    if ($success_count > 0) {
-        $message = "Đã cập nhật tỷ lệ lợi nhuận thành công cho $success_count sản phẩm!";
+    if (!$valid) {
+        $error = implode('<br>', $errors);
     } else {
-        $error = 'Không có sản phẩm nào trong loại này!';
+        $sql = "SELECT SanPham_id, GiaNhapTB FROM sanpham WHERE Danhmuc_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $category_id);
+        $stmt->execute();
+        $products = $stmt->get_result();
+        
+        $success_count = 0;
+        while ($product = $products->fetch_assoc()) {
+            $new_price = $product['GiaNhapTB'] * (1 + $profit_percent);
+            $update = $conn->prepare("UPDATE sanpham SET PhanTramLoiNhuan = ?, GiaBan = ? WHERE SanPham_id = ?");
+            $update->bind_param("ddi", $profit_percent, $new_price, $product['SanPham_id']);
+            if ($update->execute()) {
+                $success_count++;
+            }
+        }
+        
+        if ($success_count > 0) {
+            $message = "Đã cập nhật tỷ lệ lợi nhuận thành công cho $success_count sản phẩm!";
+        } else {
+            $error = 'Không có sản phẩm nào trong loại này!';
+        }
     }
 }
 
@@ -67,6 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category_profit
 // ==========================================
 $search_keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 $search_category = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
+
+// Kiểm tra SQL injection trong từ khóa tìm kiếm
+if (!empty($search_keyword) && hasSQLInjection($search_keyword)) {
+    $search_keyword = '';
+    $error = 'Từ khóa tìm kiếm chứa ký tự không an toàn!';
+}
 
 // Câu truy vấn mặc định
 $sql_products = "SELECT sp.*, dm.Ten_danhmuc 
@@ -139,6 +194,25 @@ $categories = getCategories($conn);
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        
+        /* Validation styles */
+        .input-invalid { border-color: #ef4444 !important; }
+        .field-error { background: #fef2f2; padding: 4px 8px; border-radius: 6px; margin-top: 4px; font-size: 11px; color: #dc2626; }
+        .field-error i { margin-right: 4px; }
+        
+        /* SQL Injection Warning */
+        .sql-injection-warning {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .sql-injection-warning i {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -175,8 +249,8 @@ $categories = getCategories($conn);
                     <i class="fas fa-users w-5"></i> Quản lý người dùng
                 </a>
                 <a href="categories.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
-    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
-</a>
+                    <i class="fas fa-list w-5 text-center"></i> Quản lý danh mục
+                </a>
                 <a href="product.php" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition">
                     <i class="fas fa-box w-5"></i> Quản lý sản phẩm
                 </a>
@@ -252,11 +326,12 @@ $categories = getCategories($conn);
                         Quản lý chi tiết từng sản phẩm
                     </h3>
                     
-                    <form method="GET" action="price.php" class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <form method="GET" action="price.php" class="flex flex-col sm:flex-row gap-4 mb-6" id="searchForm">
                         <div class="relative w-full sm:w-1/2">
-                            <input type="text" name="keyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="🔍 Nhập mã hoặc tên sản phẩm..." 
+                            <input type="text" name="keyword" id="searchKeyword" value="<?php echo htmlspecialchars($search_keyword); ?>" placeholder="🔍 Nhập mã hoặc tên sản phẩm..." 
                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm">
                             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                            <div class="error-text" id="search-error" style="display:none; color:#ef4444; font-size:11px; margin-top:4px;"></div>
                         </div>
                         <div class="w-full sm:w-1/3">
                             <select name="category_id" onchange="this.form.submit()" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white shadow-sm cursor-pointer">
@@ -283,7 +358,7 @@ $categories = getCategories($conn);
                     <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                         <table class="w-full min-w-[900px]">
                             <thead class="bg-gradient-custom text-white">
-                                应
+                                
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Hình</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Mã SP</th>
                                     <th class="px-4 py-3 text-left text-white text-sm font-semibold">Tên sản phẩm</th>
@@ -292,8 +367,7 @@ $categories = getCategories($conn);
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Tỷ lệ LN</th>
                                     <th class="px-4 py-3 text-right text-white text-sm font-semibold">Giá bán</th>
                                     <th class="px-4 py-3 text-center text-white text-sm font-semibold">Thao tác</th>
-                                </tr>
-                            </thead>
+                                 </thead>
                             <tbody id="productTableBody" class="divide-y divide-gray-200">
                                 <?php if ($products && $products->num_rows > 0): ?>
                                     <?php while($row = $products->fetch_assoc()): ?>
@@ -312,24 +386,24 @@ $categories = getCategories($conn);
                                                     <i class="fas fa-image text-gray-400 text-xl"></i>
                                                 </div>
                                             <?php endif; ?>
-                                         </td>
+                                          </td>
                                         <td class="px-4 py-3 font-mono text-sm">SP<?php echo str_pad($row['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
                                         <td class="px-4 py-3 font-medium text-gray-800 text-sm"><?php echo htmlspecialchars($row['TenSP']); ?></td>
                                         <td class="px-4 py-3 text-gray-600 text-sm"><?php echo htmlspecialchars($row['Ten_danhmuc'] ?? 'Chưa có'); ?></td>
                                         <td class="px-4 py-3 text-right font-mono text-sm"><?php echo number_format($row['GiaNhapTB'], 0, ',', '.'); ?>đ</td>
                                         <td class="px-4 py-3 text-right">
                                             <span class="font-semibold text-indigo-600"><?php echo $profit_display; ?></span>
-                                         </td>
+                                          </td>
                                         <td class="px-4 py-3 text-right font-semibold text-indigo-600 text-sm">
                                             <?php echo number_format($row['GiaBan'], 0, ',', '.'); ?>đ
-                                         </td>
+                                          </td>
                                         <td class="px-4 py-3 text-center">
                                             <button onclick="openProfitModal(<?php echo $row['SanPham_id']; ?>, '<?php echo addslashes($row['TenSP']); ?>', <?php echo $profit_display; ?>, <?php echo $row['GiaNhapTB']; ?>)" 
                                                     class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-2 rounded-lg transition" title="Cập nhật tỷ lệ lợi nhuận">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                         </td>
-                                    </tr>
+                                          </td>
+                                     </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
@@ -355,7 +429,7 @@ $categories = getCategories($conn);
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Cập nhật tỷ lệ lợi nhuận</h3>
                 <button onclick="closeModal('profitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
-            <form method="POST" class="p-6">
+            <form method="POST" class="p-6" id="profitForm">
                 <input type="hidden" name="update_product_profit" value="1">
                 <input type="hidden" name="product_id" id="profit_product_id">
                 <div class="mb-4">
@@ -370,8 +444,9 @@ $categories = getCategories($conn);
                     <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (dạng thập phân)</label>
                     <input type="number" name="profit_percent" id="profit_percent" step="0.01" required 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                           oninput="calcExpectedPrice()">
+                           oninput="calcExpectedPrice(); validateProfitInput()">
                     <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
+                    <div class="error-text" id="profit-error" style="display:none; color:#ef4444; font-size:11px; margin-top:4px;"></div>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2">Giá bán dự kiến</label>
@@ -379,7 +454,7 @@ $categories = getCategories($conn);
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('profitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Cập nhật</button>
+                    <button type="submit" id="profitSubmitBtn" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Cập nhật</button>
                 </div>
             </form>
         </div>
@@ -392,7 +467,7 @@ $categories = getCategories($conn);
                 <h3 class="text-lg font-semibold"><i class="fas fa-percent mr-2"></i>Áp dụng tỷ lệ lợi nhuận cho loại sản phẩm</h3>
                 <button onclick="closeModal('categoryProfitModal')" class="text-white hover:text-gray-200 text-xl">&times;</button>
             </div>
-            <form method="POST" class="p-6">
+            <form method="POST" class="p-6" id="categoryProfitForm">
                 <input type="hidden" name="update_category_profit" value="1">
                 <input type="hidden" name="category_id" id="category_id">
                 <div class="mb-4">
@@ -402,13 +477,15 @@ $categories = getCategories($conn);
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2">Tỷ lệ lợi nhuận (dạng thập phân)</label>
                     <input type="number" name="category_profit" id="category_profit" step="0.01" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                           oninput="validateCategoryProfit()">
                     <p class="text-xs text-blue-500 mt-1">💡 Nhập dạng thập phân, ví dụ: 0.1 = 10%, 0.15 = 15%, 0.2 = 20%</p>
                     <p class="text-xs text-orange-500 mt-1">⚠️ Sẽ áp dụng cho TẤT CẢ sản phẩm trong loại này</p>
+                    <div class="error-text" id="category-profit-error" style="display:none; color:#ef4444; font-size:11px; margin-top:4px;"></div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
                     <button type="button" onclick="closeModal('categoryProfitModal')" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Áp dụng</button>
+                    <button type="submit" id="categoryProfitSubmitBtn" class="px-4 py-2 bg-gradient-custom text-white rounded-lg hover:opacity-90">Áp dụng</button>
                 </div>
             </form>
         </div>
@@ -426,6 +503,24 @@ $categories = getCategories($conn);
     <script>
         let basePrice = 0;
         
+        // SQL Injection Detection Patterns
+        const sqlInjectionPatterns = [
+            /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i,
+            /(--|\/\*|\*\/|#)/,
+            /\bOR\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|\bAND\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+/i,
+            /\bxp_\w+|sp_\w+/i,
+            /\b(WAITFOR|BENCHMARK|SLEEP)\b/i,
+            /%00|%27|%22/i
+        ];
+
+        function hasSQLInjection(value) {
+            if (!value || !/[;'"\\<>%]/.test(value)) return false;
+            for (let pattern of sqlInjectionPatterns) {
+                if (pattern.test(value)) return true;
+            }
+            return false;
+        }
+        
         function openProfitModal(productId, productName, currentProfit, basePriceValue) {
             document.getElementById('profit_product_id').value = productId;
             document.getElementById('profit_product_name').value = productName;
@@ -434,6 +529,7 @@ $categories = getCategories($conn);
             basePrice = basePriceValue;
             
             calcExpectedPrice();
+            validateProfitInput();
             
             document.getElementById('profitModal').classList.remove('hidden');
             document.getElementById('profitModal').classList.add('flex');
@@ -445,12 +541,95 @@ $categories = getCategories($conn);
             document.getElementById('profit_expected_price').value = new Intl.NumberFormat('vi-VN').format(expectedPrice) + 'đ';
         }
         
+        function validateProfitInput() {
+            const input = document.getElementById('profit_percent');
+            const value = parseFloat(input.value);
+            const errorDiv = document.getElementById('profit-error');
+            const submitBtn = document.getElementById('profitSubmitBtn');
+            
+            if (isNaN(value)) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vui lòng nhập số hợp lệ';
+                errorDiv.style.display = 'block';
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+            if (value < 0 || value > 2) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Tỷ lệ lợi nhuận phải từ 0 đến 2 (0% - 200%)';
+                errorDiv.style.display = 'block';
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+            errorDiv.style.display = 'none';
+            if (submitBtn) submitBtn.disabled = false;
+            return true;
+        }
+        
+        function validateCategoryProfit() {
+            const input = document.getElementById('category_profit');
+            const value = parseFloat(input.value);
+            const errorDiv = document.getElementById('category-profit-error');
+            const submitBtn = document.getElementById('categoryProfitSubmitBtn');
+            
+            if (isNaN(value)) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vui lòng nhập số hợp lệ';
+                errorDiv.style.display = 'block';
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+            if (value < 0 || value > 2) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Tỷ lệ lợi nhuận phải từ 0 đến 2 (0% - 200%)';
+                errorDiv.style.display = 'block';
+                if (submitBtn) submitBtn.disabled = true;
+                return false;
+            }
+            errorDiv.style.display = 'none';
+            if (submitBtn) submitBtn.disabled = false;
+            return true;
+        }
+        
         function openCategoryProfitModal(categoryId, categoryName) {
             document.getElementById('category_id').value = categoryId;
             document.getElementById('category_name').value = categoryName;
             document.getElementById('category_profit').value = '';
+            document.getElementById('category-profit-error').style.display = 'none';
+            document.getElementById('categoryProfitSubmitBtn').disabled = false;
             document.getElementById('categoryProfitModal').classList.remove('hidden');
             document.getElementById('categoryProfitModal').classList.add('flex');
+        }
+        
+        // Validate search input
+        const searchInput = document.getElementById('searchKeyword');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const errorDiv = document.getElementById('search-error');
+                if (hasSQLInjection(this.value)) {
+                    errorDiv.innerHTML = '<i class="fas fa-shield-alt"></i> Phát hiện ký tự không an toàn!';
+                    errorDiv.style.display = 'block';
+                    this.classList.add('input-invalid');
+                } else {
+                    errorDiv.style.display = 'none';
+                    this.classList.remove('input-invalid');
+                }
+            });
+        }
+        
+        // Form submit validation
+        const profitForm = document.getElementById('profitForm');
+        if (profitForm) {
+            profitForm.addEventListener('submit', function(e) {
+                if (!validateProfitInput()) {
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        const categoryProfitForm = document.getElementById('categoryProfitForm');
+        if (categoryProfitForm) {
+            categoryProfitForm.addEventListener('submit', function(e) {
+                if (!validateCategoryProfit()) {
+                    e.preventDefault();
+                }
+            });
         }
         
         function closeModal(modalId) {
