@@ -3,18 +3,34 @@
 session_start();
 require_once '../../control/connect.php';
 
+// === ✅ HELPER: CHECK SQL INJECTION (ĐỂ ĐẦU FILE) ===
+function checkSQLInjectionInput($value)
+{
+    $patterns = [
+        '/(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bUNION\b|\bTRUNCATE\b|\bEXEC\b)/i',
+        '/(--|\/\*|\*\/|#)/',
+        '/(\bOR\b|\bAND\b)\s*([\'"]|\d+=\d+)/i',
+        '/;/',
+        '/\bxp_\w+/i',
+        '/(\bWAITFOR\b|\bBENCHMARK\b|\bSLEEP\b)/i'
+    ];
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $value))
+            return true;
+    }
+    return false;
+}
+
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
 }
-// Xử lý buy_now mode (nếu có)
 if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
     $cart_count += array_sum($_SESSION['buy_now_cart']);
 }
 
 // === KIỂM TRA ĐĂNG NHẬP BẮT BUỘC ===
 if (!isset($_SESSION['user_id'])) {
-    // Chưa đăng nhập → chuyển về trang đăng nhập
     header("Location: ../login.php?redirect=my-account");
     exit();
 }
@@ -26,6 +42,10 @@ if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
     header("Location: login.php?error=staff_not_allowed");
     exit();
 }
+
+$user_id = $_SESSION['user_id'];
+$success = '';
+$errors = [];
 $is_logged_in = true;
 $user_info = [
     'user_id' => $_SESSION['user_id'] ?? '',
@@ -35,46 +55,56 @@ $user_info = [
     'role' => $_SESSION['role'] ?? 0
 ];
 
-
-
-
-
-
-$user_id = $_SESSION['user_id'];
-$success = '';
-$errors = [];
-
 // === XỬ LÝ CÁC ACTION ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Thêm địa chỉ mới
+
+    // ✅ THÊM ĐỊA CHỈ MỚI
     if (isset($_POST['add_address'])) {
-        $ten_nguoi_nhan = trim(htmlspecialchars($_POST['ten_nguoi_nhan'] ?? ''));
+        // ✅ 1. CHECK SQL INJECTION TRƯỚC KHI SANITIZE (TRÊN RAW DATA)
+        $raw_inputs = [
+            'ten_nguoi_nhan' => $_POST['ten_nguoi_nhan'] ?? '',
+            'tinh_thanhpho' => $_POST['tinh_thanhpho'] ?? '',
+            'quan' => $_POST['quan'] ?? '',
+            'duong' => $_POST['duong'] ?? '',
+            'dia_chi_chitiet' => $_POST['dia_chi_chitiet'] ?? ''
+        ];
+
+        foreach ($raw_inputs as $field => $value) {
+            if (checkSQLInjectionInput($value)) {
+                $errors[] = "Phát hiện ký tự không an toàn trong trường " . $field;
+                break;
+            }
+        }
+
+        // ✅ 2. SANITIZE SAU KHI CHECK
+        $ten_nguoi_nhan = trim(htmlspecialchars($_POST['ten_nguoi_nhan'] ?? '', ENT_QUOTES, 'UTF-8'));
         $sdt_nhan = trim(preg_replace('/[^0-9]/', '', $_POST['sdt_nhan'] ?? ''));
-        $tinh_thanhpho = trim(htmlspecialchars($_POST['tinh_thanhpho'] ?? ''));
-        $quan = trim(htmlspecialchars($_POST['quan'] ?? ''));
-        $duong = trim(htmlspecialchars($_POST['duong'] ?? ''));
-        $dia_chi_chitiet = trim(htmlspecialchars($_POST['dia_chi_chitiet'] ?? ''));
+        $tinh_thanhpho = trim(htmlspecialchars($_POST['tinh_thanhpho'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $quan = trim(htmlspecialchars($_POST['quan'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $duong = trim(htmlspecialchars($_POST['duong'] ?? '', ENT_QUOTES, 'UTF-8'));
+        $dia_chi_chitiet = trim(htmlspecialchars($_POST['dia_chi_chitiet'] ?? '', ENT_QUOTES, 'UTF-8'));
         $mac_dinh = isset($_POST['mac_dinh']) ? 1 : 0;
 
-        // Validation
-        if (empty($ten_nguoi_nhan))
-            $errors[] = "Tên người nhận không được để trống";
-        if (empty($sdt_nhan))
-            $errors[] = "Số điện thoại không được để trống";
-        elseif (!preg_match('/^0[0-9]{9}$/', $sdt_nhan))
-            $errors[] = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
-        if (empty($dia_chi_chitiet))
-            $errors[] = "Địa chỉ chi tiết không được để trống";
-
+        // ✅ 3. VALIDATION
         if (empty($errors)) {
-            // Nếu set mặc định, unset các địa chỉ khác trước
+            if (empty($ten_nguoi_nhan))
+                $errors[] = "Tên người nhận không được để trống";
+            if (empty($sdt_nhan))
+                $errors[] = "Số điện thoại không được để trống";
+            elseif (!preg_match('/^0[0-9]{9}$/', $sdt_nhan))
+                $errors[] = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
+            if (empty($dia_chi_chitiet))
+                $errors[] = "Địa chỉ chi tiết không được để trống";
+        }
+
+        // ✅ 4. INSERT
+        if (empty($errors)) {
             if ($mac_dinh == 1) {
                 $stmt = $conn->prepare("UPDATE diachigh SET Mac_dinh = 0 WHERE User_id = ?");
                 $stmt->bind_param("i", $user_id);
                 $stmt->execute();
                 $stmt->close();
             }
-
             $stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Tinh_thanhpho, Quan, Duong, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("issssssi", $user_id, $ten_nguoi_nhan, $sdt_nhan, $tinh_thanhpho, $quan, $duong, $dia_chi_chitiet, $mac_dinh);
             if ($stmt->execute()) {
@@ -97,6 +127,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dia_chi_chitiet = trim(htmlspecialchars($_POST['dia_chi_chitiet'] ?? ''));
         $mac_dinh = isset($_POST['mac_dinh']) ? 1 : 0;
 
+        // Check SQL Injection
+        if (
+            checkSQLInjectionInput($ten_nguoi_nhan) ||
+            checkSQLInjectionInput($tinh_thanhpho) ||
+            checkSQLInjectionInput($quan) ||
+            checkSQLInjectionInput($duong) ||
+            checkSQLInjectionInput($dia_chi_chitiet)
+        ) {
+            $errors[] = "Phát hiện ký tự không an toàn. Vui lòng nhập lại.";
+        }
+
         // Validation
         if (empty($ten_nguoi_nhan))
             $errors[] = "Tên người nhận không được để trống";
@@ -114,7 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             if ($stmt->get_result()->num_rows > 0) {
                 $stmt->close();
-
                 // Nếu set mặc định, unset các địa chỉ khác trước
                 if ($mac_dinh == 1) {
                     $stmt = $conn->prepare("UPDATE diachigh SET Mac_dinh = 0 WHERE User_id = ? AND add_id != ?");
@@ -122,9 +162,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute();
                     $stmt->close();
                 }
-
+                // ✅ SỬA DÒNG NÀY - THÊM $user_id VÀO CUỐI
                 $stmt = $conn->prepare("UPDATE diachigh SET Ten_nguoi_nhan = ?, SDT_nhan = ?, Tinh_thanhpho = ?, Quan = ?, Duong = ?, Dia_chi_chitiet = ?, Mac_dinh = ? WHERE add_id = ? AND User_id = ?");
-                $stmt->bind_param("ssssssiii", $ten_nguoi_nhan, $sdt_nhan, $tinh_thanhpho, $quan, $duong, $dia_chi_chitiet, $mac_dinh, $add_id);
+                $stmt->bind_param("ssssssiii", $ten_nguoi_nhan, $sdt_nhan, $tinh_thanhpho, $quan, $duong, $dia_chi_chitiet, $mac_dinh, $add_id, $user_id);
                 if ($stmt->execute()) {
                     $success = "Cập nhật địa chỉ thành công!";
                 } else {
@@ -141,14 +181,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Xóa địa chỉ
     if (isset($_POST['delete_address'])) {
         $add_id = (int) $_POST['delete_id'];
-
-        // Kiểm tra địa chỉ thuộc về user này
         $stmt = $conn->prepare("SELECT add_id FROM diachigh WHERE add_id = ? AND User_id = ?");
         $stmt->bind_param("ii", $add_id, $user_id);
         $stmt->execute();
         if ($stmt->get_result()->num_rows > 0) {
             $stmt->close();
-
             $stmt = $conn->prepare("DELETE FROM diachigh WHERE add_id = ? AND User_id = ?");
             $stmt->bind_param("ii", $add_id, $user_id);
             if ($stmt->execute()) {
@@ -166,21 +203,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Set địa chỉ mặc định
     if (isset($_POST['set_default'])) {
         $add_id = (int) $_POST['default_id'];
-
-        // Kiểm tra địa chỉ thuộc về user này
         $stmt = $conn->prepare("SELECT add_id FROM diachigh WHERE add_id = ? AND User_id = ?");
         $stmt->bind_param("ii", $add_id, $user_id);
         $stmt->execute();
         if ($stmt->get_result()->num_rows > 0) {
             $stmt->close();
-
-            // Unset tất cả địa chỉ khác
             $stmt = $conn->prepare("UPDATE diachigh SET Mac_dinh = 0 WHERE User_id = ? AND add_id != ?");
             $stmt->bind_param("ii", $user_id, $add_id);
             $stmt->execute();
             $stmt->close();
-
-            // Set địa chỉ này làm mặc định
             $stmt = $conn->prepare("UPDATE diachigh SET Mac_dinh = 1 WHERE add_id = ? AND User_id = ?");
             $stmt->bind_param("ii", $add_id, $user_id);
             if ($stmt->execute()) {
@@ -202,17 +233,6 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $addresses = $stmt->get_result();
 $stmt->close();
-
-
-$is_logged_in = true;
-$user_info = [
-    'user_id' => $_SESSION['user_id'] ?? '',
-    'username' => $_SESSION['username'] ?? '',
-    'ho_ten' => $_SESSION['ho_ten'] ?? '',
-    'email' => $_SESSION['email'] ?? '',
-    'role' => $_SESSION['role'] ?? 0
-];
-
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -580,6 +600,21 @@ $user_info = [
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+        }
+
+        /* SQL Injection Warning */
+        .sql-injection-warning {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .sql-injection-warning i {
+            margin-right: 8px;
         }
     </style>
     <link rel="icon" type="image/svg+xml" href="../../img/icons/favicon.png" sizes="32x32">
@@ -1314,7 +1349,7 @@ $user_info = [
                                         <span class="text-sm md:text-base">Sổ địa chỉ</span>
                                     </a>
                                 </li>
-                                
+
                             </ul>
                         </nav>
                     </div>
@@ -1481,7 +1516,7 @@ $user_info = [
                                 <span>Sổ địa chỉ</span>
                             </a>
                         </li>
-                       
+
                     </ul>
                 </nav>
             </div>
@@ -1492,6 +1527,11 @@ $user_info = [
             <div class="popup-content p-6">
                 <div class="flex items-center justify-between mb-4 border-b pb-3">
                     <h3 id="popupTitle" class="text-lg font-semibold">Thêm địa chỉ mới</h3>
+                    <div id="sqlInjectionWarning" class="sql-injection-warning">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>Cảnh báo bảo mật:</strong> <span id="sqlInjectionMessage">Phát hiện ký tự không an
+                            toàn</span>
+                    </div>
                     <button onclick="closePopup()" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times text-xl"></i>
                     </button>
@@ -1582,7 +1622,7 @@ $user_info = [
             </div>
         </div>
 
-       <!-- Footer -->
+        <!-- Footer -->
         <footer id="footer" class="bg-black text-white">
             <div class="container mx-auto px-4 py-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1616,8 +1656,8 @@ $user_info = [
                     <div>
                         <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
                         <ul class="space-y-3">
-                            <li><a href="" target="_blank" class="flex"><span
-                                        class="font-medium w-20">Địa chỉ:</span><span class="text-gray-400">62 Lê Bình,
+                            <li><a href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
+                                        chỉ:</span><span class="text-gray-400">62 Lê Bình,
                                         Tân An, Cần Thơ</span></a></li>
                             <li>
                                 <div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
@@ -1638,9 +1678,8 @@ $user_info = [
                         <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
                         <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                     </div>
-                    <a href="" target="_blank"><img
-                            src="./img/icons/logoBCT.png"
-                            alt="Bộ Công Thương" class="h-12 w-auto"></a>
+                    <a href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
+                            class="h-12 w-auto"></a>
                 </div>
             </div>
         </footer>
@@ -2136,6 +2175,94 @@ $user_info = [
 
             });</script>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // === SQL INJECTION DETECTION ===
+                const sqlInjectionPatterns = [
+                    /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|EXEC|EXECUTE|UNION)\b/i,
+                    /(--|\/\*|\*\/|#)/,
+                    /\bOR\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+|\bAND\b\s+['"]?\d+['"]?\s*=\s*['"]?\d+/i,
+                    /\bxp_\w+|sp_\w+/i,
+                    /\b(WAITFOR|BENCHMARK|SLEEP)\b/i,
+                    /%00|%27|%22/i
+                ];
+
+                function checkSQLInjection(value, fieldName) {
+                    if (!/[;'"\\<>%]/.test(value)) return false;
+                    for (let pattern of sqlInjectionPatterns) {
+                        if (pattern.test(value)) {
+                            showSQLInjectionWarning(`Phát hiện ký tự không an toàn trong ${fieldName}`);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                function showSQLInjectionWarning(message) {
+                    const warning = document.getElementById('sqlInjectionWarning');
+                    const msg = document.getElementById('sqlInjectionMessage');
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (warning) {
+                        warning.style.display = 'block';
+                        if (msg) msg.textContent = message;
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
+                }
+
+                function hideSQLInjectionWarning() {
+                    const warning = document.getElementById('sqlInjectionWarning');
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (warning) warning.style.display = 'none';
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+
+                // === EVENT LISTENERS CHO ADDRESS FORM ===
+                const addressInputs = ['ten_nguoi_nhan', 'tinh_thanhpho', 'quan', 'duong', 'dia_chi_chitiet'];
+                addressInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.addEventListener('input', function () {
+                            if (/[;'"\\<>%]/.test(this.value)) {
+                                checkSQLInjection(this.value, this.name);
+                            } else {
+                                hideSQLInjectionWarning();
+                            }
+                        });
+                        input.addEventListener('blur', function () {
+                            hideSQLInjectionWarning();
+                        });
+                    }
+                });
+
+                // === CLOSE POPUP -> HIDE WARNING ===
+                const addressPopup = document.getElementById('addressPopup');
+                if (addressPopup) {
+                    addressPopup.addEventListener('click', function (e) {
+                        if (e.target === this) hideSQLInjectionWarning();
+                    });
+                }
+
+                // === FORM SUBMIT FINAL CHECK ===
+                const addressForm = document.getElementById('addressForm');
+                if (addressForm) {
+                    addressForm.addEventListener('submit', function (e) {
+                        const inputs = addressInputs.map(id => document.getElementById(id)).filter(i => i);
+                        for (let input of inputs) {
+                            if (input && checkSQLInjection(input.value, input.name)) {
+                                e.preventDefault();
+                                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                return false;
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
 
 
 </body>
