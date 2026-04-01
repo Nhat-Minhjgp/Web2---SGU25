@@ -1287,7 +1287,7 @@ $user_info = [
                         <form method="POST" action="" id="cartForm">
                             <!-- Cart Header (Desktop) -->
                             <div
-                                class="hidden md:grid grid-cols-[4fr,0.85fr,1.3fr,1.9fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
+                                class="hidden md:grid grid-cols-[3.5fr,1.5fr,0.85fr,1.5fr] gap-4 bg-white p-4 rounded-t-lg shadow-sm border-b border-gray-200 text-sm font-semibold text-gray-600">
                                 <span>Sản phẩm</span>
                                 <span class="text-center">Đơn giá</span>
                                 <span class="text-center">Số lượng</span>
@@ -1300,7 +1300,7 @@ $user_info = [
                                     <?php foreach ($cart_items as $item): ?>
                                         <!-- Product Item -->
                                         <div
-                                            class="p-4 md:p-0 md:grid md:grid-cols-[4fr,0.7fr,1.85fr,0.6fr] md:gap-4 md:items-center">
+                                            class="p-4 md:p-0 md:grid md:grid-cols-[4fr,0.5fr,1.85fr,0.6fr] md:gap-4 md:items-center">
                                             <!-- Product Info -->
                                             <div class="flex gap-4">
                                                 <img src="../<?php echo htmlspecialchars($item['image_url']); ?>"
@@ -1325,8 +1325,12 @@ $user_info = [
                                                                 max="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
                                                                 data-product-id="<?php echo $item['SanPham_id']; ?>"
-                                                                class="qty-input w-12 text-center border-0  focus:ring-0 p-0">
-                                                            <button type="button" class="qty-btn w-8 h-8 text-gray-600"
+                                                                class="qty-input w-12 text-center border-0  focus:ring-0 p-0"
+                                                                onkeydown="return blockNegativeInput(event)"
+                                                                oninput="validateQuantity(this)"
+                                                                onchange="validateQuantity(this)">
+
+                                                            <button type=" button" class="qty-btn w-8 h-8 text-gray-600"
                                                                 onclick="updateQty(this, 1)">+</button>
                                                         </div>
                                                         <span class="font-semibold text-red-600">
@@ -1349,8 +1353,10 @@ $user_info = [
                                                         max="<?php echo (int) $item['SoLuongTon']; ?>"
                                                         data-stock="<?php echo (int) $item['SoLuongTon']; ?>"
                                                         data-product-id="<?php echo $item['SanPham_id']; ?>"
-                                                        class="qty-input w-12 text-center border-0 focus:ring-0 p-0">
-                                                    <button type="button" class="qty-btn w-8 h-8 text-gray-600"
+                                                        class="qty-input w-12 text-center border-0 focus:ring-0 p-0"
+                                                        onkeydown="return blockInvalidChars(event)"
+                                                        oninput="validateQuantity(this)" onchange="validateQuantity(this)">
+                                                    <button type=" button" class="qty-btn w-8 h-8 text-gray-600"
                                                         onclick="updateQty(this, 1)">+</button>
                                                 </div>
                                             </div>
@@ -2046,6 +2052,71 @@ $user_info = [
                 });
 
             });</script>
+        <script>
+            // === CHẶN KÝ TỰ KHÔNG HỢP LỆ ===
+            function blockInvalidChars(event) {
+                // Chặn: -, e, E, +, .
+                if (['-', 'e', 'E', '+', '.'].includes(event.key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                // Cho phép: số, Backspace, Delete, Arrow keys, Tab
+                if (event.key.length === 1 && !/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            }
+
+            function validateQuantity(input) {
+                let value = parseInt(input.value);
+                const min = parseInt(input.min) || 1;
+                const stock = parseInt(input.dataset.stock) || 999;
+
+                // Nếu rỗng hoặc NaN → set về min
+                if (isNaN(value) || value === null || value === '') {
+                    input.value = min;
+                    return false;
+                }
+
+                // Nếu < min → set về min
+                if (value < min) {
+                    input.value = min;
+                    showInputError(input, 'Số lượng tối thiểu là ' + min);
+                    return false;
+                }
+
+                // Nếu > tồn kho → set về max
+                if (value > stock) {
+                    input.value = stock;
+                    showInputError(input, 'Chỉ còn ' + stock + ' sản phẩm');
+                    return false;
+                }
+
+                // Valid → ẩn lỗi
+                hideInputError(input);
+                return true;
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.qty-input').forEach(input => {
+                    // Validate khi load page
+                    validateQuantity(input);
+
+                    // Event listeners
+                    input.addEventListener('keydown', blockNegativeInput);
+                    input.addEventListener('input', function () {
+                        validateQuantity(this);
+                    });
+                    input.addEventListener('change', function () {
+                        validateQuantity(this);
+                    });
+                    input.addEventListener('blur', function () {
+                        validateQuantity(this);
+                    });
+                });
+            });
+
+        </script>
 </body>
 
 </html>
