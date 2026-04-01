@@ -318,7 +318,7 @@ $result = $conn->query($sql);
                 <p class="text-gray-800 font-medium text-lg mb-2">Bạn có chắc chắn muốn xóa sản phẩm?</p>
                 <p id="productName" class="text-primary font-semibold text-lg mb-2"></p>
                 <p class="text-gray-500 text-sm">Thao tác này sẽ xóa vĩnh viễn sản phẩm khỏi hệ thống!</p>
-                <p class="text-red-500 text-xs mt-2">Lưu ý: Sản phẩm đang có trong đơn hàng sẽ không thể xóa.</p>
+                <p class="text-red-500 text-xs mt-2">Lưu ý: Sản phẩm đã có trong đơn nhập hàng sẽ không thể xóa.</p>
             </div>
             <div class="p-5 border-t border-gray-100 flex justify-center gap-3 bg-gray-50 rounded-b-xl">
                 <button onclick="closeDeleteModal()" class="px-6 py-2.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition font-medium">

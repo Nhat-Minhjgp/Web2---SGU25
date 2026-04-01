@@ -217,7 +217,7 @@ INSERT INTO `danhmuc` (`Danhmuc_id`, `Ten_danhmuc`, `slug`, `image_url`) VALUES
 (1, 'Vợt cầu lông', 'vot-cau-long', 'img/icons/logo-caulong.png'),
 (2, 'Phụ kiện', 'phu-kien', 'https://nvbplay.vn/wp-content/uploads/2024/10/customer-service-No.svg'),
 (3, 'Vợt Pickleball', 'vot-pickleball', 'img/icons/logo-pickleball.png'),
-(4, 'Ba lô', 'ba-l', 'uploads/categories/CAT-20260331084725-69cb6dfd16cbf.png');
+(4, 'Ba lô', 'ba-l', 'img/icons/CAT-20260331084725-69cb6dfd16cbf.png');
 
 -- --------------------------------------------------------
 
