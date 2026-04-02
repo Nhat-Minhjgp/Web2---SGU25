@@ -637,10 +637,6 @@ if (isset($_GET['get_report'])) {
                                         class="bg-gradient-custom text-white px-5 py-2 rounded-lg hover:opacity-90 transition text-sm font-medium">
                                         <i class="fas fa-chart-bar mr-1"></i>Xem báo cáo
                                     </button>
-                                    <button onclick="exportReport()"
-                                        class="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition text-sm font-medium">
-                                        <i class="fas fa-file-excel mr-1"></i>Xuất Excel
-                                    </button>
                                 </div>
                             </div>
                         </div>
