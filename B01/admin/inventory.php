@@ -617,18 +617,23 @@ if (isset($_GET['get_report'])) {
                                     </div>
                                 </div>
 
-                                <!-- Filter sản phẩm -->
-                                <div class="flex-1 min-w-[200px]">
-                                    <label class="block text-xs text-gray-500 mb-1">Loại sản phẩm</label>
-                                    <select id="reportProduct"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm">
-                                        <option value="">-- Tất cả sản phẩm --</option>
-                                        <?php foreach ($products as $p): ?>
-                                            <option value="<?php echo $p['SanPham_id']; ?>">
-                                                <?php echo htmlspecialchars($p['TenSP']); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <!-- Filter sản phẩm (Autocomplete) -->
+                                <div class="relative flex-1 min-w-[200px]">
+                                    <label class="block text-xs text-gray-500 mb-1">Tìm sản phẩm</label>
+                                    <div class="relative">
+                                        <input type="text" id="reportProductSearch" placeholder="Nhập tên sản phẩm..."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm pr-8"
+                                            autocomplete="off">
+                                        <button type="button" id="clearProductSearch"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="reportProductId">
+                                    <div id="reportProductSuggestions"
+                                        class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                        <!-- Kết quả tìm kiếm sẽ được render tại đây -->
+                                    </div>
                                 </div>
 
                                 <!-- Nút hành động -->
@@ -1206,7 +1211,155 @@ if (isset($_GET['get_report'])) {
                         });
                     }
                 });
+
             });
+            // ==========================================
+            // AUTOCOMPLETE TÌM KIẾM SẢN PHẨM
+            // ==========================================
+            const searchInput = document.getElementById('reportProductSearch');
+            const suggestionsBox = document.getElementById('reportProductSuggestions');
+            const hiddenProductId = document.getElementById('reportProductId');
+            const clearBtn = document.getElementById('clearProductSearch');
+
+            // Debounce để tránh gọi API liên tục
+            function debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function () {
+                    const query = this.value.trim();
+                    hiddenProductId.value = ''; // Xóa ID đã chọn khi gõ mới
+                    clearBtn.classList.toggle('hidden', query.length === 0);
+
+                    if (query.length < 2) {
+                        suggestionsBox.classList.add('hidden');
+                        return;
+                    }
+
+                    fetch(`../control/search-product.php?q=${encodeURIComponent(query)}&limit=10`)
+                        .then(res => res.json())
+                        .then(data => {
+                            suggestionsBox.innerHTML = '';
+                            if (!data || data.length === 0 || data.error) {
+                                suggestionsBox.classList.add('hidden');
+                                return;
+                            }
+
+                            data.forEach(prod => {
+                                const div = document.createElement('div');
+                                div.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm flex justify-between items-center border-b border-gray-100 last:border-0';
+                                div.innerHTML = `
+                        <span class="truncate font-medium text-gray-700">${prod.name}</span>
+                        <span class="text-xs text-gray-400 ml-2">Mã: ${prod.id} | Tồn: ${prod.ton}</span>
+                    `;
+                                div.addEventListener('click', () => {
+                                    searchInput.value = prod.name;
+                                    hiddenProductId.value = prod.id;
+                                    suggestionsBox.classList.add('hidden');
+                                    clearBtn.classList.remove('hidden');
+                                });
+                                suggestionsBox.appendChild(div);
+                            });
+                            suggestionsBox.classList.remove('hidden');
+                        })
+                        .catch(err => console.error('Lỗi tìm kiếm:', err));
+                }, 300));
+
+                // Đóng gợi ý khi click ra ngoài
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                        suggestionsBox.classList.add('hidden');
+                    }
+                });
+
+                // Xử lý nút xóa
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    hiddenProductId.value = '';
+                    suggestionsBox.classList.add('hidden');
+                    clearBtn.classList.add('hidden');
+                    searchInput.focus();
+                });
+            }
+
+            // ==========================================
+            // CẬP NHẬT HÀM GENERATE REPORT
+            // ==========================================
+            function generateReport() {
+                const fromDate = document.getElementById('reportFromDate').value;
+                const toDate = document.getElementById('reportToDate').value;
+                // Lấy ID từ hidden input thay vì select cũ
+                const productId = document.getElementById('reportProductId').value;
+
+                const tbody = document.getElementById('reportTableBody');
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-gray-600">Đang tải dữ liệu...</p></td></tr>';
+
+                let url = `?get_report=1`;
+                if (fromDate) url += `&from=${fromDate}`;
+                if (toDate) url += `&to=${toDate}`;
+                if (productId) url += `&product=${productId}`; // Chỉ thêm khi có giá trị
+
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        return res.json();
+                    })
+                    .then(data => {
+                        // ... (giữ nguyên phần xử lý data cũ của bạn)
+                        if (!data || data.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu</td></tr>';
+                            return;
+                        }
+                        let html = '';
+                        let totalImport = 0, totalExport = 0, totalImportQty = 0, totalExportQty = 0;
+                        data.forEach(item => {
+                            const quantity = parseFloat(item.quantity) || 0;
+                            const price = parseFloat(item.price) || 0;
+                            const total = parseFloat(item.total) || 0;
+                            const typeClass = item.type === 'Nhập' ? 'text-green-600' : 'text-blue-600';
+                            html += `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-3">${item.date || ''}</td>
+                    <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type || ''}</span></td>
+                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
+                    <td class="px-4 py-3">${item.product_name || ''}</td>
+                    <td class="px-4 py-3 text-right">${quantity.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
+                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
+                </tr>
+                `;
+                            if (item.type === 'Nhập') { totalImport += total; totalImportQty += quantity; }
+                            else { totalExport += total; totalExportQty += quantity; }
+                        });
+                        const chenhLech = totalImport - totalExport;
+                        const chenhLechQty = totalImportQty - totalExportQty;
+                        html += `
+            <tr class="bg-gray-100 font-bold">
+                <td colspan="4" class="px-4 py-3 text-right">TỔNG CỘNG:</td>
+                <td class="px-4 py-3 text-right text-red-600">${totalImportQty.toLocaleString('vi-VN')} / ${totalExportQty.toLocaleString('vi-VN')}</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right text-indigo-700">${totalImport.toLocaleString('vi-VN')}đ / ${totalExport.toLocaleString('vi-VN')}đ</td>
+            </tr>
+            <tr class="bg-gray-50 font-semibold">
+                <td colspan="6" class="px-4 py-3 text-right">CHÊNH LỆCH (Nhập - Xuất):</td>
+                <td class="px-4 py-3 text-right ${chenhLech >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    ${chenhLech.toLocaleString('vi-VN')}đ (SL: ${chenhLechQty.toLocaleString('vi-VN')})
+                </td>
+            </tr>
+            `;
+                        tbody.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
+                    });
+            }
+
         </script>
 </body>
 

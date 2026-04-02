@@ -48,10 +48,9 @@ if (isset($_POST['remove_image'])) {
     }
 }
 
-// Xử lý cập nhật sản phẩm
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
-    // Lấy tỷ lệ lợi nhuận từ form (dạng thập phân)
-    $phan_tram_loi_nhuan = floatval($_POST['phan_tram_loi_nhuan']); // Giữ nguyên dạng thập phân
+    $phan_tram_loi_nhuan = floatval($_POST['phan_tram_loi_nhuan']);
+    $nguong_canh_bao = !empty($_POST['nguong_canh_bao']) ? intval($_POST['nguong_canh_bao']) : 10;
     
     $data = [
         'ten_sp' => $_POST['ten_sp'],
@@ -60,19 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
         'thuonghieu_id' => $_POST['thuonghieu_id'] ?: null,
         'mota' => $_POST['mota'],
         'phan_tram_loi_nhuan' => $phan_tram_loi_nhuan,
+        'nguong_canh_bao' => $nguong_canh_bao,
         'trang_thai' => $_POST['trang_thai'],
         'don_vi' => $_POST['don_vi']
     ];
     
-    // Tính giá bán từ giá nhập và tỷ lệ lợi nhuận
     $data['gia_ban'] = $product['GiaNhapTB'] * (1 + $data['phan_tram_loi_nhuan']);
     
-    // Xử lý upload hình mới
+    // Xử lý upload ảnh (giữ nguyên code cũ...)
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $target_dir = "../";
-        if (!file_exists($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
+        if (!file_exists($target_dir)) mkdir($target_dir, 0777, true);
         
         $file_extension = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -82,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             $target_file = $target_dir . $file_name;
             
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                // Xóa hình cũ nếu có
                 if ($product['image_url'] && file_exists($target_dir . $product['image_url'])) {
                     unlink($target_dir . $product['image_url']);
                 }
@@ -98,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
     }
     
     if (empty($error)) {
-        // Cập nhật sản phẩm
+        //  SQL đã thêm CanhBaoTon
         $sql = "UPDATE sanpham SET 
                 TenSP = ?, 
                 Danhmuc_id = ?, 
@@ -108,11 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
                 image_url = ?, 
                 GiaBan = ?, 
                 PhanTramLoiNhuan = ?, 
+                CanhBaoTon = ?,
                 TrangThai = ? 
                 WHERE SanPham_id = ?";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("siiisssdsi", 
+        
+        //  bind_param ĐÃ SỬA: "siiissddiii" khớp với 11 biến
+        $stmt->bind_param("siiissddiii", 
             $data['ten_sp'],
             $data['danhmuc_id'],
             $data['ncc_id'],
@@ -121,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             $data['image_url'],
             $data['gia_ban'],
             $data['phan_tram_loi_nhuan'],
+            $data['nguong_canh_bao'],
             $data['trang_thai'],
             $product_id
         );
@@ -129,8 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_product'])) {
             $success = 'Cập nhật sản phẩm thành công!';
             $product = getProductById($conn, $product_id);
         } else {
-            $error = 'Có lỗi xảy ra khi cập nhật!';
+            $error = 'Có lỗi xảy ra khi cập nhật: ' . $stmt->error;
         }
+        $stmt->close();
     }
 }
 
@@ -319,32 +320,47 @@ $phan_tram_hien_thi = $product['PhanTramLoiNhuan'];
                                 Giá bán (VNĐ)
                                 <span class="info-badge">Tự động tính</span>        
                             </label>
-                            <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
+                            <input type="text" id="gia_ban" value="<?php echo number_format($product['GiaBan'], 0, ',', '.'); ?>đ" readonly
+                                class="form-control price-calculated" style="background-color: #f3f4f6; color: #1f2937;">
                             <p class="text-xs text-gray-500 mt-1">* Giá bán sẽ được tự động tính</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="form-group">
-                            <label class="form-label">
-                                Số lượng tồn kho
-                                <span class="info-badge">Không thể sửa</span>
-                            </label>
-                            <input type="text" value="<?php echo $product['SoLuongTon']; ?> sản phẩm" readonly class="form-control bg-gray-100">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Trạng thái</label>
-                            <select name="trang_thai" class="form-control">
-                                <option value="1" <?php echo ($product['TrangThai'] == 1) ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
-                                <option value="0" <?php echo ($product['TrangThai'] == 0) ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Hình ảnh -->
-                    <div class="border-t border-gray-200 pt-4 mt-2">
-                        <label class="form-label">Hình ảnh sản phẩm</label>
-                        
+                            </div>
+                            </div>
+                            
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Số lượng tồn kho
+                                        <span class="info-badge">Không thể sửa</span>
+                                    </label>
+                                    <input type="text" value="<?php echo $product['SoLuongTon']; ?> sản phẩm" readonly
+                                        class="form-control bg-gray-100">
+                                </div>
+                            
+                                <!-- Ngưỡng cảnh báo tồn kho -->
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Cảnh báo tồn kho
+                                        <span class="info-badge">Tùy chọn</span>
+                                    </label>
+                                    <input type="number" name="nguong_canh_bao" value="<?php echo $product['CanhBaoTon'] ?? 10; ?>" min="0"
+                                        max="9999" class="form-control" placeholder="VD: 10">
+                                    <p class="text-xs text-gray-500 mt-1">* Cảnh báo khi tồn kho ≤ giá trị này</p>
+                                </div>
+                            
+                                <!-- Trạng thái -->
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái</label>
+                                    <select name="trang_thai" class="form-control">
+                                        <option value="1" <?php echo ($product['TrangThai'] == 1) ? 'selected' : ''; ?>>Đang bán (Hiển thị)</option>
+                                        <option value="0" <?php echo ($product['TrangThai'] == 0) ? 'selected' : ''; ?>>Ẩn (Không bán)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Hình ảnh -->
+                            <div class="border-t border-gray-200 pt-4 mt-2">
+                                <label class="form-label">Hình ảnh sản phẩm</label>
                         <?php if ($product['image_url']): ?>
                             <div class="mb-3 p-4 bg-gray-50 rounded-lg flex items-center space-x-4">
                                 <img src="../<?php echo $product['image_url']; ?>" class="product-img-preview" alt="Product image">
@@ -382,32 +398,66 @@ $phan_tram_hien_thi = $product['PhanTramLoiNhuan'];
         </div>
     </div>
     
-    <script>
+       <script>
         // Giữ giá nhập gốc để tính giá bán
         const giaNhapGoc = <?php echo $product['GiaNhapTB']; ?>;
         
         function tinhGiaBan() {
             let phanTram = parseFloat(document.getElementById('phan_tram').value);
-            
-            // Kiểm tra giá trị hợp lệ
-            if (isNaN(phanTram)) {
-                phanTram = 0;
-            }
-            
+            if (isNaN(phanTram)) phanTram = 0;
             if (giaNhapGoc > 0) {
-                // Công thức tính giá bán: Giá nhập × (1 + tỷ lệ lợi nhuận)
                 let giaBan = giaNhapGoc * (1 + phanTram);
-                // Làm tròn và hiển thị
                 document.getElementById('gia_ban').value = Math.round(giaBan).toLocaleString('vi-VN') + 'đ';
             } else {
                 document.getElementById('gia_ban').value = '0đ';
             }
         }
         
-        // Tự động tính khi trang load
+        // ✅ GỘP TẤT CẢ VÀO 1 DOMContentLoaded DUY NHẤT
         document.addEventListener('DOMContentLoaded', function() {
+            // 1. Tính giá bán khi load
             tinhGiaBan();
+            
+            // 2. Chặn nhập âm cho trường ngưỡng cảnh báo
+            const thresholdInput = document.querySelector('input[name="nguong_canh_bao"]');
+            if (thresholdInput) {
+                // Chặn phím đặc biệt
+                thresholdInput.addEventListener('keydown', function(e) {
+                    const allowedKeys = [8, 9, 13, 27, 37, 38, 39, 40, 46];
+                    if (allowedKeys.includes(e.keyCode) || 
+                        (e.keyCode >= 48 && e.keyCode <= 57) || 
+                        (e.keyCode >= 96 && e.keyCode <= 105)) {
+                        return;
+                    }
+                    if (e.key === '-' || e.key === '.' || e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                    }
+                });
+                
+                // Chặn paste số âm
+                thresholdInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const paste = (e.clipboardData || window.clipboardData).getData('text');
+                    this.value = Math.max(0, parseInt(paste) || 0);
+                });
+                
+                // Validate khi blur
+                thresholdInput.addEventListener('blur', function() {
+                    let val = parseInt(this.value);
+                    if (isNaN(val) || val < 0) {
+                        this.value = 0;
+                        this.classList.add('ring-2', 'ring-red-400');
+                        setTimeout(() => this.classList.remove('ring-2', 'ring-red-400'), 1500);
+                    }
+                });
+                
+                // Fix giá trị ban đầu nếu < 0
+                if (parseInt(thresholdInput.value) < 0) {
+                    thresholdInput.value = 0;
+                }
+            }
         });
     </script>
+
 </body>
 </html>
