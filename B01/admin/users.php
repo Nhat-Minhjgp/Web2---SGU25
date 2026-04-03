@@ -328,6 +328,7 @@ $users_json = json_encode($users);
         .sql-injection-warning { background-color: #fef2f2; border: 2px solid #dc2626; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none; }
         .sql-injection-warning i { margin-right: 8px; }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 

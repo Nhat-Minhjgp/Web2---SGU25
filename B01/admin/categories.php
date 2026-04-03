@@ -252,6 +252,7 @@ $categories = $conn->query("SELECT * FROM danhmuc ORDER BY Danhmuc_id DESC");
         .field-error { background: #fef2f2; padding: 4px 8px; border-radius: 6px; margin-top: 4px; font-size: 11px; color: #dc2626; }
         .field-error i { margin-right: 4px; }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 

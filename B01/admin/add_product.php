@@ -279,6 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_product'])) {
             margin-right: 8px;
         }
     </style>
+
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-800">

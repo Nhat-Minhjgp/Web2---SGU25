@@ -139,6 +139,7 @@ $result = $conn->query($sql);
             color: white;
         }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 

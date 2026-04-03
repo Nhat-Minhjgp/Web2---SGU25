@@ -207,6 +207,7 @@ if (!$result) {
         .btn-delete:hover { background: #dc2626; }
         .btn-disabled { background: #9ca3af; color: white; cursor: not-allowed; }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 

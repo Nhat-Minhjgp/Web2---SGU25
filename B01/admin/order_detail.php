@@ -119,6 +119,7 @@ $status_class = ['0' => 'bg-yellow-100 text-yellow-800', '1' => 'bg-blue-100 tex
             color: white;
         }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 

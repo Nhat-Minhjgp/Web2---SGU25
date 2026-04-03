@@ -200,6 +200,7 @@ $phan_tram_hien_thi = $product['PhanTramLoiNhuan'];
             color: #1f2937;
         }
     </style>
+      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 <body class="bg-gray-100">
     <div class="max-w-4xl mx-auto py-8 px-4">
