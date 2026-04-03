@@ -9,9 +9,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // === KIỂM TRA ĐĂNG NHẬP ===
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? 0) != 0) {
-	header("Location: login.php?redirect=checkout");
-	exit();
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
+    header("Location: ./login.php?redirect=my-account");
+    exit();
 }
 
 $cart_count = 0;
