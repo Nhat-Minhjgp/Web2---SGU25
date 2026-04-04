@@ -3,16 +3,6 @@
 session_start();
 require_once '../control/connect.php';
 
-
-$cart_count = 0;
-if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    $cart_count = array_sum($_SESSION['cart']);
-}
-// Xử lý buy_now mode (nếu có)
-if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
-    $cart_count += array_sum($_SESSION['buy_now_cart']);
-}
-
 // === KIỂM TRA ĐĂNG NHẬP ===
 $is_logged_in = isset($_SESSION['user_id']);
 $user_info = null;
@@ -31,6 +21,18 @@ if ($is_logged_in) {
         'role' => $_SESSION['role'] ?? 0
     ];
 }
+
+
+$cart_count = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    $cart_count = array_sum($_SESSION['cart']);
+}
+// Xử lý buy_now mode (nếu có)
+if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
+    $cart_count += array_sum($_SESSION['buy_now_cart']);
+}
+
+
 
 // Lấy ID sản phẩm từ URL
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
