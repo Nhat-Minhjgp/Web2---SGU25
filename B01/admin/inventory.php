@@ -13,6 +13,98 @@ $admin_name = $_SESSION['admin_name'] ?? 'Quản trị viên';
 $admin_role = $_SESSION['admin_role'] ?? '';
 $admin_username = $_SESSION['admin_username'] ?? '';
 
+
+
+
+// ============================================
+// XỬ LÝ AJAX: LẤY TỒN KHO THEO NGÀY
+// ============================================
+if (isset($_GET['get_inventory_by_date'])) {
+    header('Content-Type: application/json');
+
+    $date = $_GET['date'] ?? date('Y-m-d');
+    $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
+
+    // Lấy danh sách sản phẩm (có thể lọc theo danh mục)
+    $sql = "SELECT sp.*, dm.Ten_danhmuc, th.Ten_thuonghieu,
+            COALESCE(sp.CanhBaoTon, 10) as canh_bao,
+            COALESCE(sp.GiaNhapTB, 0) as GiaNhapTB
+            FROM sanpham sp
+            LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
+            LEFT JOIN thuonghieu th ON sp.Ma_thuonghieu = th.Ma_thuonghieu";
+
+    if ($category_id > 0) {
+        $sql .= " WHERE sp.Danhmuc_id = $category_id";
+    }
+    $sql .= " ORDER BY sp.SanPham_id DESC";
+
+    $result = $conn->query($sql);
+    $products = $result->fetch_all(MYSQLI_ASSOC);
+    $inventory_data = [];
+
+    foreach ($products as $p) {
+        $pid = $p['SanPham_id'];
+        $gia_von = floatval($p['GiaNhapTB']);
+
+        // 📥 Tổng nhập TRƯỚC ngày (tồn đầu)
+        $stmt = $conn->prepare("SELECT COALESCE(SUM(ct.SoLuong),0) as tong 
+            FROM chitietphieunhap ct
+            JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
+            WHERE ct.SanPham_id = ? AND pn.NgayNhap < ?");
+        $stmt->bind_param("is", $pid, $date);
+        $stmt->execute();
+        $nhap_truoc = $stmt->get_result()->fetch_assoc()['tong'];
+
+        // 📤 Tổng xuất TRƯỚC ngày
+        $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
+            FROM chitiethoadon ctdh
+            JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
+            WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND d.NgayDat < ?");
+        $stmt->bind_param("is", $pid, $date);
+        $stmt->execute();
+        $xuat_truoc = $stmt->get_result()->fetch_assoc()['tong'];
+
+        // 📥 Tổng nhập TRONG ngày
+        $stmt = $conn->prepare("SELECT COALESCE(SUM(ct.SoLuong),0) as tong 
+            FROM chitietphieunhap ct
+            JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
+            WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) = ?");
+        $stmt->bind_param("is", $pid, $date);
+        $stmt->execute();
+        $nhap_trong_ngay = $stmt->get_result()->fetch_assoc()['tong'];
+
+        // 📤 Tổng xuất TRONG ngày
+        $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
+            FROM chitiethoadon ctdh
+            JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
+            WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) = ?");
+        $stmt->bind_param("is", $pid, $date);
+        $stmt->execute();
+        $xuat_trong_ngay = $stmt->get_result()->fetch_assoc()['tong'];
+
+        // Tính toán
+        $ton_dau = $nhap_truoc - $xuat_truoc;
+        $ton_cuoi = $ton_dau + $nhap_trong_ngay - $xuat_trong_ngay;
+
+        $inventory_data[] = [
+            'masp' => 'SP' . str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT),
+            'ten_sp' => $p['TenSP'],
+            'danh_muc' => $p['Ten_danhmuc'] ?? 'Chưa có',
+            'ton_dau_ngay' => $ton_dau,
+            'nhap_trong_ngay' => $nhap_trong_ngay,
+            'xuat_trong_ngay' => $xuat_trong_ngay,
+            'ton_cuoi_ngay' => $ton_cuoi,
+            'gia_nhap_tb' => $gia_von,
+            'tong_gia_tri_dau' => $ton_dau * $gia_von,
+            'tong_gia_tri_cuoi' => $ton_cuoi * $gia_von,
+            'canh_bao' => $p['canh_bao'],
+        ];
+    }
+
+    echo json_encode($inventory_data);
+    exit();
+}
+
 // ============================================
 // XỬ LÝ CẬP NHẬT NGƯỠNG CẢNH BÁO
 // ============================================
@@ -375,7 +467,7 @@ if (isset($_GET['get_report'])) {
             display: none;
         }
     </style>
-      <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="../img/icons/favicon.png" sizes="32x32">
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
@@ -476,128 +568,88 @@ if (isset($_GET['get_report'])) {
 
                     <!-- TAB 1: TỒN KHO -->
                     <div id="inventoryTab" class="tab-content">
-                        <!-- Thay thế phần filter trong tab inventory -->
+                        <!-- 🎯 Filter Section -->
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-search text-primary mr-2"></i>
-                                Tra cứu tồn kho theo loại sản phẩm
+                                <i class="fas fa-calendar-alt text-primary mr-2"></i>Tra cứu tồn kho theo ngày
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <!-- Filter danh mục -->
+                                <!-- Danh mục -->
                                 <div>
                                     <label class="block text-xs text-gray-500 mb-1">Loại sản phẩm</label>
                                     <select id="filterCategory"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                        <option value="">-- Tất cả danh mục --</option>
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                                        <option value="">-- Tất cả --</option>
                                         <?php foreach ($categories as $cat): ?>
-                                            <option value="<?php echo $cat['Danhmuc_id']; ?>">
-                                                <?php echo htmlspecialchars($cat['Ten_danhmuc']); ?>
+                                            <option value="<?= $cat['Danhmuc_id'] ?>">
+                                                <?= htmlspecialchars($cat['Ten_danhmuc']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
 
-                                <!-- Filter ngưỡng tồn kho -->
+                                <!-- Ngày -->
                                 <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Ngưỡng tồn kho tối thiểu</label>
-                                    <input type="number" id="filterThreshold" min="0" placeholder="VD: 10"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                </div>
-
-                                <!-- Filter ngày (tuỳ chọn) -->
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Tính đến ngày</label>
+                                    <label class="block text-xs text-gray-500 mb-1">Ngày xem tồn kho</label>
                                     <input type="date" id="inventoryDate"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none">
                                 </div>
 
-                                <!-- Nút hành động -->
+                                <!-- Nút -->
                                 <div class="flex items-end gap-2">
-                                    <button onclick="searchInventory()"
+                                    <button onclick="searchInventoryByDate()"
                                         class="flex-1 bg-gradient-custom text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
-                                        <i class="fas fa-search mr-2"></i>Áp dụng
+                                        <i class="fas fa-search mr-2"></i>Tra cứu
                                     </button>
                                     <button onclick="resetInventoryFilter()"
-                                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                                        title="Xóa bộ lọc">
+                                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                                         <i class="fas fa-undo"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Hiển thị trạng thái filter -->
-                            <div id="filterStatus" class="hidden text-sm text-gray-600 mb-2 p-2 bg-gray-50 rounded-lg">
-                                <i class="fas fa-filter mr-1"></i>
-                                <span id="filterStatusText"></span>
-                                <button onclick="resetInventoryFilter()" class="text-primary hover:underline ml-2">Xóa
-                                    lọc</button>
+                            <!-- Info box -->
+                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
+                                <span class="font-medium text-blue-800">📅 Ngày:</span>
+                                <span id="selectedDateDisplay"
+                                    class="text-blue-700 font-semibold"><?= date('d/m/Y') ?></span>
+                                <p class="text-xs text-blue-600 mt-1">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Tồn kho đầu ngày = Tổng nhập trước ngày - Tổng xuất trước ngày<br>
+                                    <i class="fas fa-info-circle mr-1"></i> Tồn kho cuối ngày = Tồn đầu ngày + Nhập
+                                    trong ngày - Xuất trong ngày
+                                </p>
                             </div>
                         </div>
 
+                        <!-- 📊 Data Table -->
                         <div class="overflow-x-auto border border-gray-200 rounded-xl">
-                            <table class="w-full min-w-[900px]" id="inventoryTable">
+                            <table class="w-full min-w-[1200px]" id="inventoryTable">
                                 <thead class="bg-gradient-custom text-white">
                                     <tr>
                                         <th class="px-4 py-3 text-left">Mã SP</th>
                                         <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                                         <th class="px-4 py-3 text-left">Danh mục</th>
-                                        <th class="px-4 py-3 text-right">Tồn kho</th>
-                                        <th class="px-4 py-3 text-right">Đã nhập</th>
-                                        <th class="px-4 py-3 text-right">Đã xuất</th>
-                                        <th class="px-4 py-3 text-right">Giá vốn TB</th>
-                                        <th class="px-4 py-3 text-right">Tổng giá trị</th>
+                                        <th class="px-4 py-3 text-right">Tồn đầu</th>
+                                        <th class="px-4 py-3 text-right">Nhập</th>
+                                        <th class="px-4 py-3 text-right">Xuất</th>
+                                        <th class="px-4 py-3 text-right">Tồn cuối</th>
+                                        <th class="px-4 py-3 text-right">Giá vốn</th>
+                                        <th class="px-4 py-3 text-right">GT đầu</th>
+                                        <th class="px-4 py-3 text-right">GT cuối</th>
                                         <th class="px-4 py-3 text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
+
                                 <tbody id="inventoryTableBody">
-                                    <?php foreach ($products as $p): ?>
-                                        <?php
-                                        $ton = $p['SoLuongTon'];
-                                        $nguong = $p['canh_bao'];
-                                        $giavon = $p['GiaNhapTB'] ?? 0;
-                                        $tonggiatri = $ton * $giavon;
-                                        $rowClass = '';
-                                        if ($ton <= $nguong && $ton > 0)
-                                            $rowClass = 'inventory-row-low';
-                                        if ($ton == 0)
-                                            $rowClass = 'inventory-row-critical';
-                                        ?>
-                                        <tr class="hover:bg-gray-50 transition <?php echo $rowClass; ?>">
-                                            <td class="px-4 py-3 font-mono">
-                                                SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?></td>
-                                            <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>
-                                            </td>
-                                            <td
-                                                class="px-4 py-3 text-right font-semibold <?php echo $ton <= $nguong ? 'text-red-600' : 'text-green-600'; ?>">
-                                                <?php echo number_format($ton); ?>
-                                            </td>
-                                            <td class="px-4 py-3 text-right text-green-600">+
-                                                <?php echo number_format($p['tong_nhap']); ?>
-                                            </td>
-                                            <td class="px-4 py-3 text-right text-red-600">-
-                                                <?php echo number_format($p['tong_xuat']); ?>
-                                            </td>
-                                            <td class="px-4 py-3 text-right">
-                                                <?php echo number_format($giavon, 0, ',', '.'); ?>đ
-                                            </td>
-                                            <td class="px-4 py-3 text-right">
-                                                <?php echo number_format($tonggiatri, 0, ',', '.'); ?>đ
-                                            </td>
-                                            <td class="px-4 py-3 text-center">
-                                                <?php if ($ton == 0): ?>
-                                                    <span class="badge-danger">🔴 Hết hàng</span>
-                                                <?php elseif ($ton <= $nguong): ?>
-                                                    <span class="badge-warning">⚠️ Sắp hết
-                                                        (<?php echo $ton; ?>/<?php echo $nguong; ?>)</span>
-                                                <?php else: ?>
-                                                    <span class="badge-success">✅ Còn hàng</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                    <tr>
+                                        <td colspan="11" class="text-center py-12 text-gray-400">
+                                            <i class="fas fa-calendar-check text-4xl mb-3 block opacity-50"></i>
+                                            <p class="font-medium">Chọn ngày và nhấn "Tra cứu" để xem tồn kho</p>
+                                            <p class="text-xs mt-1 opacity-70">Dữ liệu sẽ được tính toán dựa trên lịch
+                                                sử nhập/xuất</p>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -613,7 +665,8 @@ if (isset($_GET['get_report'])) {
                             </h3>
                             <p class="text-sm text-blue-600 mb-3">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                <strong>Lưu ý:</strong> Bạn có thể để trống ngày để xem tất cả dữ liệu, hoặc chỉ chọn 1
+                                <strong>Lưu ý:</strong> Bạn có thể để trống ngày để xem tất cả dữ liệu, hoặc chỉ
+                                chọn 1
                                 ngày
                             </p>
 
@@ -633,7 +686,8 @@ if (isset($_GET['get_report'])) {
                                     </div>
                                     <span id="dateError"
                                         class="absolute left-0 bottom-0 text-xs text-red-500 hidden whitespace-nowrap">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>Ngày bắt đầu không được lớn hơn
+                                        <i class="fas fa-exclamation-circle mr-1"></i>Ngày bắt đầu không được lớn
+                                        hơn
                                         ngày kết thúc
                                     </span>
                                 </div>
@@ -698,7 +752,8 @@ if (isset($_GET['get_report'])) {
                                 <i class="fas fa-exclamation-triangle text-primary mr-2"></i>
                                 Cảnh báo sản phẩm sắp hết hàng
                             </h3>
-                            <p class="text-sm text-gray-500 mb-4">* Lọc theo danh mục, ngưỡng tồn kho hoặc tên sản phẩm
+                            <p class="text-sm text-gray-500 mb-4">* Lọc theo danh mục, ngưỡng tồn kho hoặc tên sản
+                                phẩm
                             </p>
 
                             <!-- Filter cho tab cảnh báo -->
@@ -803,7 +858,8 @@ if (isset($_GET['get_report'])) {
                                             <td class="px-4 py-3 font-mono">
                                                 SP<?php echo str_pad($p['SanPham_id'], 4, '0', STR_PAD_LEFT); ?>
                                             </td>
-                                            <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($p['TenSP']); ?>
+                                            <td class="px-4 py-3 font-medium">
+                                                <?php echo htmlspecialchars($p['TenSP']); ?>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <?php echo htmlspecialchars($p['Ten_danhmuc'] ?? 'Chưa có'); ?>
@@ -817,7 +873,7 @@ if (isset($_GET['get_report'])) {
                                                 <span
                                                     class="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
                                                     <?php echo number_format($nguong); ?>
-                                                   
+
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3 text-center">
@@ -1412,6 +1468,141 @@ if (isset($_GET['get_report'])) {
                 toInput?.addEventListener('change', updateReportButton);
 
                 updateReportButton(); // init
+            });
+
+
+            // 🔹 Helper: Format tiền ngắn gọn (1.2K, 3.5M, 1.2B)
+            function formatCurrency(amount) {
+                if (!amount) return '0đ';
+                const num = Math.abs(parseFloat(amount));
+                let suffix = 'đ', value = num;
+
+                if (num >= 1e9) { value = num / 1e9; suffix = 'Bđ'; }
+                else if (num >= 1e6) { value = num / 1e6; suffix = 'Mđ'; }
+                else if (num >= 1e3) { value = num / 1e3; suffix = 'Kđ'; }
+
+                return value.toFixed(1) + suffix;
+            }
+
+            // 🔹 Helper: Escape HTML chống XSS
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // 🔹 Hàm chính: Load dữ liệu tồn kho
+            function searchInventoryByDate() {
+                const date = document.getElementById('inventoryDate').value;
+                const categoryId = document.getElementById('filterCategory').value;
+
+                if (!date) {
+                    alert('⚠️ Vui lòng chọn ngày cần xem tồn kho!');
+                    document.getElementById('inventoryDate')?.focus();
+                    return;
+                }
+
+                // Cập nhật hiển thị ngày
+                const dateObj = new Date(date);
+                document.getElementById('selectedDateDisplay').innerText = dateObj.toLocaleDateString('vi-VN');
+
+                // Show loading
+                const tbody = document.getElementById('inventoryTableBody');
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải...</p></td></tr>';
+
+                // Gọi API
+                let url = `?get_inventory_by_date=1&date=${date}`;
+                if (categoryId) url += `&category_id=${categoryId}`;
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data || data.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-gray-500">📭 Không có dữ liệu</td></tr>';
+                            return;
+                        }
+
+                        let html = '';
+                        let totalDau = 0, totalCuoi = 0, totalGT_Dau = 0, totalGT_Cuoi = 0;
+
+                        data.forEach(item => {
+                            const tonCuoi = item.ton_cuoi_ngay;
+                            const nguong = item.canh_bao;
+
+                            // Badge trạng thái
+                            let badge = '';
+                            if (tonCuoi == 0) badge = '<span class="badge-danger">🔴 Hết</span>';
+                            else if (tonCuoi <= nguong) badge = '<span class="badge-warning flex">⚠️ Sắp hết</span>';
+                            else badge = '<span class="badge-success flex">✅ Còn hàng</span>';
+
+                            // Cộng dồn tổng
+                            totalDau += item.ton_dau_ngay;
+                            totalCuoi += tonCuoi;
+                            totalGT_Dau += item.tong_gia_tri_dau;
+                            totalGT_Cuoi += item.tong_gia_tri_cuoi;
+
+                            html += `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
+                    <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
+                    <td class="px-4 py-3">${escapeHtml(item.danh_muc)}</td>
+                    <td class="px-4 py-3 text-right">${item.ton_dau_ngay.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right text-green-600">+${item.nhap_trong_ngay.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right text-red-600">-${item.xuat_trong_ngay.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right font-bold ${tonCuoi <= nguong ? 'text-red-600' : 'text-green-600'}">
+                        ${tonCuoi.toLocaleString('vi-VN')}
+                    </td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(item.gia_nhap_tb)}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(item.tong_gia_tri_dau)}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(item.tong_gia_tri_cuoi)}</td>
+                    <td class="px-4 py-3 text-center">${badge}</td>
+                </tr>`;
+                        });
+
+                        // Row tổng cộng
+                        html += `
+            <tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
+                <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right">${formatCurrency(totalGT_Dau)}</td>
+                <td class="px-4 py-3 text-right">${formatCurrency(totalGT_Cuoi)}</td>
+                <td class="px-4 py-3 text-center">-</td>
+            </tr>`;
+
+                        tbody.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-red-500">❌ Lỗi tải dữ liệu</td></tr>';
+                    });
+            }
+
+            // 🔹 Reset filter
+            function resetInventoryFilter() {
+                document.getElementById('filterCategory').value = '';
+                document.getElementById('inventoryDate').value = '<?php echo date("Y-m-d"); ?>';
+                searchInventoryByDate();
+            }
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Chỉ gắn Enter để search, KHÔNG gọi searchInventoryByDate() ngay
+                document.getElementById('inventoryDate')?.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); searchInventoryByDate(); }
+                });
+
+                // Optional: Gắn event cho dropdown category để search khi đổi 
+                document.getElementById('filterCategory')?.addEventListener('change', function () {
+                    const dateInput = document.getElementById('inventoryDate');
+                    if (dateInput?.value) {  // Chỉ search nếu đã có ngày
+                        searchInventoryByDate();
+                    }
+                });
             });
         </script>
 </body>
