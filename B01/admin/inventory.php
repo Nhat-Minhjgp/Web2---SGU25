@@ -591,7 +591,7 @@ if (isset($_GET['get_report'])) {
                                 <!-- Ngày -->
                                 <div>
                                     <label class="block text-xs text-gray-500 mb-1">Ngày xem tồn kho</label>
-                                    <input type="date" id="inventoryDate"
+                                    <input type="date" id="inventoryDate" max="<?= date('Y-m-d') ?>"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none">
                                 </div>
 
@@ -611,9 +611,8 @@ if (isset($_GET['get_report'])) {
                             <!-- Info box -->
                             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
                                 <span class="font-medium text-blue-800">📅 Ngày:</span>
-                                <span id="selectedDateDisplay"
-                                    class="text-blue-700 font-semibold"></span>
-                                    
+                                <span id="selectedDateDisplay" class="text-blue-700 font-semibold"></span>
+
                             </div>
                         </div>
 
@@ -669,11 +668,11 @@ if (isset($_GET['get_report'])) {
                                 <div class="flex-1 min-w-[280px] pb-5 relative">
                                     <label class="block text-xs text-gray-500 mb-1">Khoảng thời gian</label>
                                     <div class="flex gap-2 items-center">
-                                        <input type="date" id="reportFromDate"
+                                        <input type="date" id="reportFromDate" max="<?= date('Y-m-d') ?>"
                                             class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
                                             placeholder="Từ ngày">
                                         <span class="text-gray-400">→</span>
-                                        <input type="date" id="reportToDate"
+                                        <input type="date" id="reportToDate" max="<?= date('Y-m-d') ?>"
                                             class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm"
                                             placeholder="Đến ngày">
                                     </div>
@@ -1592,6 +1591,39 @@ if (isset($_GET['get_report'])) {
                     const dateInput = document.getElementById('inventoryDate');
                     if (dateInput?.value) {  // Chỉ search nếu đã có ngày
                         searchInventoryByDate();
+                    }
+                });
+            });
+
+            //  VALIDATE CHẶN NGÀY TƯƠNG LAI (KHI GÕ TAY HOẶC DÁN)
+            function validateNoFutureDate(input) {
+                if (!input.value) return; // Cho phép ô trống
+
+                // Lấy ngày hôm nay dạng YYYY-MM-DD theo giờ máy khách
+                const today = new Date();
+                const todayStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
+
+                // So sánh chuỗi ngày (định dạng YYYY-MM-DD so sánh > hoạt động chính xác)
+                if (input.value > todayStr) {
+                    alert("⚠️ Không được chọn ngày trong tương lai! Vui lòng chọn lại.");
+                    input.value = '';      // Ép xóa giá trị sai
+                    input.focus();         // Trả con trỏ về ô input
+                }
+            }
+
+            // Gắn sự kiện validate cho 3 ô ngày
+            document.addEventListener('DOMContentLoaded', function () {
+                ['inventoryDate', 'reportFromDate', 'reportToDate'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        // Chạy validate khi người dùng chọn xong hoặc rời khỏi ô input
+                        el.addEventListener('change', () => validateNoFutureDate(el));
+
+                        // Vẫn giữ max để trình duyệt chặn UI date picker
+                        const today = new Date().toISOString().split('T')[0];
+                        el.setAttribute('max', today);
                     }
                 });
             });
