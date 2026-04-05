@@ -612,13 +612,8 @@ if (isset($_GET['get_report'])) {
                             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
                                 <span class="font-medium text-blue-800">📅 Ngày:</span>
                                 <span id="selectedDateDisplay"
-                                    class="text-blue-700 font-semibold"><?= date('d/m/Y') ?></span>
-                                <p class="text-xs text-blue-600 mt-1">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Tồn kho đầu ngày = Tổng nhập trước ngày - Tổng xuất trước ngày<br>
-                                    <i class="fas fa-info-circle mr-1"></i> Tồn kho cuối ngày = Tồn đầu ngày + Nhập
-                                    trong ngày - Xuất trong ngày
-                                </p>
+                                    class="text-blue-700 font-semibold"></span>
+                                    
                             </div>
                         </div>
 
@@ -635,8 +630,6 @@ if (isset($_GET['get_report'])) {
                                         <th class="px-4 py-3 text-right">Xuất</th>
                                         <th class="px-4 py-3 text-right">Tồn cuối</th>
                                         <th class="px-4 py-3 text-right">Giá vốn</th>
-                                        <th class="px-4 py-3 text-right">GT đầu</th>
-                                        <th class="px-4 py-3 text-right">GT cuối</th>
                                         <th class="px-4 py-3 text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
@@ -1554,8 +1547,7 @@ if (isset($_GET['get_report'])) {
                         ${tonCuoi.toLocaleString('vi-VN')}
                     </td>
                     <td class="px-4 py-3 text-right">${formatCurrency(item.gia_nhap_tb)}</td>
-                    <td class="px-4 py-3 text-right">${formatCurrency(item.tong_gia_tri_dau)}</td>
-                    <td class="px-4 py-3 text-right">${formatCurrency(item.tong_gia_tri_cuoi)}</td>
+                    
                     <td class="px-4 py-3 text-center">${badge}</td>
                 </tr>`;
                         });
@@ -1569,8 +1561,7 @@ if (isset($_GET['get_report'])) {
                 <td class="px-4 py-3 text-right">-</td>
                 <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
                 <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right">${formatCurrency(totalGT_Dau)}</td>
-                <td class="px-4 py-3 text-right">${formatCurrency(totalGT_Cuoi)}</td>
+             
                 <td class="px-4 py-3 text-center">-</td>
             </tr>`;
 
