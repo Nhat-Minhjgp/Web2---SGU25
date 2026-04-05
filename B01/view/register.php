@@ -24,10 +24,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
 }
 
-// Xử lý buy_now mode (nếu có)
-if (isset($_SESSION['buy_now_cart']) && is_array($_SESSION['buy_now_cart'])) {
-    $cart_count += array_sum($_SESSION['buy_now_cart']);
-}
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // === 1. SERVER-SIDE SANITIZATION ===
