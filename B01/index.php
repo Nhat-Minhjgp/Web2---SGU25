@@ -1163,7 +1163,7 @@ if ($is_logged_in) {
     (SELECT image_url FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1 AND image_url IS NOT NULL LIMIT 1) as sample_image,
     (SELECT COUNT(*) FROM sanpham WHERE Danhmuc_id = d.Danhmuc_id AND TrangThai = 1) as product_count
     FROM danhmuc d
-    WHERE d.Danhmuc_id IN (1, 2, 3)
+    WHERE d.Danhmuc_id IN (1, 2, 3, 4)
     ORDER BY d.Danhmuc_id";
                     $categories_result = $conn->query($categories_sql);
                     ?>
@@ -1177,8 +1177,8 @@ if ($is_logged_in) {
                             </h2>
                         </div>
 
-                        <!-- Grid 3 cột -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Grid 4 cột -->
+                        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
                             <?php while ($category = $categories_result->fetch_assoc()): ?>
                                 <div class="flex-shrink-0">
                                     <a href="./view/shop.php?danhmuc[]=<?php echo htmlspecialchars($category['slug']); ?>"
