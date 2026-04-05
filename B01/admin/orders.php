@@ -329,7 +329,7 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
                             <?php foreach ($orders as $order):
                                 $status = intval($order['TrangThai']);
                                 $isLocked = ($status == 2 || $status == 3);
-                                $order_code = "ORD" . str_pad($order['DonHang_id'], 5, '0', STR_PAD_LEFT); ?>
+                                $order_code =   str_pad($order['DonHang_id'], 1, '0', STR_PAD_LEFT); ?>
                                 <tr class="hover:bg-gray-50 transition" data-ward="<?php echo htmlspecialchars($order['Quan'] ?? ''); ?>">
                                     <td class="px-4 py-3"><?php echo $order['DonHang_id']; ?></td>
                                     <td class="px-4 py-3 font-mono">#<?php echo $order_code; ?></td>

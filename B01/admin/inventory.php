@@ -609,11 +609,11 @@ if (isset($_GET['get_report'])) {
                             </div>
 
                             <!-- Info box -->
-                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
-                                <span class="font-medium text-blue-800">📅 Ngày:</span>
-                                <span id="selectedDateDisplay" class="text-blue-700 font-semibold"></span>
+                           
+                                <span class="font-medium hidden text-blue-800"> Ngày:</span>
+                                <span id="selectedDateDisplay" class="text-blue-700 hidden font-semibold"></span>
 
-                            </div>
+                           
                         </div>
 
                         <!-- 📊 Data Table -->
@@ -712,28 +712,62 @@ if (isset($_GET['get_report'])) {
                             </div>
                         </div>
 
-                        <div id="reportResult" class="overflow-x-auto border border-gray-200 rounded-xl">
-                            <table class="w-full min-w-[800px]">
-                                <thead class="bg-gradient-custom text-white">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left">Ngày</th>
-                                        <th class="px-4 py-3 text-left">Loại</th>
-                                        <th class="px-4 py-3 text-left">Mã SP</th>
-                                        <th class="px-4 py-3 text-left">Sản phẩm</th>
-                                        <th class="px-4 py-3 text-right">SL</th>
-                                        <th class="px-4 py-3 text-right">Đơn giá</th>
-                                        <th class="px-4 py-3 text-right">Thành tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="reportTableBody">
-                                    <tr>
-                                        <td colspan="7" class="text-center py-8 text-gray-500">
-                                            <i class="fas fa-chart-line text-4xl mb-2 block"></i>
-                                            Chọn khoảng thời gian (hoặc để trống) để xem báo cáo
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div id="reportResult" class="space-y-8">
+                            <!-- 📥 BẢNG NHẬP -->
+                            <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                                <div
+                                    class="bg-green-50 px-4 py-2 font-semibold text-green-700 border-b border-green-200 flex items-center gap-2">
+                                    <i class="fas fa-arrow-down"></i> Chi tiết Nhập hàng
+                                </div>
+                                <table class="w-full min-w-[950px]">
+                                    <thead class="bg-gradient-custom text-white">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Ngày</th>
+                                            <th class="px-4 py-3 text-left">Loại</th>
+                                            <th class="px-4 py-3 text-left">Mã SP</th>
+                                            <th class="px-4 py-3 text-left">Sản phẩm</th>
+                                            <th class="px-4 py-3 text-right">SL</th>
+                                            <th class="px-4 py-3 text-right">Đơn giá</th>
+                                            <th class="px-4 py-3 text-right">Thành tiền</th>
+                                            <th class="px-4 py-3 text-center">Chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="importTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-8 text-gray-500">Chọn điều kiện để xem
+                                                báo cáo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 📤 BẢNG XUẤT -->
+                            <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                                <div
+                                    class="bg-blue-50 px-4 py-2 font-semibold text-blue-700 border-b border-blue-200 flex items-center gap-2">
+                                    <i class="fas fa-arrow-up"></i> Chi tiết Xuất hàng / Đơn bán
+                                </div>
+                                <table class="w-full min-w-[950px]">
+                                    <thead class="bg-gradient-custom text-white">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Ngày</th>
+                                            <th class="px-4 py-3 text-left">Loại</th>
+                                            <th class="px-4 py-3 text-left">Mã SP</th>
+                                            <th class="px-4 py-3 text-left">Sản phẩm</th>
+                                            <th class="px-4 py-3 text-right">SL</th>
+                                            <th class="px-4 py-3 text-right">Đơn giá</th>
+                                            <th class="px-4 py-3 text-right">Thành tiền</th>
+                                            <th class="px-4 py-3 text-center">Chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="exportTableBody">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-8 text-gray-500">Chọn điều kiện để xem
+                                                báo cáo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -1037,85 +1071,167 @@ if (isset($_GET['get_report'])) {
                 }
             });
 
-            function generateReport() {
-                const fromDate = document.getElementById('reportFromDate').value;
-                const toDate = document.getElementById('reportToDate').value;
-                const productId = document.getElementById('reportProduct').value;
+            // 🔹 Hàm toggle dropdown chi tiết
+            function toggleReportDetail(id) {
+                const detailRow = document.querySelector(`.detail-row-${id}`);
+                const btn = document.getElementById(`detail-btn-${id}`);
+                if (!detailRow || !btn) return;
 
-                const tbody = document.getElementById('reportTableBody');
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải dữ liệu...</p></td></tr>';
+                if (detailRow.style.display === 'none' || detailRow.style.display === '') {
+                    detailRow.style.display = 'table-row';
+                    btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    btn.classList.add('bg-blue-700', 'shadow-md');
+                } else {
+                    detailRow.style.display = 'none';
+                    btn.innerHTML = '<i class="fas fa-eye"></i>';
+                    btn.classList.remove('bg-blue-700', 'shadow-md');
+                }
+            }
+
+            // 🔹 Hàm render báo cáo nhập - xuất riêng biệt
+            function generateReport() {
+                const from = document.getElementById('reportFromDate')?.value || '';
+                const to = document.getElementById('reportToDate')?.value || '';
+                if (!isDateRangeValid(from, to)) return;
+                const productId = document.getElementById('reportProductId')?.value || '';
+
+                const importBody = document.getElementById('importTableBody');
+                const exportBody = document.getElementById('exportTableBody');
+
+                // Loading state
+                const loadingHtml = '<tr><td colspan="8" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-gray-600">Đang tải dữ liệu...</p></td></tr>';
+                importBody.innerHTML = loadingHtml;
+                exportBody.innerHTML = loadingHtml;
 
                 let url = `?get_report=1`;
-                if (fromDate) url += `&from=${fromDate}`;
-                if (toDate) url += `&to=${toDate}`;
+                if (from) url += `&from=${from}`;
+                if (to) url += `&to=${to}`;
                 if (productId) url += `&product=${productId}`;
 
                 fetch(url)
                     .then(res => {
-                        if (!res.ok) {
-                            throw new Error('Network response was not ok');
-                        }
+                        if (!res.ok) throw new Error('Network response was not ok');
                         return res.json();
                     })
                     .then(data => {
-                        if (!data || data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu</td></tr>';
-                            return;
+                        const imports = data.filter(d => d.type === 'Nhập');
+                        const exports = data.filter(d => d.type !== 'Nhập');
+
+                        // --- RENDER BẢNG NHẬP ---
+                        if (imports.length === 0) {
+                            importBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu nhập</td></tr>';
+                        } else {
+                            let html = '';
+                            let totalQty = 0, totalVal = 0;
+                            imports.forEach((item, i) => {
+                                const id = `imp-${i}`;
+                                const qty = parseFloat(item.quantity) || 0;
+                                const price = parseFloat(item.price) || 0;
+                                const total = parseFloat(item.total) || 0;
+                                totalQty += qty; totalVal += total;
+
+                                html += `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-4 py-3">${item.date || ''}</td>
+                    <td class="px-4 py-3"><span class="text-green-600 font-medium">${item.type}</span></td>
+                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
+                    <td class="px-4 py-3">${item.product_name || ''}</td>
+                    <td class="px-4 py-3 text-right">${qty.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
+                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
+                    <td class="px-4 py-3 text-center">
+                        <button id="detail-btn-${id}" onclick="toggleReportDetail('${id}')" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer transition" title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="detail-row-${id}" style="display:none;">
+                    <td colspan="8" class="p-0">
+                        <div class="bg-gray-50 p-4 border-t border-gray-200">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">Mã SP:</span> <strong>SP${String(item.product_id || 0).padStart(4, '0')}</strong></div>
+                                <div><span class="text-gray-500">Tên SP:</span> <strong>${item.product_name || 'N/A'}</strong></div>
+                                <div><span class="text-gray-500">Số lượng:</span> <strong>${qty.toLocaleString('vi-VN')}</strong></div>
+                                <div><span class="text-gray-500">Đơn giá:</span> <strong>${price.toLocaleString('vi-VN')}đ</strong></div>
+                                <div><span class="text-gray-500">Thành tiền:</span> <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
+                                <div><span class="text-gray-500">Ngày:</span> <strong>${item.date || 'N/A'}</strong></div>
+                                <div><span class="text-gray-500">Loại:</span> <strong class="text-green-600">${item.type}</strong></div>
+                              
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                            });
+                            html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                <td colspan="4" class="px-4 py-3 text-right">TỔNG NHẬP:</td>
+                <td class="px-4 py-3 text-right text-green-600">${totalQty.toLocaleString('vi-VN')}</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
+                <td class="px-4 py-3"></td>
+            </tr>`;
+                            importBody.innerHTML = html;
                         }
 
-                        let html = '';
-                        let totalImport = 0, totalExport = 0, totalImportQty = 0, totalExportQty = 0;
+                        // --- RENDER BẢNG XUẤT ---
+                        if (exports.length === 0) {
+                            exportBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu xuất</td></tr>';
+                        } else {
+                            let html = '';
+                            let totalQty = 0, totalVal = 0;
+                            exports.forEach((item, i) => {
+                                const id = `exp-${i}`;
+                                const qty = parseFloat(item.quantity) || 0;
+                                const price = parseFloat(item.price) || 0;
+                                const total = parseFloat(item.total) || 0;
+                                totalQty += qty; totalVal += total;
 
-                        data.forEach(item => {
-                            // Đảm bảo các giá trị là số
-                            const quantity = parseFloat(item.quantity) || 0;
-                            const price = parseFloat(item.price) || 0;
-                            const total = parseFloat(item.total) || 0;
-                            const typeClass = item.type === 'Nhập' ? 'text-green-600' : 'text-blue-600';
-
-                            html += `
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-4 py-3">${item.date || ''}</td>
-                                <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type || ''}</span></td>
-                                <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
-                                <td class="px-4 py-3">${item.product_name || ''}</td>
-                                <td class="px-4 py-3 text-right">${quantity.toLocaleString('vi-VN')}</td>
-                                <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
-                                <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
-                            </tr>
-                        `;
-
-                            if (item.type === 'Nhập') {
-                                totalImport += total;
-                                totalImportQty += quantity;
-                            } else {
-                                totalExport += total;
-                                totalExportQty += quantity;
-                            }
-                        });
-
-                        const chenhLech = totalImport - totalExport;
-                        const chenhLechQty = totalImportQty - totalExportQty;
-
-                        html += `
-                        <tr class="bg-gray-100 font-bold">
-                            <td colspan="4" class="px-4 py-3 text-right">TỔNG CỘNG:</td>
-                            <td class="px-4 py-3 text-right text-red-600">${totalImportQty.toLocaleString('vi-VN')} / ${totalExportQty.toLocaleString('vi-VN')}</td>
-                            <td class="px-4 py-3 text-right">-</td>
-                            <td class="px-4 py-3 text-right text-indigo-700">${totalImport.toLocaleString('vi-VN')}đ / ${totalExport.toLocaleString('vi-VN')}đ</td>
-                        </tr>
-                        <tr class="bg-gray-50 font-semibold">
-                            <td colspan="6" class="px-4 py-3 text-right">CHÊNH LỆCH (Nhập - Xuất):</td>
-                            <td class="px-4 py-3 text-right ${chenhLech >= 0 ? 'text-green-600' : 'text-red-600'}">
-                                ${chenhLech.toLocaleString('vi-VN')}đ (SL: ${chenhLechQty.toLocaleString('vi-VN')})
-                            </td>
-                        </tr>
-                    `;
-                        tbody.innerHTML = html;
+                                html += `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-4 py-3">${item.date || ''}</td>
+                    <td class="px-4 py-3"><span class="text-blue-600 font-medium">${item.type}</span></td>
+                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
+                    <td class="px-4 py-3">${item.product_name || ''}</td>
+                    <td class="px-4 py-3 text-right">${qty.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
+                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
+                    <td class="px-4 py-3 text-center">
+                        <button id="detail-btn-${id}" onclick="toggleReportDetail('${id}')" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer transition" title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="detail-row-${id}" style="display:none;">
+                    <td colspan="8" class="p-0">
+                        <div class="bg-gray-50 p-4 border-t border-gray-200">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">Mã SP:</span> <strong>SP${String(item.product_id || 0).padStart(4, '0')}</strong></div>
+                                <div><span class="text-gray-500">Tên SP:</span> <strong>${item.product_name || 'N/A'}</strong></div>
+                                <div><span class="text-gray-500">Số lượng:</span> <strong>${qty.toLocaleString('vi-VN')}</strong></div>
+                                <div><span class="text-gray-500">Đơn giá:</span> <strong>${price.toLocaleString('vi-VN')}đ</strong></div>
+                                <div><span class="text-gray-500">Thành tiền:</span> <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
+                                <div><span class="text-gray-500">Ngày:</span> <strong>${item.date || 'N/A'}</strong></div>
+                                <div><span class="text-gray-500">Loại:</span> <strong class="text-blue-600">${item.type}</strong></div>
+                             
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                            });
+                            html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                <td colspan="4" class="px-4 py-3 text-right">TỔNG XUẤT:</td>
+                <td class="px-4 py-3 text-right text-red-600">${totalQty.toLocaleString('vi-VN')}</td>
+                <td class="px-4 py-3 text-right">-</td>
+                <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
+                <td class="px-4 py-3"></td>
+            </tr>`;
+                            exportBody.innerHTML = html;
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
+                        const errHtml = '<tr><td colspan="8" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
+                        importBody.innerHTML = errHtml;
+                        exportBody.innerHTML = errHtml;
                     });
             }
 
@@ -1350,79 +1466,7 @@ if (isset($_GET['get_report'])) {
                 });
             }
 
-            // ==========================================
-            // CẬP NHẬT HÀM GENERATE REPORT
-            // ==========================================
-            function generateReport() {
-                const from = document.getElementById('reportFromDate')?.value || '';
-                const to = document.getElementById('reportToDate')?.value || '';
-
-                if (!isDateRangeValid(from, to)) return;
-
-                const productId = document.getElementById('reportProductId')?.value || '';
-                const tbody = document.getElementById('reportTableBody');
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-gray-600">Đang tải dữ liệu...</p></td></tr>';
-
-                let url = `?get_report=1`;
-                if (from) url += `&from=${from}`;
-                if (to) url += `&to=${to}`;
-                if (productId) url += `&product=${productId}`;
-
-                fetch(url)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Network response was not ok');
-                        return res.json();
-                    })
-                    .then(data => {
-                        // ... (giữ nguyên phần xử lý data cũ của bạn)
-                        if (!data || data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-4xl mb-2 block"></i>Không có dữ liệu</td></tr>';
-                            return;
-                        }
-                        let html = '';
-                        let totalImport = 0, totalExport = 0, totalImportQty = 0, totalExportQty = 0;
-                        data.forEach(item => {
-                            const quantity = parseFloat(item.quantity) || 0;
-                            const price = parseFloat(item.price) || 0;
-                            const total = parseFloat(item.total) || 0;
-                            const typeClass = item.type === 'Nhập' ? 'text-green-600' : 'text-blue-600';
-                            html += `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="px-4 py-3">${item.date || ''}</td>
-                    <td class="px-4 py-3"><span class="${typeClass} font-medium">${item.type || ''}</span></td>
-                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
-                    <td class="px-4 py-3">${item.product_name || ''}</td>
-                    <td class="px-4 py-3 text-right">${quantity.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
-                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
-                </tr>
-                `;
-                            if (item.type === 'Nhập') { totalImport += total; totalImportQty += quantity; }
-                            else { totalExport += total; totalExportQty += quantity; }
-                        });
-                        const chenhLech = totalImport - totalExport;
-                        const chenhLechQty = totalImportQty - totalExportQty;
-                        html += `
-            <tr class="bg-gray-100 font-bold">
-                <td colspan="4" class="px-4 py-3 text-right">TỔNG CỘNG:</td>
-                <td class="px-4 py-3 text-right text-red-600">${totalImportQty.toLocaleString('vi-VN')} / ${totalExportQty.toLocaleString('vi-VN')}</td>
-                <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right text-indigo-700">${totalImport.toLocaleString('vi-VN')}đ / ${totalExport.toLocaleString('vi-VN')}đ</td>
-            </tr>
-            <tr class="bg-gray-50 font-semibold">
-                <td colspan="6" class="px-4 py-3 text-right">CHÊNH LỆCH (Nhập - Xuất):</td>
-                <td class="px-4 py-3 text-right ${chenhLech >= 0 ? 'text-green-600' : 'text-red-600'}">
-                    ${chenhLech.toLocaleString('vi-VN')}đ (SL: ${chenhLechQty.toLocaleString('vi-VN')})
-                </td>
-            </tr>
-            `;
-                        tbody.innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
-                    });
-            }
+        
             function isDateRangeValid(from, to) {
                 if (!from || !to) return true;
                 return new Date(from) <= new Date(to);

@@ -301,7 +301,7 @@ if (!$result) {
                                     $is_completed = ($trang_thai == 'completed');
                                 ?>
                                 <tr class="hover:bg-blue-50/30 transition">
-                                    <td class="p-4 font-mono text-primary font-medium">#PN<?php echo str_pad($phieu_id, 6, '0', STR_PAD_LEFT); ?>     </td>
+                                    <td class="p-4 font-mono text-primary font-medium">#<?php echo str_pad($phieu_id, 1, '0', STR_PAD_LEFT); ?>     </td>
                                     <td class="p-4 text-gray-700"><?php echo htmlspecialchars($row['NguoiNhap'] ?? 'N/A'); ?>     </td>
                                     <td class="p-4 text-gray-700"><?php echo $ngayNhap; ?>     </td>
                                     <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700"><?php echo intval($row['so_mat_hang']); ?> sản phẩm</span> </td>
