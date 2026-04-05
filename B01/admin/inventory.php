@@ -55,7 +55,7 @@ if (isset($_GET['get_inventory_by_date'])) {
         $stmt->execute();
         $nhap_truoc = $stmt->get_result()->fetch_assoc()['tong'];
 
-        // 📤 Tổng xuất TRƯỚC ngày
+        //  Tổng xuất TRƯỚC ngày
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
             FROM chitiethoadon ctdh
             JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
@@ -73,7 +73,7 @@ if (isset($_GET['get_inventory_by_date'])) {
         $stmt->execute();
         $nhap_trong_ngay = $stmt->get_result()->fetch_assoc()['tong'];
 
-        // 📤 Tổng xuất TRONG ngày
+        //  Tổng xuất TRONG ngày
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
             FROM chitiethoadon ctdh
             JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
