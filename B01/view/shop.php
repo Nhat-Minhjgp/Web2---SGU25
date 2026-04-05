@@ -1148,7 +1148,7 @@ function getFilterDisplayName($type, $slug)
 
 
                                     <div class="address-book">
-                                        <a href="../view/my-account/address-book.php"
+                                        <a href="./my-account/address-book.php"
                                             class="flex items-center text-gray-700 hover:text-red-600">
                                             <i class="fas fa-map-marker-alt mr-1"></i>
                                             <span class="shipping-address text-sm"><span class="text">Chọn địa
@@ -1188,11 +1188,11 @@ function getFilterDisplayName($type, $slug)
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <a href="./view/my-account.php" class="user-menu-item"><i
+                                                <a href="./my-account.php" class="user-menu-item"><i
                                                         class="fas fa-user"></i><span>Tài khoản của tôi</span></a>
-                                                <a href="./view/my-account/orders.php" class="user-menu-item"><i
+                                                <a href="./my-account/orders.php" class="user-menu-item"><i
                                                         class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a>
-                                                <a href="./view/my-account/address-book.php" class="user-menu-item"><i
+                                                <a href="./my-account/address-book.php" class="user-menu-item"><i
                                                         class="fas fa-map-marker-alt"></i><span>Sổ địa chỉ</span></a>
                                                 <div class="user-menu-divider"></div>
                                                 <a href="../control/logout.php" class="user-menu-item logout"><i

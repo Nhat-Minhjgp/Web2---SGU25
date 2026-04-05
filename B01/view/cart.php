@@ -1126,7 +1126,7 @@ $user_info = [
 
 
                                     <div class="address-book">
-                                        <a href="../view/my-account/address-book.php"
+                                        <a href="./my-account/address-book.php"
                                             class="flex items-center text-gray-700 hover:text-red-600">
                                             <i class="fas fa-map-marker-alt mr-1"></i>
                                             <span class="shipping-address text-sm"><span class="text">Chọn địa

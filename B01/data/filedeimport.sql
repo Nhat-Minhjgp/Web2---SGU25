@@ -27,45 +27,44 @@ SET time_zone = "+00:00";
 --
 
 DELIMITER $$
---
--- Functions
---
-CREATE DEFINER=`root`@`localhost` FUNCTION `fn_GiaNhapTB` (`p_SanPham_id` INT) RETURNS DECIMAL(15,2) DETERMINISTIC READS SQL DATA BEGIN
-      DECLARE total_cost DECIMAL(15,2) DEFAULT 0;
-      DECLARE total_qty INT DEFAULT 0;
-      DECLARE avg_price DECIMAL(15,2) DEFAULT 0;
 
-      SELECT SUM(SoLuong * Gia_Nhap), SUM(SoLuong)
-      INTO total_cost, total_qty
-      FROM chitietphieunhap
-      WHERE SanPham_id = p_SanPham_id;
+CREATE FUNCTION `fn_GiaNhapTB` (`p_SanPham_id` INT) RETURNS DECIMAL(15,2) DETERMINISTIC READS SQL DATA 
+BEGIN
+    DECLARE total_cost DECIMAL(15,2) DEFAULT 0;
+    DECLARE total_qty INT DEFAULT 0;
+    DECLARE avg_price DECIMAL(15,2) DEFAULT 0;
 
-      IF total_qty > 0 THEN
-          SET avg_price = total_cost / total_qty;
-      END IF;
+    SELECT SUM(SoLuong * Gia_Nhap), SUM(SoLuong)
+    INTO total_cost, total_qty
+    FROM chitietphieunhap
+    WHERE SanPham_id = p_SanPham_id;
 
-      RETURN avg_price;
-  END$$
+    IF total_qty > 0 THEN
+        SET avg_price = total_cost / total_qty;
+    END IF;
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `fn_round_500` (`price` DECIMAL(15,2)) RETURNS DECIMAL(15,2) DETERMINISTIC BEGIN
-      DECLARE remainder DECIMAL(15,2);
-      DECLARE rounded DECIMAL(15,2);
-      
-      IF price IS NULL THEN
-          RETURN NULL;
-      END IF;
-      
-      -- Lấy phần dư khi chia cho 1000
-      SET remainder = MOD(price, 1000);
-      
-      IF remainder > 500 THEN
-          SET rounded = price + (1000 - remainder);
-      ELSE
-          SET rounded = price - remainder;
-      END IF;
-      
-      RETURN rounded;
-  END$$
+    RETURN avg_price;
+END$$
+
+CREATE FUNCTION `fn_round_500` (`price` DECIMAL(15,2)) RETURNS DECIMAL(15,2) DETERMINISTIC 
+BEGIN
+    DECLARE remainder DECIMAL(15,2);
+    DECLARE rounded DECIMAL(15,2);
+    
+    IF price IS NULL THEN
+        RETURN NULL;
+    END IF;
+    
+    SET remainder = MOD(price, 1000);
+    
+    IF remainder > 500 THEN
+        SET rounded = price + (1000 - remainder);
+    ELSE
+        SET rounded = price - remainder;
+    END IF;
+    
+    RETURN rounded;
+END$$
 
 DELIMITER ;
 
