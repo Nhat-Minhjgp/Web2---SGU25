@@ -778,23 +778,23 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
 
                                                                             <!-- Balo cầu lông - 8 thương hiệu + Xem thêm -->
                                                                             <div>
-                                                                                <a href="./shop.php?danhmuc[]=balo-cau-long"
+                                                                                <a href="./shop.php?danhmuc[]=ba-l"
                                                                                     class="font-semibold text-sm hover:text-red-600">Balo
                                                                                     cầu lông</a>
                                                                                 <ul class="mt-2 space-y-1">
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=yonex"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=yonex"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Yonex</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=li-ning"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=li-ning"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Li-Ning</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=adidas"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=adidas"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Adidas</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-cau-long&thuonghieu[]=victor"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=victor"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Victor</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-cau-long"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l"
                                                                                             class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
                                                                                             thêm <i
                                                                                                 class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
@@ -947,23 +947,23 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
 
                                                                             <!-- Balo/Túi Pickleball - 4 thương hiệu + Xem thêm -->
                                                                             <div>
-                                                                                <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                                                                                <a href="./shop.php?danhmuc[]=ba-l"
                                                                                     class="font-semibold text-sm hover:text-red-600">Balo
                                                                                     - Túi Pickleball</a>
                                                                                 <ul class="mt-2 space-y-1">
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=joola"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=joola"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Joola</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=selkirk"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=selkirk"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Selkirk</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=kamito"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=kamito"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Kamito</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-tui-pickleball&thuonghieu[]=wika"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l&thuonghieu[]=wika"
                                                                                             class="text-xs text-gray-600 hover:text-red-600">Balo
                                                                                             Wika</a></li>
-                                                                                    <li><a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                                                                                    <li><a href="./shop.php?danhmuc[]=ba-l"
                                                                                             class="text-xs text-red-600 hover:text-red-700 font-medium">Xem
                                                                                             thêm <i
                                                                                                 class="fas fa-chevron-right ml-1 text-[10px]"></i></a>
@@ -1412,7 +1412,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
 
                             <!-- Balo -->
                             <div>
-                                <a href="./shop.php?danhmuc[]=balo-cau-long"
+                                <a href="./shop.php?danhmuc[]=ba-l"
                                     class="block py-2 text-gray-700 font-medium">Balo</a>
                             </div>
 
@@ -1478,7 +1478,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                 </div>
                             </div>
                             <div>
-                                <a href="./shop.php?danhmuc[]=balo-tui-pickleball"
+                                <a href="./shop.php?danhmuc[]=ba-l"
                                     class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
                             </div>
                         </div>
