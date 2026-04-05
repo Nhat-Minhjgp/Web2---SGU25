@@ -547,7 +547,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-yonex.webp"
                                                                                         alt="Yonex"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">YONEX</span>
@@ -561,7 +561,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-adidas.webp"
                                                                                         alt="Adidas"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">ADIDAS</span>
@@ -575,7 +575,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/Logo-li-ning.png"
                                                                                         alt="Li-Ning"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">LI-NING</span>
@@ -589,7 +589,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-victor.png"
                                                                                         alt="Victor"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">VICTOR</span>
@@ -603,7 +603,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-kamito.png"
                                                                                         alt="KAMITO"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">KAMITO</span>
@@ -617,7 +617,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-mizuno.png"
                                                                                         alt="Mizuno"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">MIZUNO</span>
@@ -631,7 +631,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-kumpoo.png"
                                                                                         alt="Kumpoo"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">KUMPOO</span>
@@ -645,7 +645,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-venson.png"
                                                                                         alt="Venson"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">VENSON</span>
@@ -772,7 +772,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-joola.png"
                                                                                         alt="JOOLA"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">JOOLA</span>
@@ -786,7 +786,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-selkirk.webp"
                                                                                         alt="SELKIRK"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">SELKIRK</span>
@@ -800,7 +800,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-kamito.png"
                                                                                         alt="KAMITO"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">KAMITO</span>
@@ -814,7 +814,7 @@ $discount = calculateDiscount($product['GiaNhapTB'], $product['GiaBan']);
                                                                                     <img src="../img/icons/logo-wika.png"
                                                                                         alt="WIKA"
                                                                                         class="w-full h-full object-contain"
-                                                                                        onerror="this.src='./img/icons/placeholder-brand.svg'">
+                                                                                        onerror="this.src='../img/icons/placeholder-brand.svg'">
                                                                                 </div>
                                                                                 <span
                                                                                     class="text-sm font-medium">WIKA</span>
