@@ -126,10 +126,12 @@ if (isset($_GET['get_detail']) && isset($_GET['id'])) {
     }
 
     try {
-        $sql_detail = "SELECT c.*, s.TenSP, s.image_url, s.Gia 
+        // FIXED: Use s.GiaBan AS Gia to match JavaScript expectations
+        $sql_detail = "SELECT c.*, s.TenSP, s.image_url, s.GiaBan AS Gia 
                        FROM chitiethoadon c
                        LEFT JOIN sanpham s ON c.SanPham_id = s.SanPham_id
                        WHERE c.DonHang_id = ?";
+        
         $stmt = $conn->prepare($sql_detail);
         $stmt->bind_param("i", $order_id);
         $stmt->execute();
@@ -376,7 +378,7 @@ try {
                         <option value="0">Chờ xử lý</option>
                         <option value="1">Đã xác nhận</option>
                         <option value="2">Đã giao</option>
-                        <option value="3">Đã hủy</option>
+                        <option value="3">Đã hủy</option>   
                     </select>
                     <select id="sortWard" class="px-4 py-2 border border-gray-300 rounded-lg w-full sm:w-auto">
                         <option value="">Sắp xếp theo phường</option>
@@ -443,7 +445,7 @@ try {
                                                     <input type="hidden" name="status" value="1">
                                                     <input type="hidden" name="csrf_token"
                                                         value="<?php echo $_SESSION['csrf_token']; ?>">
-                                                    <button type="submit" class="action-btn btn-confirm"><i
+                                                    <button type="submit" class="action-btn btn-confirm" onclick="this.disabled=true; this.form.submit();"><i
                                                             class="fas fa-check"></i> Xác nhận</button>
                                                 </form>
                                                 <form method="POST" style="display:inline;"
@@ -453,7 +455,7 @@ try {
                                                     <input type="hidden" name="status" value="3">
                                                     <input type="hidden" name="csrf_token"
                                                         value="<?php echo $_SESSION['csrf_token']; ?>">
-                                                    <button type="submit" class="action-btn btn-cancel"><i
+                                                    <button type="submit" class="action-btn btn-cancel" onclick="this.disabled=true; this.form.submit();"><i
                                                             class="fas fa-times"></i> Hủy</button>
                                                 </form>
                                             <?php elseif ($status == 1): ?>
@@ -465,7 +467,7 @@ try {
                                                     <input type="hidden" name="csrf_token"
                                                         value="<?php echo $_SESSION['csrf_token']; ?>">
                                                     <button type="submit" class="action-btn btn-deliver"><i
-                                                            class="fas fa-check-double"></i> Đã giao</button>
+                                                            class="fas fa-check-double"onclick="this.disabled=true; this.form.submit();"></i> Đã giao</button>
                                                 </form>
                                                 <form method="POST" style="display:inline;"
                                                     onsubmit="return confirm('Hủy đơn hàng?')">

@@ -225,13 +225,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			$stmt_detail->close();
 
 			// 4. Cập nhật tồn kho
-			$stmt_stock = $conn->prepare("UPDATE sanpham SET SoLuongTon = SoLuongTon - ? WHERE SanPham_id = ? AND SoLuongTon >= ?");
-			foreach ($cart_items as $item) {
-				$qty = (int) ($item['quantity'] ?? 1);
-				$stmt_stock->bind_param("iii", $qty, $item['SanPham_id'], $qty);
-				$stmt_stock->execute();
-			}
-			$stmt_stock->close();
+			// $stmt_stock = $conn->prepare("UPDATE sanpham SET SoLuongTon = SoLuongTon - ? WHERE SanPham_id = ? AND SoLuongTon >= ?");
+			// foreach ($cart_items as $item) {
+			// 	$qty = (int) ($item['quantity'] ?? 1);
+			// 	$stmt_stock->bind_param("iii", $qty, $item['SanPham_id'], $qty);
+			// 	$stmt_stock->execute();
+			// }
+			// $stmt_stock->close();
 
 			$conn->commit();
 
