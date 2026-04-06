@@ -10,9 +10,9 @@ ini_set('display_errors', 1);
 
 // === KIỂM TRA ĐĂNG NHẬP ===
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
-    header("Location: ./login.php?redirect=my-account");
-    exit();
+	$_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
+	header("Location: ./login.php?redirect=my-account");
+	exit();
 }
 
 $cart_count = 0;
@@ -1430,8 +1430,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 								<input type="hidden" name="selected_address_id" id="selected_address_id"
 									value="<?php echo $default_address['add_id'] ?? ''; ?>">
 
-								
-								
+
+
 
 							</div>
 
@@ -1820,8 +1820,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 						<!-- Balo -->
 						<div>
-							<a href="./shop.php?danhmuc[]=ba-l"
-								class="block py-2 text-gray-700 font-medium">Balo</a>
+							<a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo</a>
 						</div>
 
 						<!-- Phụ kiện -->
@@ -1885,8 +1884,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 							</div>
 						</div>
 						<div>
-							<a href="./shop.php?danhmuc[]=ba-l"
-								class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+							<a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo - Túi
+								Pickleball</a>
 						</div>
 					</div>
 				</div>
@@ -2140,24 +2139,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 					if (e.key === 'Escape') closePopup();
 				});
 
-				
 
-			// === Copy Account Number (outside DOMContentLoaded vì gọi từ onclick HTML) ===
-			function copyAccountNumber() {
-				const accountNumber = document.getElementById('accountNumber');
-				if (!accountNumber) return;
-				navigator.clipboard.writeText(accountNumber.textContent).then(() => {
-					const btn = document.querySelector('.copy-btn');
-					if (!btn) return;
-					const orig = btn.innerHTML;
-					btn.classList.add('copied');
-					btn.innerHTML = '<i class="fas fa-check"></i><span>Đã sao chép</span>';
-					setTimeout(() => {
-						btn.classList.remove('copied');
-						btn.innerHTML = orig;
-					}, 2000);
-				});
-			}
+
+				// === Copy Account Number (outside DOMContentLoaded vì gọi từ onclick HTML) ===
+				function copyAccountNumber() {
+					const accountNumber = document.getElementById('accountNumber');
+					if (!accountNumber) return;
+					navigator.clipboard.writeText(accountNumber.textContent).then(() => {
+						const btn = document.querySelector('.copy-btn');
+						if (!btn) return;
+						const orig = btn.innerHTML;
+						btn.classList.add('copied');
+						btn.innerHTML = '<i class="fas fa-check"></i><span>Đã sao chép</span>';
+						setTimeout(() => {
+							btn.classList.remove('copied');
+							btn.innerHTML = orig;
+						}, 2000);
+					});
+				}
+			});
 		</script>
 
 
