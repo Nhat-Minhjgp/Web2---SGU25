@@ -281,9 +281,82 @@ if (isset($_GET['get_report'])) {
         return strtotime($a['date']) - strtotime($b['date']);
     });
 
+    // ============================================
+// TÍNH TỒN KHO THEO KHOẢNG NGÀY
+// ============================================
+    $inventory_summary = [
+        'ton_dau' => 0,
+        'ton_cuoi' => 0,
+        'tong_nhap' => 0,
+        'tong_xuat' => 0,
+        'gia_tri_dau' => 0,
+        'gia_tri_cuoi' => 0
+    ];
+
+    //  Tồn đầu = Nhập trước from_date - Xuất trước from_date
+    if (!empty($product_id)) {
+        // Lấy giá vốn trung bình của sản phẩm
+        $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
+        $stmt->close();
+
+        // Tính tồn đầu chỉ khi có from_date hợp lệ
+        if (!empty($from_date)) {
+            $sql_ton_dau = "SELECT 
+            COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
+                JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
+                WHERE ct.SanPham_id = ? AND pn.NgayNhap < ?), 0) as nhap_truoc,
+            COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
+                JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
+                WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND d.NgayDat < ?), 0) as xuat_truoc";
+
+            $stmt = $conn->prepare($sql_ton_dau);
+            $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+            $stmt->execute();
+            $ton_dau_data = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            $ton_dau = $ton_dau_data['nhap_truoc'] - $ton_dau_data['xuat_truoc'];
+        } else {
+            // Nếu không có from_date, tồn đầu = 0 (tính từ đầu lịch sử)
+            $ton_dau = 0;
+        }
+
+        // 📥📤 Tổng nhập/xuất TRONG khoảng ngày
+        $tong_nhap = array_sum(array_column($imports, 'quantity'));
+        $tong_xuat = array_sum(array_column($exports, 'quantity'));
+
+        // 📦 Tồn cuối
+        $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
+
+        $inventory_summary = [
+            'ton_dau' => $ton_dau,
+            'ton_cuoi' => $ton_cuoi,
+            'tong_nhap' => $tong_nhap,
+            'tong_xuat' => $tong_xuat,
+            'gia_tri_dau' => $ton_dau * $gia_von,
+            'gia_tri_cuoi' => $ton_cuoi * $gia_von,
+            'gia_von' => $gia_von,
+            'has_product' => true  //  Flag mới để JS dễ kiểm tra
+        ];
+    } else {
+        // Khi không chọn sản phẩm, trả về flag để JS hiển thị message hướng dẫn
+        $inventory_summary = ['has_product' => false];
+    }
+
+    // Trả về cả báo cáo và summary
     header('Content-Type: application/json');
-    echo json_encode($reports);
+    echo json_encode([
+        'reports' => $reports,
+        'inventory' => $inventory_summary,
+        'period' => ['from' => $from_date, 'to' => $to_date]
+    ]);
+
+
+
     exit();
+
 }
 ?>
 <!DOCTYPE html>
@@ -609,11 +682,11 @@ if (isset($_GET['get_report'])) {
                             </div>
 
                             <!-- Info box -->
-                           
-                                <span class="font-medium hidden text-blue-800"> Ngày:</span>
-                                <span id="selectedDateDisplay" class="text-blue-700 hidden font-semibold"></span>
 
-                           
+                            <span class="font-medium hidden text-blue-800"> Ngày:</span>
+                            <span id="selectedDateDisplay" class="text-blue-700 hidden font-semibold"></span>
+
+
                         </div>
 
                         <!-- 📊 Data Table -->
@@ -698,7 +771,7 @@ if (isset($_GET['get_report'])) {
                                     </div>
                                     <input type="hidden" id="reportProductId">
                                     <div id="reportProductSuggestions"
-                                        class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                                        class="absolute top-full left-0 z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
                                     </div>
                                 </div>
 
@@ -709,6 +782,40 @@ if (isset($_GET['get_report'])) {
                                         <i class="fas fa-chart-bar mr-1"></i>Xem báo cáo
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div id="inventorySummary" class="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4 ">
+                            <div class="flex flex-wrap justify-center gap-4 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar-range text-blue-600"></i>
+                                    <span class="text-blue-800 font-medium">Kỳ báo cáo:</span>
+                                    <span id="summaryPeriod" class="font-semibold text-blue-700">-</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-box-open text-indigo-600"></i>
+                                    <span class="text-gray-600">Tồn đầu:</span>
+                                    <span id="summaryTonDau" class="font-bold text-indigo-700">-</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-arrow-down text-green-600"></i>
+                                    <span class="text-gray-600">Tổng nhập:</span>
+                                    <span id="summaryNhap" class="font-bold text-green-700">-</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-arrow-up text-red-600"></i>
+                                    <span class="text-gray-600">Tổng xuất:</span>
+                                    <span id="summaryXuat" class="font-bold text-red-700">-</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-boxes text-purple-600"></i>
+                                    <span class="text-gray-600">Tồn cuối:</span>
+                                    <span id="summaryTonCuoi" class="font-bold text-purple-700">-</span>
+                                </div>
+
+                                <span class="text-gray-500 hidden">Giá vốn:</span>
+                                <span id="summaryGiaVon" class="font-mono text-gray-700 hidden">-</span>
+
                             </div>
                         </div>
 
@@ -1114,8 +1221,68 @@ if (isset($_GET['get_report'])) {
                         return res.json();
                     })
                     .then(data => {
-                        const imports = data.filter(d => d.type === 'Nhập');
-                        const exports = data.filter(d => d.type !== 'Nhập');
+                        const reports = Array.isArray(data) ? data : (data.reports || []);
+                        const inventory = data.inventory || {};
+                        const period = data.period || {};
+
+                        //  Hiển thị summary tồn kho nếu có chọn sản phẩm
+
+
+                        const summaryBox = document.getElementById('inventorySummary');
+                        const summaryInner = summaryBox.querySelector('.flex.flex-wrap');
+                        const hasProduct = inventory.has_product === true && productId;
+
+                        // 🔹 Bước 1: Luôn xóa hint-msg cũ trước (nếu có)
+                        const oldHint = summaryBox.querySelector('.hint-msg');
+                        if (oldHint) oldHint.remove();
+
+                        if (hasProduct) {
+                            // ✅ Có chọn sản phẩm → Hiển thị số liệu
+                            summaryBox.classList.remove('hidden');
+
+                            const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : 'Từ đầu';
+                            document.getElementById('summaryPeriod').textContent =
+                                `${formatDate(period.from)} → ${formatDate(period.to)}`;
+
+                            const fmt = (n) => (n || 0).toLocaleString('vi-VN');
+                            const fmtMoney = (n) => (n || 0).toLocaleString('vi-VN') + 'đ';
+
+                            document.getElementById('summaryTonDau').textContent = fmt(inventory.ton_dau);
+                            document.getElementById('summaryNhap').textContent = '+' + fmt(inventory.tong_nhap);
+                            document.getElementById('summaryXuat').textContent = '-' + fmt(inventory.tong_xuat);
+                            document.getElementById('summaryTonCuoi').textContent = fmt(inventory.ton_cuoi);
+                            document.getElementById('summaryGiaVon').textContent = fmtMoney(inventory.gia_von);
+
+                            // Màu cảnh báo
+                            const tonCuoiEl = document.getElementById('summaryTonCuoi');
+                            if (inventory.ton_cuoi <= 0) {
+                                tonCuoiEl.className = 'font-bold text-red-600';
+                            } else if (inventory.ton_cuoi <= 10) {
+                                tonCuoiEl.className = 'font-bold text-yellow-600';
+                            } else {
+                                tonCuoiEl.className = 'font-bold text-purple-700';
+                            }
+
+                        } else {
+                            // ❌ Chưa chọn sản phẩm → Hiển thị message hướng dẫn
+                            summaryBox.classList.remove('hidden');
+
+                            document.getElementById('summaryPeriod').textContent =
+                                period.from ? `${new Date(period.from).toLocaleDateString('vi-VN')} → ${new Date(period.to).toLocaleDateString('vi-VN')}` : 'Tất cả thời gian';
+                            document.getElementById('summaryTonDau').textContent = '-';
+                            document.getElementById('summaryNhap').textContent = '-';
+                            document.getElementById('summaryXuat').textContent = '-';
+                            document.getElementById('summaryTonCuoi').textContent = '-';
+                            document.getElementById('summaryGiaVon').textContent = '-';
+
+                            // Thêm hint message (sau khi đã xóa cái cũ ở trên)
+                            const hint = document.createElement('div');
+                            hint.className = 'hint-msg w-full text-center text-sm text-blue-600 mt-2 pt-2';
+                            hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i>Chọn sản phẩm để xem chi tiết tồn kho';
+                            summaryInner.appendChild(hint);
+                        }
+                        const imports = reports.filter(d => d.type === 'Nhập');
+                        const exports = reports.filter(d => d.type !== 'Nhập');
 
                         // --- RENDER BẢNG NHẬP ---
                         if (imports.length === 0) {
@@ -1466,7 +1633,7 @@ if (isset($_GET['get_report'])) {
                 });
             }
 
-        
+
             function isDateRangeValid(from, to) {
                 if (!from || !to) return true;
                 return new Date(from) <= new Date(to);
