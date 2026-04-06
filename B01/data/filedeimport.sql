@@ -278,30 +278,44 @@ END
 $$
 DELIMITER ;
 DELIMITER $$
-CREATE TRIGGER `trg_donhang_confirmed` AFTER UPDATE ON `donhang` FOR EACH ROW BEGIN
+-- Tạo lại trigger đã tối ưu
+CREATE TRIGGER `trg_donhang_confirmed` AFTER UPDATE ON `donhang` FOR EACH ROW 
+BEGIN
     DECLARE v_phieu_xuat_id INT;
     
+    -- Chỉ chạy khi chuyển từ Chờ xử lý (0) -> Đã xác nhận (1)
     IF OLD.TrangThai = 0 AND NEW.TrangThai = 1 THEN
         
+        -- 1. Tạo phiếu xuất
         INSERT INTO phieuxuat (DonHang_id, NgayXuat, NguoiXuat_id)
         VALUES (NEW.DonHang_id, NOW(), 1);
-        
         SET v_phieu_xuat_id = LAST_INSERT_ID();
         
+        -- 2. Tạo chi tiết phiếu xuất (GOM NHÓM sản phẩm nếu trùng dòng)
         INSERT INTO chitietphieuxuat (PhieuXuat_id, SP_id, SoLuong, GiaNhap)
-        SELECT v_phieu_xuat_id, ct.SanPham_id, ct.SoLuong, sp.GiaNhapTB
+        SELECT 
+            v_phieu_xuat_id, 
+            ct.SanPham_id, 
+            SUM(ct.SoLuong), 
+            sp.GiaNhapTB
         FROM chitiethoadon ct
         JOIN sanpham sp ON ct.SanPham_id = sp.SanPham_id
-        WHERE ct.DonHang_id = NEW.DonHang_id;
+        WHERE ct.DonHang_id = NEW.DonHang_id
+        GROUP BY ct.SanPham_id;
         
+        -- 3. Trừ tồn kho CHÍNH XÁC theo tổng SL đã đặt
         UPDATE sanpham sp
-        JOIN chitiethoadon ct ON sp.SanPham_id = ct.SanPham_id
-        SET sp.SoLuongTon = sp.SoLuongTon - ct.SoLuong
-        WHERE ct.DonHang_id = NEW.DonHang_id;
+        INNER JOIN (
+            SELECT SanPham_id, SUM(SoLuong) as tong_sl
+            FROM chitiethoadon
+            WHERE DonHang_id = NEW.DonHang_id
+            GROUP BY SanPham_id
+        ) ct ON sp.SanPham_id = ct.SanPham_id
+        SET sp.SoLuongTon = sp.SoLuongTon - ct.tong_sl;
         
     END IF;
-END
-$$
+END$$
+
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_donhang_delivered` AFTER UPDATE ON `donhang` FOR EACH ROW BEGIN

@@ -48,39 +48,43 @@ if (isset($_GET['get_inventory_by_date'])) {
 
         // 📥 Tổng nhập TRƯỚC ngày (tồn đầu)
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ct.SoLuong),0) as tong 
-            FROM chitietphieunhap ct
-            JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
-            WHERE ct.SanPham_id = ? AND pn.NgayNhap < ?");
+        FROM chitietphieunhap ct
+        JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
+        WHERE ct.SanPham_id = ? AND pn.NgayNhap < DATE(?)");
         $stmt->bind_param("is", $pid, $date);
         $stmt->execute();
         $nhap_truoc = $stmt->get_result()->fetch_assoc()['tong'];
+        $stmt->close();  // ← Quan trọng: đóng statement trước khi dùng lại
 
-        //  Tổng xuất TRƯỚC ngày
+        // 📤 Tổng xuất TRƯỚC ngày
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
-            FROM chitiethoadon ctdh
-            JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
-            WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND d.NgayDat < ?");
+        FROM chitiethoadon ctdh
+        JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
+        WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND d.NgayDat < DATE(?)");
         $stmt->bind_param("is", $pid, $date);
         $stmt->execute();
         $xuat_truoc = $stmt->get_result()->fetch_assoc()['tong'];
+        $stmt->close();
 
         // 📥 Tổng nhập TRONG ngày
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ct.SoLuong),0) as tong 
-            FROM chitietphieunhap ct
-            JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
-            WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) = ?");
+        FROM chitietphieunhap ct
+        JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id
+        WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) = ?");
         $stmt->bind_param("is", $pid, $date);
         $stmt->execute();
         $nhap_trong_ngay = $stmt->get_result()->fetch_assoc()['tong'];
+        $stmt->close();
 
-        //  Tổng xuất TRONG ngày
+        // 📤 Tổng xuất TRONG ngày
         $stmt = $conn->prepare("SELECT COALESCE(SUM(ctdh.SoLuong),0) as tong 
-            FROM chitiethoadon ctdh
-            JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
-            WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) = ?");
+        FROM chitiethoadon ctdh
+        JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id
+        WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) = ?");
         $stmt->bind_param("is", $pid, $date);
         $stmt->execute();
         $xuat_trong_ngay = $stmt->get_result()->fetch_assoc()['tong'];
+        $stmt->close();
 
         // Tính toán
         $ton_dau = $nhap_truoc - $xuat_truoc;
@@ -145,7 +149,6 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
 // Lấy danh sách danh mục để lọc
 $categories = getCategories($conn);
-
 // ============================================
 // XỬ LÝ BÁO CÁO NHẬP - XUẤT QUA AJAX (NGÀY OPTIONAL)
 // ============================================
@@ -154,9 +157,9 @@ if (isset($_GET['get_report'])) {
     $to_date = $_GET['to'] ?? '';
     $product_id = $_GET['product'] ?? '';
 
-    $reports = [];
-
-    // XÂY DỰNG CÂU SQL NHẬP HÀNG VỚI NGÀY OPTIONAL
+    // ============================================
+    // 1. XỬ LÝ NHẬP HÀNG
+    // ============================================
     $sql_import = "SELECT pn.NgayNhap as date, 'Nhập' as type, 
                    sp.SanPham_id as product_id, sp.TenSP as product_name,
                    COALESCE(ct.SoLuong, 0) as quantity, 
@@ -170,50 +173,42 @@ if (isset($_GET['get_report'])) {
     $params_import = [];
     $types_import = "";
 
-    // Thêm điều kiện ngày nếu có
+    // Thêm điều kiện ngày cho nhập
     if (!empty($from_date) && !empty($to_date)) {
-        $sql_import .= " AND pn.NgayNhap BETWEEN ? AND ?";
+        $sql_import .= " AND DATE(pn.NgayNhap) BETWEEN DATE(?) AND DATE(?)";
         $params_import[] = $from_date;
         $params_import[] = $to_date;
         $types_import .= "ss";
     } elseif (!empty($from_date)) {
-        $sql_import .= " AND pn.NgayNhap >= ?";
+        $sql_import .= " AND DATE(pn.NgayNhap) >= DATE(?)";
         $params_import[] = $from_date;
         $types_import .= "s";
     } elseif (!empty($to_date)) {
-        $sql_import .= " AND pn.NgayNhap <= ?";
+        $sql_import .= " AND DATE(pn.NgayNhap) <= DATE(?)";
         $params_import[] = $to_date;
         $types_import .= "s";
     }
 
-    // Thêm điều kiện sản phẩm nếu có
     if (!empty($product_id)) {
         $sql_import .= " AND sp.SanPham_id = ?";
         $params_import[] = $product_id;
         $types_import .= "i";
     }
 
-    // Thực thi câu lệnh nhập hàng
     $imports = [];
-    if (!empty($params_import)) {
-        $stmt = $conn->prepare($sql_import);
-        if ($stmt) {
+    $stmt = $conn->prepare($sql_import);
+    if ($stmt) {
+        if (!empty($params_import)) {
             $stmt->bind_param($types_import, ...$params_import);
-            $stmt->execute();
-            $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
         }
-    } else {
-        // Nếu không có tham số nào, lấy tất cả
-        $stmt = $conn->prepare($sql_import);
-        if ($stmt) {
-            $stmt->execute();
-            $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-        }
+        $stmt->execute();
+        $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
     }
 
-    // XÂY DỰNG CÂU SQL XUẤT HÀNG VỚI NGÀY OPTIONAL
+    // ============================================
+    // 2. XỬ LÝ XUẤT HÀNG
+    // ============================================
     $sql_export = "SELECT d.NgayDat as date, 
                    CASE 
                        WHEN d.TrangThai = 1 THEN 'Đã xác nhận'
@@ -232,102 +227,92 @@ if (isset($_GET['get_report'])) {
     $params_export = [];
     $types_export = "";
 
-    // Thêm điều kiện ngày nếu có
     if (!empty($from_date) && !empty($to_date)) {
-        $sql_export .= " AND d.NgayDat BETWEEN ? AND ?";
+        $sql_export .= " AND DATE(d.NgayDat) BETWEEN DATE(?) AND DATE(?)";
         $params_export[] = $from_date;
         $params_export[] = $to_date;
         $types_export .= "ss";
     } elseif (!empty($from_date)) {
-        $sql_export .= " AND d.NgayDat >= ?";
+        $sql_export .= " AND DATE(d.NgayDat) >= DATE(?)";
         $params_export[] = $from_date;
         $types_export .= "s";
     } elseif (!empty($to_date)) {
-        $sql_export .= " AND d.NgayDat <= ?";
+        $sql_export .= " AND DATE(d.NgayDat) <= DATE(?)";
         $params_export[] = $to_date;
         $types_export .= "s";
     }
 
-    // Thêm điều kiện sản phẩm nếu có
     if (!empty($product_id)) {
         $sql_export .= " AND sp.SanPham_id = ?";
         $params_export[] = $product_id;
         $types_export .= "i";
     }
 
-    // Thực thi câu lệnh xuất hàng
     $exports = [];
-    if (!empty($params_export)) {
-        $stmt = $conn->prepare($sql_export);
-        if ($stmt) {
+    $stmt = $conn->prepare($sql_export);
+    if ($stmt) {
+        if (!empty($params_export)) {
             $stmt->bind_param($types_export, ...$params_export);
-            $stmt->execute();
-            $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
         }
-    } else {
-        // Nếu không có tham số nào, lấy tất cả
-        $stmt = $conn->prepare($sql_export);
-        if ($stmt) {
-            $stmt->execute();
-            $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-        }
+        $stmt->execute();
+        $exports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
     }
 
-    // Gộp và sắp xếp dữ liệu
+    // ============================================
+    // 3. GỘP VÀ SẮP XẾP DỮ LIỆU
+    // ============================================
     $reports = array_merge($imports, $exports);
     usort($reports, function ($a, $b) {
         return strtotime($a['date']) - strtotime($b['date']);
     });
 
     // ============================================
-// TÍNH TỒN KHO THEO KHOẢNG NGÀY
-// ============================================
-    $inventory_summary = [
-        'ton_dau' => 0,
-        'ton_cuoi' => 0,
-        'tong_nhap' => 0,
-        'tong_xuat' => 0,
-        'gia_tri_dau' => 0,
-        'gia_tri_cuoi' => 0
-    ];
+    // 4. ✅ TÍNH TỒN KHO THEO KHOẢNG NGÀY (ĐÃ FIX)
+    // ============================================
+    $inventory_summary = ['has_product' => false];
 
-    //  Tồn đầu = Nhập trước from_date - Xuất trước from_date
     if (!empty($product_id)) {
-        // Lấy giá vốn trung bình của sản phẩm
+        // Lấy giá vốn
         $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
         $stmt->bind_param("i", $product_id);
         $stmt->execute();
         $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
         $stmt->close();
 
-        // Tính tồn đầu chỉ khi có from_date hợp lệ
+        // 🎯 XÁC ĐỊNH NGÀY BẮT ĐẦU ĐỂ TÍNH TỒN ĐẦU
+        // Nếu có from_date: tồn đầu = trước from_date
+        // Nếu không có from_date nhưng có to_date: tồn đầu = trước to_date (kỳ là 1 ngày)
+        // Nếu không có cả hai: tồn đầu = 0 (tính từ đầu hệ thống)
+        $reference_date_for_ton_dau = null;
         if (!empty($from_date)) {
+            $reference_date_for_ton_dau = $from_date;
+        } elseif (!empty($to_date)) {
+            // Khi chỉ có to_date, coi như xem báo cáo cho ngày đó → tồn đầu là trước ngày đó
+            $reference_date_for_ton_dau = $to_date;
+        }
+
+        $ton_dau = 0;
+        if (!empty($reference_date_for_ton_dau)) {
             $sql_ton_dau = "SELECT 
-            COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
-                JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
-                WHERE ct.SanPham_id = ? AND pn.NgayNhap < ?), 0) as nhap_truoc,
-            COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
-                JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
-                WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND d.NgayDat < ?), 0) as xuat_truoc";
+                COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
+                    JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
+                    WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
+                COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
+                    JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
+                    WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
 
             $stmt = $conn->prepare($sql_ton_dau);
-            $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+            $stmt->bind_param("isii", $product_id, $reference_date_for_ton_dau, $product_id, $reference_date_for_ton_dau);
             $stmt->execute();
             $ton_dau_data = $stmt->get_result()->fetch_assoc();
             $stmt->close();
-            $ton_dau = $ton_dau_data['nhap_truoc'] - $ton_dau_data['xuat_truoc'];
-        } else {
-            // Nếu không có from_date, tồn đầu = 0 (tính từ đầu lịch sử)
-            $ton_dau = 0;
+            $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
         }
+        // Nếu không có reference_date → ton_dau = 0 (bắt đầu từ 0)
 
-        // 📥📤 Tổng nhập/xuất TRONG khoảng ngày
         $tong_nhap = array_sum(array_column($imports, 'quantity'));
         $tong_xuat = array_sum(array_column($exports, 'quantity'));
-
-        // 📦 Tồn cuối
         $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
 
         $inventory_summary = [
@@ -338,25 +323,18 @@ if (isset($_GET['get_report'])) {
             'gia_tri_dau' => $ton_dau * $gia_von,
             'gia_tri_cuoi' => $ton_cuoi * $gia_von,
             'gia_von' => $gia_von,
-            'has_product' => true  //  Flag mới để JS dễ kiểm tra
+            'has_product' => true
         ];
-    } else {
-        // Khi không chọn sản phẩm, trả về flag để JS hiển thị message hướng dẫn
-        $inventory_summary = ['has_product' => false];
     }
 
-    // Trả về cả báo cáo và summary
+    // Trả về JSON
     header('Content-Type: application/json');
     echo json_encode([
         'reports' => $reports,
         'inventory' => $inventory_summary,
         'period' => ['from' => $from_date, 'to' => $to_date]
     ]);
-
-
-
     exit();
-
 }
 ?>
 <!DOCTYPE html>
@@ -701,14 +679,14 @@ if (isset($_GET['get_report'])) {
                                         <th class="px-4 py-3 text-right">Nhập</th>
                                         <th class="px-4 py-3 text-right">Xuất</th>
                                         <th class="px-4 py-3 text-right">Tồn cuối</th>
-                                        <th class="px-4 py-3 text-right">Giá vốn</th>
+
                                         <th class="px-4 py-3 text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
 
                                 <tbody id="inventoryTableBody">
                                     <tr>
-                                        <td colspan="11" class="text-center py-12 text-gray-400">
+                                        <td colspan="8" class="text-center py-12 text-gray-400">
                                             <i class="fas fa-calendar-check text-4xl mb-3 block opacity-50"></i>
                                             <p class="font-medium">Chọn ngày và nhấn "Tra cứu" để xem tồn kho</p>
                                             <p class="text-xs mt-1 opacity-70">Dữ liệu sẽ được tính toán dựa trên lịch
@@ -785,7 +763,7 @@ if (isset($_GET['get_report'])) {
                             </div>
                         </div>
 
-                        <div id="inventorySummary" class="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4 ">
+                        <div id="inventorySummary" class="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4 hidden">
                             <div class="flex flex-wrap justify-center gap-4 text-sm">
                                 <div class="flex items-center gap-2">
                                     <i class="fas fa-calendar-range text-blue-600"></i>
@@ -1199,8 +1177,23 @@ if (isset($_GET['get_report'])) {
             function generateReport() {
                 const from = document.getElementById('reportFromDate')?.value || '';
                 const to = document.getElementById('reportToDate')?.value || '';
-                if (!isDateRangeValid(from, to)) return;
                 const productId = document.getElementById('reportProductId')?.value || '';
+
+                // ✅ VALIDATION 1: Yêu cầu chọn ít nhất 1 ngày
+                if (!from && !to) {
+                    alert('⚠️ Vui lòng chọn ngày trong ô "Từ ngày" hoặc "Đến ngày" để xem báo cáo!');
+                    return;
+                }
+
+                // ✅ VALIDATION 2: Yêu cầu CHỌN SẢN PHẨM (bắt buộc)
+                if (!productId) {
+                    alert('⚠️ Vui lòng chọn sản phẩm từ ô tìm kiếm để xem báo cáo!');
+                    document.getElementById('reportProductSearch')?.focus();
+                    return;
+                }
+
+                // ✅ VALIDATION 3: Kiểm tra khoảng ngày hợp lệ
+                if (!isDateRangeValid(from, to)) return;
 
                 const importBody = document.getElementById('importTableBody');
                 const exportBody = document.getElementById('exportTableBody');
@@ -1722,7 +1715,7 @@ if (isset($_GET['get_report'])) {
                     .then(res => res.json())
                     .then(data => {
                         if (!data || data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-gray-500">📭 Không có dữ liệu</td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-12 text-gray-400"><i class="fas fa-calendar-check text-4xl mb-3 block opacity-50"></i><p class="font-medium">Chọn ngày và nhấn "Tra cứu" để xem tồn kho</p><p class="text-xs mt-1 opacity-70">Dữ liệu sẽ được tính toán dựa trên lịch sử nhập/xuất</p></td></tr>';
                             return;
                         }
 
@@ -1746,35 +1739,30 @@ if (isset($_GET['get_report'])) {
                             totalGT_Cuoi += item.tong_gia_tri_cuoi;
 
                             html += `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
-                    <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
-                    <td class="px-4 py-3">${escapeHtml(item.danh_muc)}</td>
-                    <td class="px-4 py-3 text-right">${item.ton_dau_ngay.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right text-green-600">+${item.nhap_trong_ngay.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right text-red-600">-${item.xuat_trong_ngay.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right font-bold ${tonCuoi <= nguong ? 'text-red-600' : 'text-green-600'}">
-                        ${tonCuoi.toLocaleString('vi-VN')}
-                    </td>
-                    <td class="px-4 py-3 text-right">${formatCurrency(item.gia_nhap_tb)}</td>
-                    
-                    <td class="px-4 py-3 text-center">${badge}</td>
-                </tr>`;
+    <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
+        <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
+        <td class="px-4 py-3">${escapeHtml(item.danh_muc)}</td>
+        <td class="px-4 py-3 text-right">${item.ton_dau_ngay.toLocaleString('vi-VN')}</td>
+        <td class="px-4 py-3 text-right text-green-600">+${item.nhap_trong_ngay.toLocaleString('vi-VN')}</td>
+        <td class="px-4 py-3 text-right text-red-600">-${item.xuat_trong_ngay.toLocaleString('vi-VN')}</td>
+        <td class="px-4 py-3 text-right font-bold ${tonCuoi <= nguong ? 'text-red-600' : 'text-green-600'}">
+            ${tonCuoi.toLocaleString('vi-VN')}
+        </td>
+        <td class="px-4 py-3 text-center">${badge}</td>
+    </tr>`;
                         });
 
                         // Row tổng cộng
                         html += `
-            <tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
-                <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
-                <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
-                <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
-                <td class="px-4 py-3 text-right">-</td>
-             
-                <td class="px-4 py-3 text-center">-</td>
-            </tr>`;
-
+<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+    <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
+    <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-right">-</td>
+    <td class="px-4 py-3 text-right">-</td>
+    <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-center">-</td>
+</tr>`;
                         tbody.innerHTML = html;
                     })
                     .catch(err => {
