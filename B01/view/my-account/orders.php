@@ -1374,10 +1374,10 @@ function getStatusBadge($status)
                                                 <?php endif; ?>
                                                 <?php if ((int) $order['TrangThai'] === 2): ?>
                                                     <button
-                                                        class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">Mua
+                                                        class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition hidden">Mua
                                                         lại</button>
                                                     <button
-                                                        class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">Đánh
+                                                        class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition hidden">Đánh
                                                         giá</button>
                                                 <?php elseif ((int) $order['TrangThai'] === 0): ?>
                                                     <button
