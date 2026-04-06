@@ -78,7 +78,7 @@ CREATE TABLE `chitiethoadon` (
   `ChiTietDonHang_id` int(11) NOT NULL,
   `DonHang_id` int(11) DEFAULT NULL,
   `SanPham_id` int(11) DEFAULT NULL,
-  `SoLuong` int(10) UNSIGNED NOT NULL DEFAULT 1,
+  `SoLuong` int(10) NOT NULL DEFAULT 1,
   `Gia` decimal(15,2) NOT NULL,
   `ThanhTien` decimal(15,2) GENERATED ALWAYS AS (`SoLuong` * `Gia`) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
