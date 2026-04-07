@@ -131,21 +131,33 @@ if (isset($_POST['update_threshold'])) {
         $error = "Có lỗi xảy ra!";
     }
 }
-
 // ============================================
-// LẤY DANH SÁCH SẢN PHẨM VỚI DỮ LIỆU THẬT
+// LẤY DANH SÁCH SẢN PHẨM & TÍNH TỒN KHO THỰC TẾ
 // ============================================
 $sql = "SELECT sp.*, dm.Ten_danhmuc, th.Ten_thuonghieu,
-        COALESCE((SELECT SUM(SoLuong) FROM chitietphieunhap WHERE SanPham_id = sp.SanPham_id), 0) as tong_nhap,
-        COALESCE((SELECT SUM(SoLuong) FROM chitiethoadon WHERE SanPham_id = sp.SanPham_id), 0) as tong_xuat,
-        COALESCE(sp.CanhBaoTon, 10) as canh_bao,
-        COALESCE(sp.GiaNhapTB, 0) as GiaNhapTB
-        FROM sanpham sp
-        LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
-        LEFT JOIN thuonghieu th ON sp.Ma_thuonghieu = th.Ma_thuonghieu
-        ORDER BY sp.SanPham_id DESC";
+    COALESCE((SELECT SUM(ct.SoLuong) 
+              FROM chitietphieunhap ct 
+              JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
+              WHERE ct.SanPham_id = sp.SanPham_id), 0) as tong_nhap,
+    COALESCE((SELECT SUM(ctdh.SoLuong) 
+              FROM chitiethoadon ctdh 
+              JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
+              WHERE ctdh.SanPham_id = sp.SanPham_id AND d.TrangThai IN (1, 2)), 0) as tong_xuat,
+    COALESCE(sp.CanhBaoTon, 10) as canh_bao,
+    COALESCE(sp.GiaNhapTB, 0) as GiaNhapTB
+FROM sanpham sp
+LEFT JOIN danhmuc dm ON sp.Danhmuc_id = dm.Danhmuc_id
+LEFT JOIN thuonghieu th ON sp.Ma_thuonghieu = th.Ma_thuonghieu
+ORDER BY sp.SanPham_id DESC";
+
 $result = $conn->query($sql);
 $products = $result->fetch_all(MYSQLI_ASSOC);
+
+// ✅ Tính toán tồn kho thực tế ngay tại PHP (Tổng nhập - Tổng xuất đã xác nhận/giao)
+foreach ($products as &$p) {
+    $p['ton_kho_thuc_te'] = max(0, intval($p['tong_nhap']) - intval($p['tong_xuat']));
+}
+unset($p);
 
 // Lấy danh sách danh mục để lọc
 $categories = getCategories($conn);
@@ -938,12 +950,13 @@ if (isset($_GET['get_report'])) {
                                 <tbody id="warningTableBody">
                                     <?php foreach ($products as $p): ?>
                                         <?php
-                                        $ton = $p['SoLuongTon'];
+                                        // ✅ SỬ DỤNG TỒN KHO ĐÃ TÍNH ĐỘNG, KHÔNG DÙNG SoLuongTon CŨ NỮA
+                                        $ton = $p['ton_kho_thuc_te'];
                                         $nguong = $p['canh_bao'];
                                         $statusClass = '';
                                         $statusText = '';
-                                        $showRow = true; // Mặc định hiển thị
-                                    
+                                        $showRow = true;
+
                                         if ($ton == 0) {
                                             $statusClass = 'badge-danger';
                                             $statusText = '🔴 Hết hàng';
@@ -953,11 +966,8 @@ if (isset($_GET['get_report'])) {
                                         } else {
                                             $statusClass = 'badge-success';
                                             $statusText = '✅ Bình thường';
-                                            // Có thể ẩn sản phẩm bình thường nếu muốn chỉ xem cảnh báo
-                                            // $showRow = false;
                                         }
 
-                                        // Data attributes để filter JS
                                         $dataCategory = htmlspecialchars($p['Ten_danhmuc'] ?? '');
                                         $dataName = htmlspecialchars($p['TenSP'] ?? '');
                                         ?>
@@ -980,11 +990,9 @@ if (isset($_GET['get_report'])) {
                                                 <?php echo number_format($ton); ?>
                                             </td>
                                             <td class="px-4 py-3 text-right">
-                                                <!-- Chỉ hiển thị ngưỡng, không cho edit -->
                                                 <span
                                                     class="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
                                                     <?php echo number_format($nguong); ?>
-
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3 text-center">
@@ -1047,28 +1055,103 @@ if (isset($_GET['get_report'])) {
 
         <script>
             function showTab(tabName) {
-                document.getElementById('inventoryTab').classList.add('hidden');
-                document.getElementById('reportTab').classList.add('hidden');
-                document.getElementById('warningTab').classList.add('hidden');
+                const tabLoaded = {
+                    inventory: false,
+                    report: false,
+                    warning: false
+                };
 
-                document.getElementById('tabInventoryBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabReportBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabWarningBtn').classList.remove('active', 'bg-gradient-custom', 'text-white');
-                document.getElementById('tabInventoryBtn').classList.add('text-gray-600');
-                document.getElementById('tabReportBtn').classList.add('text-gray-600');
-                document.getElementById('tabWarningBtn').classList.add('text-gray-600');
+                function showTab(tabName) {
+                    // Ẩn tất cả tab content
+                    document.getElementById('inventoryTab').classList.add('hidden');
+                    document.getElementById('reportTab').classList.add('hidden');
+                    document.getElementById('warningTab').classList.add('hidden');
 
-                if (tabName === 'inventory') {
-                    document.getElementById('inventoryTab').classList.remove('hidden');
-                    document.getElementById('tabInventoryBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
-                } else if (tabName === 'report') {
-                    document.getElementById('reportTab').classList.remove('hidden');
-                    document.getElementById('tabReportBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
-                } else if (tabName === 'warning') {
-                    document.getElementById('warningTab').classList.remove('hidden');
-                    document.getElementById('tabWarningBtn').classList.add('active', 'bg-gradient-custom', 'text-white');
+                    // Reset style buttons
+                    ['tabInventoryBtn', 'tabReportBtn', 'tabWarningBtn'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        btn.classList.remove('active', 'bg-gradient-custom', 'text-white');
+                        btn.classList.add('text-gray-600');
+                    });
+
+                    // Active tab được chọn
+                    const activeBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Btn`);
+                    activeBtn.classList.add('active', 'bg-gradient-custom', 'text-white');
+                    activeBtn.classList.remove('text-gray-600');
+
+                    document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+
+                    // 🔄 AUTO-REFRESH DATA KHI CHUYỂN TAB
+                    if (tabName === 'inventory') {
+                        const dateInput = document.getElementById('inventoryDate');
+                        // Nếu đã có ngày được chọn → tự động tải lại dữ liệu
+                        if (dateInput?.value && !tabLoaded.inventory) {
+                            searchInventoryByDate();
+                            tabLoaded.inventory = true;
+                        }
+                    }
+                    else if (tabName === 'report') {
+                        const from = document.getElementById('reportFromDate')?.value;
+                        const to = document.getElementById('reportToDate')?.value;
+                        const productId = document.getElementById('reportProductId')?.value;
+                        // Nếu đã có điều kiện filter → tự động generate report
+                        if ((from || to) && productId && !tabLoaded.report) {
+                            generateReport();
+                            tabLoaded.report = true;
+                        }
+                    }
+                    else if (tabName === 'warning') {
+                        // Luôn refresh cảnh báo khi vào tab (dữ liệu nhẹ, cần cập nhật realtime)
+                        searchWarning();
+                        tabLoaded.warning = true;
+                    }
                 }
             }
+
+            /**
+ * Hàm refresh dữ liệu cho từng tab khi cần
+ * Gọi khi: người dùng bấm nút reload, hoặc sau khi thực hiện action (nhập/xuất hàng)
+ */
+            function refreshTab(tabName) {
+                if (tabName === 'inventory') {
+                    const dateInput = document.getElementById('inventoryDate');
+                    if (dateInput?.value) {
+                        searchInventoryByDate();
+                    }
+                }
+                else if (tabName === 'report') {
+                    const from = document.getElementById('reportFromDate')?.value;
+                    const to = document.getElementById('reportToDate')?.value;
+                    const productId = document.getElementById('reportProductId')?.value;
+                    if ((from || to) && productId) {
+                        generateReport();
+                    }
+                }
+                else if (tabName === 'warning') {
+                    searchWarning();
+                }
+            }
+
+            // ✅ Gọi hàm này sau khi thực hiện thành công action nhập/xuất hàng
+            function notifyDataChanged() {
+                localStorage.setItem('inventory_data_changed', Date.now());
+            }
+
+            // ✅ Lắng nghe thay đổi ở tất cả các tab/window
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'inventory_data_changed') {
+                    // Reset flag để lần sau vào tab sẽ reload
+                    tabLoaded.inventory = false;
+                    tabLoaded.report = false;
+                    tabLoaded.warning = false;
+
+                    // Nếu đang ở tab đó → refresh ngay
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab?.id === 'tabInventoryBtn') refreshTab('inventory');
+                    if (activeTab?.id === 'tabReportBtn') refreshTab('report');
+                    if (activeTab?.id === 'tabWarningBtn') refreshTab('warning');
+                }
+            });
 
             // Hàm lọc tồn kho theo danh mục và ngưỡng
             function searchInventory() {
