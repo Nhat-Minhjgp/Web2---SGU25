@@ -932,7 +932,7 @@ if (isset($_GET['get_report'])) {
                                         <th class="px-4 py-3 text-right">Tồn kho</th>
                                         <th class="px-4 py-3 text-right">Ngưỡng cảnh báo</th>
                                         <th class="px-4 py-3 text-center">Trạng thái</th>
-                                        <th class="px-4 py-3 text-center">Thao tác</th>
+                                        <th class="px-4 py-3 text-center"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="warningTableBody">
