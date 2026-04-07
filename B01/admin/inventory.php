@@ -1054,90 +1054,82 @@ if (isset($_GET['get_report'])) {
         </div>
 
         <script>
+            // ✅ Biến global lưu trạng thái đã load của từng tab
+            const tabLoaded = {
+                inventory: false,
+                report: false,
+                warning: false
+            };
+
+            // ✅ Hàm chính: Chuyển tab + Auto refresh khi cần
             function showTab(tabName) {
-                const tabLoaded = {
-                    inventory: false,
-                    report: false,
-                    warning: false
-                };
+                // Ẩn tất cả tab content
+                document.getElementById('inventoryTab').classList.add('hidden');
+                document.getElementById('reportTab').classList.add('hidden');
+                document.getElementById('warningTab').classList.add('hidden');
 
-                function showTab(tabName) {
-                    // Ẩn tất cả tab content
-                    document.getElementById('inventoryTab').classList.add('hidden');
-                    document.getElementById('reportTab').classList.add('hidden');
-                    document.getElementById('warningTab').classList.add('hidden');
+                // Reset style buttons
+                ['tabInventoryBtn', 'tabReportBtn', 'tabWarningBtn'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    btn.classList.remove('active', 'bg-gradient-custom', 'text-white');
+                    btn.classList.add('text-gray-600');
+                });
 
-                    // Reset style buttons
-                    ['tabInventoryBtn', 'tabReportBtn', 'tabWarningBtn'].forEach(id => {
-                        const btn = document.getElementById(id);
-                        btn.classList.remove('active', 'bg-gradient-custom', 'text-white');
-                        btn.classList.add('text-gray-600');
-                    });
-
-                    // Active tab được chọn
-                    const activeBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Btn`);
+                // Active tab được chọn
+                const activeBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Btn`);
+                if (activeBtn) {
                     activeBtn.classList.add('active', 'bg-gradient-custom', 'text-white');
                     activeBtn.classList.remove('text-gray-600');
-
-                    document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-
-                    // 🔄 AUTO-REFRESH DATA KHI CHUYỂN TAB
-                    if (tabName === 'inventory') {
-                        const dateInput = document.getElementById('inventoryDate');
-                        // Nếu đã có ngày được chọn → tự động tải lại dữ liệu
-                        if (dateInput?.value && !tabLoaded.inventory) {
-                            searchInventoryByDate();
-                            tabLoaded.inventory = true;
-                        }
-                    }
-                    else if (tabName === 'report') {
-                        const from = document.getElementById('reportFromDate')?.value;
-                        const to = document.getElementById('reportToDate')?.value;
-                        const productId = document.getElementById('reportProductId')?.value;
-                        // Nếu đã có điều kiện filter → tự động generate report
-                        if ((from || to) && productId && !tabLoaded.report) {
-                            generateReport();
-                            tabLoaded.report = true;
-                        }
-                    }
-                    else if (tabName === 'warning') {
-                        // Luôn refresh cảnh báo khi vào tab (dữ liệu nhẹ, cần cập nhật realtime)
-                        searchWarning();
-                        tabLoaded.warning = true;
-                    }
                 }
-            }
 
-            /**
- * Hàm refresh dữ liệu cho từng tab khi cần
- * Gọi khi: người dùng bấm nút reload, hoặc sau khi thực hiện action (nhập/xuất hàng)
- */
-            function refreshTab(tabName) {
+                document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+
+                //  AUTO-REFRESH DATA KHI CHUYỂN TAB
                 if (tabName === 'inventory') {
                     const dateInput = document.getElementById('inventoryDate');
-                    if (dateInput?.value) {
+                    if (dateInput?.value && !tabLoaded.inventory) {
                         searchInventoryByDate();
+                        tabLoaded.inventory = true;
                     }
                 }
                 else if (tabName === 'report') {
                     const from = document.getElementById('reportFromDate')?.value;
                     const to = document.getElementById('reportToDate')?.value;
                     const productId = document.getElementById('reportProductId')?.value;
-                    if ((from || to) && productId) {
+                    if ((from || to) && productId && !tabLoaded.report) {
                         generateReport();
+                        tabLoaded.report = true;
                     }
+                }
+                else if (tabName === 'warning') {
+                    // Luôn refresh cảnh báo khi vào tab (dữ liệu nhẹ, cần realtime)
+                    searchWarning();
+                    tabLoaded.warning = true;
+                }
+            }
+
+            // ✅ Hàm refresh manual khi cần
+            function refreshTab(tabName) {
+                if (tabName === 'inventory') {
+                    const dateInput = document.getElementById('inventoryDate');
+                    if (dateInput?.value) searchInventoryByDate();
+                }
+                else if (tabName === 'report') {
+                    const from = document.getElementById('reportFromDate')?.value;
+                    const to = document.getElementById('reportToDate')?.value;
+                    const productId = document.getElementById('reportProductId')?.value;
+                    if ((from || to) && productId) generateReport();
                 }
                 else if (tabName === 'warning') {
                     searchWarning();
                 }
             }
 
-            // ✅ Gọi hàm này sau khi thực hiện thành công action nhập/xuất hàng
+            // ✅ Broadcast thay đổi dữ liệu giữa các tab/window
             function notifyDataChanged() {
                 localStorage.setItem('inventory_data_changed', Date.now());
             }
 
-            // ✅ Lắng nghe thay đổi ở tất cả các tab/window
             window.addEventListener('storage', (e) => {
                 if (e.key === 'inventory_data_changed') {
                     // Reset flag để lần sau vào tab sẽ reload
@@ -1153,56 +1145,41 @@ if (isset($_GET['get_report'])) {
                 }
             });
 
-            // Hàm lọc tồn kho theo danh mục và ngưỡng
+            // 🔹 Các hàm filter/search giữ nguyên (chỉ sửa nhỏ nếu cần)
             function searchInventory() {
                 const categoryId = document.getElementById('filterCategory').value;
-                const threshold = document.getElementById('filterThreshold').value;
+                const threshold = document.getElementById('filterThreshold')?.value;
                 const rows = document.querySelectorAll('#inventoryTableBody tr');
                 let visibleCount = 0;
-                let filterText = [];
 
                 rows.forEach(row => {
-                    // Lấy dữ liệu từ các cột
                     const rowCategorySelect = document.getElementById('filterCategory');
                     const selectedCategoryText = rowCategorySelect.options[rowCategorySelect.selectedIndex]?.text || '';
                     const rowCategoryCell = row.cells[2]?.textContent.trim() || '';
-
-                    // Lấy số lượng tồn kho (cột 3 - index 3)
                     const tonText = row.cells[3]?.textContent.trim().replace(/\./g, '').replace(/[^0-9]/g, '') || '0';
                     const tonKho = parseInt(tonText) || 0;
 
-                    // Lọc theo danh mục
                     const categoryMatch = categoryId === '' || rowCategoryCell === selectedCategoryText;
+                    const thresholdMatch = !threshold || tonKho >= parseInt(threshold);
 
-                    // Lọc theo ngưỡng tồn kho
-                    const thresholdMatch = threshold === '' || tonKho >= parseInt(threshold);
-
-                    // Hiển thị/ẩn row
-                    if (categoryMatch && thresholdMatch) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
+                    row.style.display = (categoryMatch && thresholdMatch) ? '' : 'none';
+                    if (row.style.display === '') visibleCount++;
                 });
 
-                // Hiển thị trạng thái filter
                 showFilterStatus(categoryId, threshold, visibleCount, rows.length);
             }
 
-            // Hàm hiển thị trạng thái filter
             function showFilterStatus(categoryId, threshold, visible, total) {
                 const statusDiv = document.getElementById('filterStatus');
                 const statusText = document.getElementById('filterStatusText');
-                const parts = [];
+                if (!statusDiv || !statusText) return;
 
+                const parts = [];
                 if (categoryId) {
                     const catName = document.querySelector(`#filterCategory option[value="${categoryId}"]`)?.text || '';
                     parts.push(`Danh mục: ${catName}`);
                 }
-                if (threshold) {
-                    parts.push(`Tồn kho ≥ ${threshold}`);
-                }
+                if (threshold) parts.push(`Tồn kho ≥ ${threshold}`);
 
                 if (parts.length > 0) {
                     statusText.innerHTML = `<strong>${parts.join(' | ')}</strong> — Hiển thị ${visible}/${total} sản phẩm`;
@@ -1212,34 +1189,17 @@ if (isset($_GET['get_report'])) {
                 }
             }
 
-            // Hàm reset filter
             function resetInventoryFilter() {
                 document.getElementById('filterCategory').value = '';
-                document.getElementById('filterThreshold').value = '';
+                if (document.getElementById('filterThreshold')) document.getElementById('filterThreshold').value = '';
                 document.getElementById('inventoryDate').value = '';
 
-                // Hiển thị lại tất cả rows
                 const rows = document.querySelectorAll('#inventoryTableBody tr');
                 rows.forEach(row => row.style.display = '');
-
-                // Ẩn status filter
-                document.getElementById('filterStatus').classList.add('hidden');
+                if (document.getElementById('filterStatus')) document.getElementById('filterStatus').classList.add('hidden');
             }
 
-            // Cho phép Enter để áp dụng filter
-            document.addEventListener('DOMContentLoaded', function () {
-                const thresholdInput = document.getElementById('filterThreshold');
-                if (thresholdInput) {
-                    thresholdInput.addEventListener('keypress', function (e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            searchInventory();
-                        }
-                    });
-                }
-            });
-
-            // 🔹 Hàm toggle dropdown chi tiết
+            // 🔹 Toggle detail report
             function toggleReportDetail(id) {
                 const detailRow = document.querySelector(`.detail-row-${id}`);
                 const btn = document.getElementById(`detail-btn-${id}`);
@@ -1256,19 +1216,21 @@ if (isset($_GET['get_report'])) {
                 }
             }
 
-            // 🔹 Hàm render báo cáo nhập - xuất riêng biệt
+            // 🔹 Generate Report (giữ nguyên logic, chỉ thêm error handling)
             function generateReport() {
                 const from = document.getElementById('reportFromDate')?.value || '';
                 const to = document.getElementById('reportToDate')?.value || '';
                 const productId = document.getElementById('reportProductId')?.value || '';
 
-                // ✅ VALIDATION 1: Yêu cầu chọn ít nhất 1 ngày
-                if (!from && !to) {
-                    alert('⚠️ Vui lòng chọn ngày trong ô "Từ ngày" hoặc "Đến ngày" để xem báo cáo!');
+                // ✅ VALIDATION 1: Bắt buộc nhập CẢ HAI ngày
+                if (!from || !to) {
+                    alert('⚠️ Vui lòng nhập đầy đủ cả "Từ ngày" và "Đến ngày" để xem báo cáo!');
+                    if (!from) document.getElementById('reportFromDate')?.focus();
+                    else document.getElementById('reportToDate')?.focus();
                     return;
                 }
 
-                // ✅ VALIDATION 2: Yêu cầu CHỌN SẢN PHẨM (bắt buộc)
+                // ✅ VALIDATION 2: Yêu cầu chọn sản phẩm
                 if (!productId) {
                     alert('⚠️ Vui lòng chọn sản phẩm từ ô tìm kiếm để xem báo cáo!');
                     document.getElementById('reportProductSearch')?.focus();
@@ -1276,15 +1238,18 @@ if (isset($_GET['get_report'])) {
                 }
 
                 // ✅ VALIDATION 3: Kiểm tra khoảng ngày hợp lệ
-                if (!isDateRangeValid(from, to)) return;
+                if (!isDateRangeValid(from, to)) {
+                    alert('⚠️ Ngày bắt đầu không được lớn hơn ngày kết thúc! Vui lòng chọn lại.');
+                    document.getElementById('reportFromDate')?.focus();
+                    return;
+                }
 
                 const importBody = document.getElementById('importTableBody');
                 const exportBody = document.getElementById('exportTableBody');
-
-                // Loading state
                 const loadingHtml = '<tr><td colspan="8" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-gray-600">Đang tải dữ liệu...</p></td></tr>';
-                importBody.innerHTML = loadingHtml;
-                exportBody.innerHTML = loadingHtml;
+
+                if (importBody) importBody.innerHTML = loadingHtml;
+                if (exportBody) exportBody.innerHTML = loadingHtml;
 
                 let url = `?get_report=1`;
                 if (from) url += `&from=${from}`;
@@ -1301,188 +1266,151 @@ if (isset($_GET['get_report'])) {
                         const inventory = data.inventory || {};
                         const period = data.period || {};
 
-                        //  Hiển thị summary tồn kho nếu có chọn sản phẩm
-
-
                         const summaryBox = document.getElementById('inventorySummary');
-                        const summaryInner = summaryBox.querySelector('.flex.flex-wrap');
+                        const summaryInner = summaryBox?.querySelector('.flex.flex-wrap');
                         const hasProduct = inventory.has_product === true && productId;
 
-                        // 🔹 Bước 1: Luôn xóa hint-msg cũ trước (nếu có)
-                        const oldHint = summaryBox.querySelector('.hint-msg');
-                        if (oldHint) oldHint.remove();
+                        if (summaryBox) {
+                            const oldHint = summaryBox.querySelector('.hint-msg');
+                            if (oldHint) oldHint.remove();
 
-                        if (hasProduct) {
-                            // ✅ Có chọn sản phẩm → Hiển thị số liệu
-                            summaryBox.classList.remove('hidden');
+                            if (hasProduct) {
+                                summaryBox.classList.remove('hidden');
+                                const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : 'Từ đầu';
+                                document.getElementById('summaryPeriod').textContent = `${formatDate(period.from)} → ${formatDate(period.to)}`;
+                                const fmt = (n) => (n || 0).toLocaleString('vi-VN');
+                                const fmtMoney = (n) => (n || 0).toLocaleString('vi-VN') + 'đ';
 
-                            const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : 'Từ đầu';
-                            document.getElementById('summaryPeriod').textContent =
-                                `${formatDate(period.from)} → ${formatDate(period.to)}`;
+                                document.getElementById('summaryTonDau').textContent = fmt(inventory.ton_dau);
+                                document.getElementById('summaryNhap').textContent = '+' + fmt(inventory.tong_nhap);
+                                document.getElementById('summaryXuat').textContent = '-' + fmt(inventory.tong_xuat);
+                                document.getElementById('summaryTonCuoi').textContent = fmt(inventory.ton_cuoi);
+                                document.getElementById('summaryGiaVon').textContent = fmtMoney(inventory.gia_von);
 
-                            const fmt = (n) => (n || 0).toLocaleString('vi-VN');
-                            const fmtMoney = (n) => (n || 0).toLocaleString('vi-VN') + 'đ';
-
-                            document.getElementById('summaryTonDau').textContent = fmt(inventory.ton_dau);
-                            document.getElementById('summaryNhap').textContent = '+' + fmt(inventory.tong_nhap);
-                            document.getElementById('summaryXuat').textContent = '-' + fmt(inventory.tong_xuat);
-                            document.getElementById('summaryTonCuoi').textContent = fmt(inventory.ton_cuoi);
-                            document.getElementById('summaryGiaVon').textContent = fmtMoney(inventory.gia_von);
-
-                            // Màu cảnh báo
-                            const tonCuoiEl = document.getElementById('summaryTonCuoi');
-                            if (inventory.ton_cuoi <= 0) {
-                                tonCuoiEl.className = 'font-bold text-red-600';
-                            } else if (inventory.ton_cuoi <= 10) {
-                                tonCuoiEl.className = 'font-bold text-yellow-600';
+                                const tonCuoiEl = document.getElementById('summaryTonCuoi');
+                                if (inventory.ton_cuoi <= 0) tonCuoiEl.className = 'font-bold text-red-600';
+                                else if (inventory.ton_cuoi <= 10) tonCuoiEl.className = 'font-bold text-yellow-600';
+                                else tonCuoiEl.className = 'font-bold text-purple-700';
                             } else {
-                                tonCuoiEl.className = 'font-bold text-purple-700';
+                                summaryBox.classList.remove('hidden');
+                                document.getElementById('summaryPeriod').textContent = period.from ? `${new Date(period.from).toLocaleDateString('vi-VN')} → ${new Date(period.to).toLocaleDateString('vi-VN')}` : 'Tất cả thời gian';
+                                ['summaryTonDau', 'summaryNhap', 'summaryXuat', 'summaryTonCuoi', 'summaryGiaVon'].forEach(id => {
+                                    const el = document.getElementById(id);
+                                    if (el) el.textContent = '-';
+                                });
+
+                                if (summaryInner) {
+                                    const hint = document.createElement('div');
+                                    hint.className = 'hint-msg w-full text-center text-sm text-blue-600 mt-2 pt-2';
+                                    hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i>Chọn sản phẩm để xem chi tiết tồn kho';
+                                    summaryInner.appendChild(hint);
+                                }
                             }
-
-                        } else {
-                            // ❌ Chưa chọn sản phẩm → Hiển thị message hướng dẫn
-                            summaryBox.classList.remove('hidden');
-
-                            document.getElementById('summaryPeriod').textContent =
-                                period.from ? `${new Date(period.from).toLocaleDateString('vi-VN')} → ${new Date(period.to).toLocaleDateString('vi-VN')}` : 'Tất cả thời gian';
-                            document.getElementById('summaryTonDau').textContent = '-';
-                            document.getElementById('summaryNhap').textContent = '-';
-                            document.getElementById('summaryXuat').textContent = '-';
-                            document.getElementById('summaryTonCuoi').textContent = '-';
-                            document.getElementById('summaryGiaVon').textContent = '-';
-
-                            // Thêm hint message (sau khi đã xóa cái cũ ở trên)
-                            const hint = document.createElement('div');
-                            hint.className = 'hint-msg w-full text-center text-sm text-blue-600 mt-2 pt-2';
-                            hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i>Chọn sản phẩm để xem chi tiết tồn kho';
-                            summaryInner.appendChild(hint);
                         }
+
                         const imports = reports.filter(d => d.type === 'Nhập');
                         const exports = reports.filter(d => d.type !== 'Nhập');
 
-                        // --- RENDER BẢNG NHẬP ---
-                        if (imports.length === 0) {
-                            importBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu nhập</td></tr>';
-                        } else {
-                            let html = '';
-                            let totalQty = 0, totalVal = 0;
-                            imports.forEach((item, i) => {
-                                const id = `imp-${i}`;
-                                const qty = parseFloat(item.quantity) || 0;
-                                const price = parseFloat(item.price) || 0;
-                                const total = parseFloat(item.total) || 0;
-                                totalQty += qty; totalVal += total;
-
-                                html += `
-                <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="px-4 py-3">${item.date || ''}</td>
-                    <td class="px-4 py-3"><span class="text-green-600 font-medium">${item.type}</span></td>
-                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
-                    <td class="px-4 py-3">${item.product_name || ''}</td>
-                    <td class="px-4 py-3 text-right">${qty.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
-                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
-                    <td class="px-4 py-3 text-center">
-                        <button id="detail-btn-${id}" onclick="toggleReportDetail('${id}')" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer transition" title="Xem chi tiết">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr class="detail-row-${id}" style="display:none;">
-                    <td colspan="8" class="p-0">
-                        <div class="bg-gray-50 p-4 border-t border-gray-200">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div><span class="text-gray-500">Mã SP:</span> <strong>SP${String(item.product_id || 0).padStart(4, '0')}</strong></div>
-                                <div><span class="text-gray-500">Tên SP:</span> <strong>${item.product_name || 'N/A'}</strong></div>
-                                <div><span class="text-gray-500">Số lượng:</span> <strong>${qty.toLocaleString('vi-VN')}</strong></div>
-                                <div><span class="text-gray-500">Đơn giá:</span> <strong>${price.toLocaleString('vi-VN')}đ</strong></div>
-                                <div><span class="text-gray-500">Thành tiền:</span> <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
-                                <div><span class="text-gray-500">Ngày:</span> <strong>${item.date || 'N/A'}</strong></div>
-                                <div><span class="text-gray-500">Loại:</span> <strong class="text-green-600">${item.type}</strong></div>
-                              
-                            </div>
-                        </div>
-                    </td>
-                </tr>`;
-                            });
-                            html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
-                <td colspan="4" class="px-4 py-3 text-right">TỔNG NHẬP:</td>
-                <td class="px-4 py-3 text-right text-green-600">${totalQty.toLocaleString('vi-VN')}</td>
-                <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
-                <td class="px-4 py-3"></td>
-            </tr>`;
-                            importBody.innerHTML = html;
+                        // Render bảng nhập
+                        if (importBody) {
+                            if (imports.length === 0) {
+                                importBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu nhập</td></tr>';
+                            } else {
+                                let html = '';
+                                let totalQty = 0, totalVal = 0;
+                                imports.forEach((item, i) => {
+                                    const id = `imp-${i}`;
+                                    const qty = parseFloat(item.quantity) || 0;
+                                    const price = parseFloat(item.price) || 0;
+                                    const total = parseFloat(item.total) || 0;
+                                    totalQty += qty; totalVal += total;
+                                    html += renderReportRow(item, id, 'Nhập', qty, price, total);
+                                });
+                                html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                            <td colspan="4" class="px-4 py-3 text-right">TỔNG NHẬP:</td>
+                            <td class="px-4 py-3 text-right text-green-600">${totalQty.toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-right">-</td>
+                            <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
+                            <td class="px-4 py-3"></td>
+                        </tr>`;
+                                importBody.innerHTML = html;
+                            }
                         }
 
-                        // --- RENDER BẢNG XUẤT ---
-                        if (exports.length === 0) {
-                            exportBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu xuất</td></tr>';
-                        } else {
-                            let html = '';
-                            let totalQty = 0, totalVal = 0;
-                            exports.forEach((item, i) => {
-                                const id = `exp-${i}`;
-                                const qty = parseFloat(item.quantity) || 0;
-                                const price = parseFloat(item.price) || 0;
-                                const total = parseFloat(item.total) || 0;
-                                totalQty += qty; totalVal += total;
-
-                                html += `
-                <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="px-4 py-3">${item.date || ''}</td>
-                    <td class="px-4 py-3"><span class="text-blue-600 font-medium">${item.type}</span></td>
-                    <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
-                    <td class="px-4 py-3">${item.product_name || ''}</td>
-                    <td class="px-4 py-3 text-right">${qty.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
-                    <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
-                    <td class="px-4 py-3 text-center">
-                        <button id="detail-btn-${id}" onclick="toggleReportDetail('${id}')" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer transition" title="Xem chi tiết">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr class="detail-row-${id}" style="display:none;">
-                    <td colspan="8" class="p-0">
-                        <div class="bg-gray-50 p-4 border-t border-gray-200">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div><span class="text-gray-500">Mã SP:</span> <strong>SP${String(item.product_id || 0).padStart(4, '0')}</strong></div>
-                                <div><span class="text-gray-500">Tên SP:</span> <strong>${item.product_name || 'N/A'}</strong></div>
-                                <div><span class="text-gray-500">Số lượng:</span> <strong>${qty.toLocaleString('vi-VN')}</strong></div>
-                                <div><span class="text-gray-500">Đơn giá:</span> <strong>${price.toLocaleString('vi-VN')}đ</strong></div>
-                                <div><span class="text-gray-500">Thành tiền:</span> <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
-                                <div><span class="text-gray-500">Ngày:</span> <strong>${item.date || 'N/A'}</strong></div>
-                                <div><span class="text-gray-500">Loại:</span> <strong class="text-blue-600">${item.type}</strong></div>
-                             
-                            </div>
-                        </div>
-                    </td>
-                </tr>`;
-                            });
-                            html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
-                <td colspan="4" class="px-4 py-3 text-right">TỔNG XUẤT:</td>
-                <td class="px-4 py-3 text-right text-red-600">${totalQty.toLocaleString('vi-VN')}</td>
-                <td class="px-4 py-3 text-right">-</td>
-                <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
-                <td class="px-4 py-3"></td>
-            </tr>`;
-                            exportBody.innerHTML = html;
+                        // Render bảng xuất
+                        if (exportBody) {
+                            if (exports.length === 0) {
+                                exportBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>Không có dữ liệu xuất</td></tr>';
+                            } else {
+                                let html = '';
+                                let totalQty = 0, totalVal = 0;
+                                exports.forEach((item, i) => {
+                                    const id = `exp-${i}`;
+                                    const qty = parseFloat(item.quantity) || 0;
+                                    const price = parseFloat(item.price) || 0;
+                                    const total = parseFloat(item.total) || 0;
+                                    totalQty += qty; totalVal += total;
+                                    html += renderReportRow(item, id, item.type, qty, price, total);
+                                });
+                                html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                            <td colspan="4" class="px-4 py-3 text-right">TỔNG XUẤT:</td>
+                            <td class="px-4 py-3 text-right text-red-600">${totalQty.toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-right">-</td>
+                            <td class="px-4 py-3 text-right text-indigo-700">${totalVal.toLocaleString('vi-VN')}đ</td>
+                            <td class="px-4 py-3"></td>
+                        </tr>`;
+                                exportBody.innerHTML = html;
+                            }
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         const errHtml = '<tr><td colspan="8" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>Có lỗi xảy ra khi tải dữ liệu!</td></tr>';
-                        importBody.innerHTML = errHtml;
-                        exportBody.innerHTML = errHtml;
+                        if (importBody) importBody.innerHTML = errHtml;
+                        if (exportBody) exportBody.innerHTML = errHtml;
                     });
             }
 
-            function exportReport() {
-                const fromDate = document.getElementById('reportFromDate').value;
-                const toDate = document.getElementById('reportToDate').value;
-                const productId = document.getElementById('reportProduct').value;
+            // ✅ Helper render row cho báo cáo (tránh code trùng)
+            function renderReportRow(item, id, typeLabel, qty, price, total) {
+                const isImport = typeLabel === 'Nhập';
+                const typeColor = isImport ? 'text-green-600' : 'text-blue-600';
+                return `
+        <tr class="border-b hover:bg-gray-50 transition">
+            <td class="px-4 py-3">${item.date || ''}</td>
+            <td class="px-4 py-3"><span class="${typeColor} font-medium">${item.type}</span></td>
+            <td class="px-4 py-3 font-mono">SP${String(item.product_id || 0).padStart(4, '0')}</td>
+            <td class="px-4 py-3">${item.product_name || ''}</td>
+            <td class="px-4 py-3 text-right">${qty.toLocaleString('vi-VN')}</td>
+            <td class="px-4 py-3 text-right">${price.toLocaleString('vi-VN')}đ</td>
+            <td class="px-4 py-3 text-right">${total.toLocaleString('vi-VN')}đ</td>
+            <td class="px-4 py-3 text-center">
+                <button id="detail-btn-${id}" onclick="toggleReportDetail('${id}')" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer transition" title="Xem chi tiết">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        </tr>
+        <tr class="detail-row-${id}" style="display:none;">
+            <td colspan="8" class="p-0">
+                <div class="bg-gray-50 p-4 border-t border-gray-200">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div><span class="text-gray-500">Mã SP:</span> <strong>SP${String(item.product_id || 0).padStart(4, '0')}</strong></div>
+                        <div><span class="text-gray-500">Tên SP:</span> <strong>${item.product_name || 'N/A'}</strong></div>
+                        <div><span class="text-gray-500">Số lượng:</span> <strong>${qty.toLocaleString('vi-VN')}</strong></div>
+                        <div><span class="text-gray-500">Đơn giá:</span> <strong>${price.toLocaleString('vi-VN')}đ</strong></div>
+                        <div><span class="text-gray-500">Thành tiền:</span> <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
+                        <div><span class="text-gray-500">Ngày:</span> <strong>${item.date || 'N/A'}</strong></div>
+                        <div><span class="text-gray-500">Loại:</span> <strong class="${typeColor}">${item.type}</strong></div>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+            }
 
+            function exportReport() {
+                const fromDate = document.getElementById('reportFromDate')?.value || '';
+                const toDate = document.getElementById('reportToDate')?.value || '';
+                const productId = document.getElementById('reportProductId')?.value || '';
                 let url = `export_report.php?from=${fromDate}&to=${toDate}&product=${productId}`;
                 window.open(url, '_blank');
             }
@@ -1493,54 +1421,28 @@ if (isset($_GET['get_report'])) {
                 }
             }
 
-            // Cho phép Enter để tìm kiếm
-            document.addEventListener('DOMContentLoaded', function () {
-                const fromDate = document.getElementById('reportFromDate');
-                const toDate = document.getElementById('reportToDate');
-
-                if (fromDate) {
-                    fromDate.addEventListener('keypress', function (e) {
-                        if (e.key === 'Enter') generateReport();
-                    });
-                }
-                if (toDate) {
-                    toDate.addEventListener('keypress', function (e) {
-                        if (e.key === 'Enter') generateReport();
-                    });
-                }
-            });
+            // 🔹 Search Warning (giữ nguyên, thêm null check)
             function searchWarning() {
-                const categoryId = document.getElementById('warningCategory').value;
-                const threshold = document.getElementById('warningThreshold').value;  // Ngưỡng cảnh báo cần lọc
-                const keyword = document.getElementById('warningKeyword').value.toLowerCase();
+                const categoryId = document.getElementById('warningCategory')?.value || '';
+                const threshold = document.getElementById('warningThreshold')?.value || '';
+                const keyword = (document.getElementById('warningKeyword')?.value || '').toLowerCase();
                 const rows = document.querySelectorAll('#warningTableBody tr.warning-row');
 
-                let visibleCount = 0;
-                let outStock = 0, lowStock = 0, okStock = 0;
+                let visibleCount = 0, outStock = 0, lowStock = 0, okStock = 0;
 
                 rows.forEach(row => {
                     const rowCategory = row.dataset.category || '';
                     const rowName = (row.dataset.name || '').toLowerCase();
                     const tonKho = parseInt(row.dataset.ton) || 0;
-                    const nguong = parseInt(row.dataset.nguong) || 10;  // Ngưỡng cảnh báo của sản phẩm
+                    const nguong = parseInt(row.dataset.nguong) || 10;
 
-                    // Lọc theo danh mục
-                    const categoryMatch = categoryId === '' ||
-                        rowCategory === document.querySelector(`#warningCategory option[value="${categoryId}"]`)?.text;
+                    const categoryMatch = !categoryId || rowCategory === (document.querySelector(`#warningCategory option[value="${categoryId}"]`)?.text || '');
+                    const thresholdMatch = !threshold || nguong >= parseInt(threshold);
+                    const keywordMatch = !keyword || rowName.includes(keyword);
 
-                    //  SỬA: Lọc theo NGƯỠNG CẢNH BÁO (nguong), không phải tồn kho (tonKho)
-                    // Hiển thị sản phẩm có ngưỡng cảnh báo >= giá trị nhập
-                    const thresholdMatch = threshold === '' || nguong >= parseInt(threshold);
-
-                    // Lọc theo từ khóa tên sản phẩm
-                    const keywordMatch = keyword === '' || rowName.includes(keyword);
-
-                    // Hiển thị/ẩn row
                     if (categoryMatch && thresholdMatch && keywordMatch) {
                         row.style.display = '';
                         visibleCount++;
-
-                        // Đếm thống kê (vẫn dựa trên trạng thái thực tế)
                         if (tonKho === 0) outStock++;
                         else if (tonKho <= nguong) lowStock++;
                         else okStock++;
@@ -1549,31 +1451,26 @@ if (isset($_GET['get_report'])) {
                     }
                 });
 
-                // Cập nhật stats
-                document.getElementById('countOutStock').textContent = outStock;
-                document.getElementById('countLowStock').textContent = lowStock;
-                document.getElementById('countOkStock').textContent = okStock;
+                ['countOutStock', 'countLowStock', 'countOkStock'].forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = [outStock, lowStock, okStock][idx];
+                });
 
-                // Hiển thị trạng thái filter
                 showWarningFilterStatus(categoryId, threshold, keyword, visibleCount, rows.length);
             }
 
             function showWarningFilterStatus(categoryId, threshold, keyword, visible, total) {
                 const statusDiv = document.getElementById('warningFilterStatus');
                 const statusText = document.getElementById('warningFilterText');
-                const parts = [];
+                if (!statusDiv || !statusText) return;
 
+                const parts = [];
                 if (categoryId) {
                     const catName = document.querySelector(`#warningCategory option[value="${categoryId}"]`)?.text || '';
                     parts.push(`Danh mục: ${catName}`);
                 }
-                // SỬA: Hiển thị "Ngưỡng ≥" thay vì "Tồn ≤"
-                if (threshold) {
-                    parts.push(`Ngưỡng cảnh báo ≥ ${threshold}`);
-                }
-                if (keyword) {
-                    parts.push(`Tên chứa: "${keyword}"`);
-                }
+                if (threshold) parts.push(`Ngưỡng cảnh báo ≥ ${threshold}`);
+                if (keyword) parts.push(`Tên chứa: "${keyword}"`);
 
                 if (parts.length > 0) {
                     statusText.innerHTML = `<strong>${parts.join(' | ')}</strong> — Hiển thị ${visible}/${total} sản phẩm`;
@@ -1583,67 +1480,39 @@ if (isset($_GET['get_report'])) {
                 }
             }
 
-            // Reset filter warning
             function resetWarningFilter() {
-                document.getElementById('warningCategory').value = '';
-                document.getElementById('warningThreshold').value = '';
-                document.getElementById('warningKeyword').value = '';
+                ['warningCategory', 'warningThreshold', 'warningKeyword'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
 
-                const rows = document.querySelectorAll('#warningTableBody tr.warning-row');
-                rows.forEach(row => row.style.display = '');
-
-                document.getElementById('warningFilterStatus').classList.add('hidden');
-
-                // Reset stats về tổng
+                document.querySelectorAll('#warningTableBody tr.warning-row').forEach(row => row.style.display = '');
+                const statusDiv = document.getElementById('warningFilterStatus');
+                if (statusDiv) statusDiv.classList.add('hidden');
                 updateWarningStats();
             }
 
-            // Cập nhật thống kê ban đầu
             function updateWarningStats() {
                 let outStock = 0, lowStock = 0, okStock = 0;
-
                 document.querySelectorAll('#warningTableBody tr.warning-row').forEach(row => {
                     const tonKho = parseInt(row.dataset.ton) || 0;
                     const nguong = parseInt(row.dataset.nguong) || 10;
-
                     if (tonKho === 0) outStock++;
                     else if (tonKho <= nguong) lowStock++;
                     else okStock++;
                 });
-
-                document.getElementById('countOutStock').textContent = outStock;
-                document.getElementById('countLowStock').textContent = lowStock;
-                document.getElementById('countOkStock').textContent = okStock;
+                ['countOutStock', 'countLowStock', 'countOkStock'].forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = [outStock, lowStock, okStock][idx];
+                });
             }
 
-            // Init stats khi load trang
-            document.addEventListener('DOMContentLoaded', function () {
-                updateWarningStats();
-
-                // Enter để filter warning
-                const warningInputs = ['warningThreshold', 'warningKeyword'];
-                warningInputs.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.addEventListener('keypress', function (e) {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                searchWarning();
-                            }
-                        });
-                    }
-                });
-
-            });
-            // ==========================================
-            // AUTOCOMPLETE TÌM KIẾM SẢN PHẨM
-            // ==========================================
+            // 🔹 Autocomplete search product
             const searchInput = document.getElementById('reportProductSearch');
             const suggestionsBox = document.getElementById('reportProductSuggestions');
             const hiddenProductId = document.getElementById('reportProductId');
             const clearBtn = document.getElementById('clearProductSearch');
 
-            // Debounce để tránh gọi API liên tục
             function debounce(func, wait) {
                 let timeout;
                 return function (...args) {
@@ -1655,17 +1524,18 @@ if (isset($_GET['get_report'])) {
             if (searchInput) {
                 searchInput.addEventListener('input', debounce(function () {
                     const query = this.value.trim();
-                    hiddenProductId.value = ''; // Xóa ID đã chọn khi gõ mới
-                    clearBtn.classList.toggle('hidden', query.length === 0);
+                    if (hiddenProductId) hiddenProductId.value = '';
+                    if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
 
                     if (query.length < 2) {
-                        suggestionsBox.classList.add('hidden');
+                        if (suggestionsBox) suggestionsBox.classList.add('hidden');
                         return;
                     }
 
                     fetch(`../control/search-product.php?q=${encodeURIComponent(query)}&limit=10`)
                         .then(res => res.json())
                         .then(data => {
+                            if (!suggestionsBox) return;
                             suggestionsBox.innerHTML = '';
                             if (!data || data.length === 0 || data.error) {
                                 suggestionsBox.classList.add('hidden');
@@ -1675,15 +1545,12 @@ if (isset($_GET['get_report'])) {
                             data.forEach(prod => {
                                 const div = document.createElement('div');
                                 div.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm flex justify-between items-center border-b border-gray-100 last:border-0';
-                                div.innerHTML = `
-                        <span class="truncate font-medium text-gray-700">${prod.name}</span>
-                        <span class="text-xs text-gray-400 ml-2">Mã: ${prod.id} | Tồn: ${prod.ton}</span>
-                    `;
+                                div.innerHTML = `<span class="truncate font-medium text-gray-700">${prod.name}</span><span class="text-xs text-gray-400 ml-2">Mã: ${prod.id} | Tồn: ${prod.ton}</span>`;
                                 div.addEventListener('click', () => {
-                                    searchInput.value = prod.name;
-                                    hiddenProductId.value = prod.id;
+                                    if (searchInput) searchInput.value = prod.name;
+                                    if (hiddenProductId) hiddenProductId.value = prod.id;
                                     suggestionsBox.classList.add('hidden');
-                                    clearBtn.classList.remove('hidden');
+                                    if (clearBtn) clearBtn.classList.remove('hidden');
                                 });
                                 suggestionsBox.appendChild(div);
                             });
@@ -1692,26 +1559,25 @@ if (isset($_GET['get_report'])) {
                         .catch(err => console.error('Lỗi tìm kiếm:', err));
                 }, 300));
 
-                // Đóng gợi ý khi click ra ngoài
                 document.addEventListener('click', (e) => {
-                    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    if (suggestionsBox && !searchInput?.contains(e.target) && !suggestionsBox.contains(e.target)) {
                         suggestionsBox.classList.add('hidden');
                     }
                 });
 
-                // Xử lý nút xóa
-                clearBtn.addEventListener('click', () => {
-                    searchInput.value = '';
-                    hiddenProductId.value = '';
-                    suggestionsBox.classList.add('hidden');
-                    clearBtn.classList.add('hidden');
-                    searchInput.focus();
-                });
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        if (searchInput) searchInput.value = '';
+                        if (hiddenProductId) hiddenProductId.value = '';
+                        if (suggestionsBox) suggestionsBox.classList.add('hidden');
+                        clearBtn.classList.add('hidden');
+                        if (searchInput) searchInput.focus();
+                    });
+                }
             }
 
-
             function isDateRangeValid(from, to) {
-                if (!from || !to) return true;
+                if (!from || !to) return false; // Bắt buộc cả 2
                 return new Date(from) <= new Date(to);
             }
 
@@ -1720,50 +1586,23 @@ if (isset($_GET['get_report'])) {
                 const to = document.getElementById('reportToDate')?.value || '';
                 const errorText = document.getElementById('dateError');
                 const btn = document.getElementById('btnGenerateReport');
-
                 const isValid = isDateRangeValid(from, to);
 
-                // Toggle class hidden để show/hide error
-                if (errorText) {
-                    if (isValid) {
-                        errorText.classList.add('hidden');
-                    } else {
-                        errorText.classList.remove('hidden');
-                    }
-                }
-
-                // Disable/enable nút
-                if (btn) {
-                    btn.disabled = !isValid;
-                }
+                if (errorText) errorText.classList.toggle('hidden', isValid);
+                if (btn) btn.disabled = !isValid;
             }
 
-            // Gắn event listener
-            document.addEventListener('DOMContentLoaded', function () {
-                const fromInput = document.getElementById('reportFromDate');
-                const toInput = document.getElementById('reportToDate');
-
-                fromInput?.addEventListener('change', updateReportButton);
-                toInput?.addEventListener('change', updateReportButton);
-
-                updateReportButton(); // init
-            });
-
-
-            // 🔹 Helper: Format tiền ngắn gọn (1.2K, 3.5M, 1.2B)
+            // 🔹 Helper functions
             function formatCurrency(amount) {
                 if (!amount) return '0đ';
                 const num = Math.abs(parseFloat(amount));
                 let suffix = 'đ', value = num;
-
                 if (num >= 1e9) { value = num / 1e9; suffix = 'Bđ'; }
                 else if (num >= 1e6) { value = num / 1e6; suffix = 'Mđ'; }
                 else if (num >= 1e3) { value = num / 1e3; suffix = 'Kđ'; }
-
                 return value.toFixed(1) + suffix;
             }
 
-            // 🔹 Helper: Escape HTML chống XSS
             function escapeHtml(text) {
                 if (!text) return '';
                 const div = document.createElement('div');
@@ -1771,10 +1610,10 @@ if (isset($_GET['get_report'])) {
                 return div.innerHTML;
             }
 
-            // 🔹 Hàm chính: Load dữ liệu tồn kho
+            // 🔹 Search Inventory By Date
             function searchInventoryByDate() {
-                const date = document.getElementById('inventoryDate').value;
-                const categoryId = document.getElementById('filterCategory').value;
+                const date = document.getElementById('inventoryDate')?.value;
+                const categoryId = document.getElementById('filterCategory')?.value;
 
                 if (!date) {
                     alert('⚠️ Vui lòng chọn ngày cần xem tồn kho!');
@@ -1782,133 +1621,145 @@ if (isset($_GET['get_report'])) {
                     return;
                 }
 
-                // Cập nhật hiển thị ngày
                 const dateObj = new Date(date);
-                document.getElementById('selectedDateDisplay').innerText = dateObj.toLocaleDateString('vi-VN');
+                const dateDisplay = document.getElementById('selectedDateDisplay');
+                if (dateDisplay) {
+                    dateDisplay.innerText = dateObj.toLocaleDateString('vi-VN');
+                    dateDisplay.classList.remove('hidden');
+                    dateDisplay.previousElementSibling?.classList.remove('hidden');
+                }
 
-                // Show loading
                 const tbody = document.getElementById('inventoryTableBody');
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải...</p></td></tr>';
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Đang tải...</p></td></tr>';
+                }
 
-                // Gọi API
                 let url = `?get_inventory_by_date=1&date=${date}`;
                 if (categoryId) url += `&category_id=${categoryId}`;
 
                 fetch(url)
                     .then(res => res.json())
                     .then(data => {
+                        if (!tbody) return;
                         if (!data || data.length === 0) {
                             tbody.innerHTML = '<tr><td colspan="8" class="text-center py-12 text-gray-400"><i class="fas fa-calendar-check text-4xl mb-3 block opacity-50"></i><p class="font-medium">Chọn ngày và nhấn "Tra cứu" để xem tồn kho</p><p class="text-xs mt-1 opacity-70">Dữ liệu sẽ được tính toán dựa trên lịch sử nhập/xuất</p></td></tr>';
                             return;
                         }
 
                         let html = '';
-                        let totalDau = 0, totalCuoi = 0, totalGT_Dau = 0, totalGT_Cuoi = 0;
+                        let totalDau = 0, totalCuoi = 0;
 
                         data.forEach(item => {
                             const tonCuoi = item.ton_cuoi_ngay;
                             const nguong = item.canh_bao;
-
-                            // Badge trạng thái
                             let badge = '';
                             if (tonCuoi == 0) badge = '<span class="badge-danger">🔴 Hết</span>';
                             else if (tonCuoi <= nguong) badge = '<span class="badge-warning flex">⚠️ Sắp hết</span>';
                             else badge = '<span class="badge-success flex">✅ Còn hàng</span>';
 
-                            // Cộng dồn tổng
                             totalDau += item.ton_dau_ngay;
                             totalCuoi += tonCuoi;
-                            totalGT_Dau += item.tong_gia_tri_dau;
-                            totalGT_Cuoi += item.tong_gia_tri_cuoi;
 
-                            html += `
-    <tr class="hover:bg-gray-50 transition">
-        <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
-        <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
-        <td class="px-4 py-3">${escapeHtml(item.danh_muc)}</td>
-        <td class="px-4 py-3 text-right">${item.ton_dau_ngay.toLocaleString('vi-VN')}</td>
-        <td class="px-4 py-3 text-right text-green-600">+${item.nhap_trong_ngay.toLocaleString('vi-VN')}</td>
-        <td class="px-4 py-3 text-right text-red-600">-${item.xuat_trong_ngay.toLocaleString('vi-VN')}</td>
-        <td class="px-4 py-3 text-right font-bold ${tonCuoi <= nguong ? 'text-red-600' : 'text-green-600'}">
-            ${tonCuoi.toLocaleString('vi-VN')}
-        </td>
-        <td class="px-4 py-3 text-center">${badge}</td>
-    </tr>`;
+                            html += `<tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
+                        <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
+                        <td class="px-4 py-3">${escapeHtml(item.danh_muc)}</td>
+                        <td class="px-4 py-3 text-right">${item.ton_dau_ngay.toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-right text-green-600">+${item.nhap_trong_ngay.toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-right text-red-600">-${item.xuat_trong_ngay.toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-right font-bold ${tonCuoi <= nguong ? 'text-red-600' : 'text-green-600'}">${tonCuoi.toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-center">${badge}</td>
+                    </tr>`;
                         });
 
-                        // Row tổng cộng
-                        html += `
-<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
-    <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
-    <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
-    <td class="px-4 py-3 text-right">-</td>
-    <td class="px-4 py-3 text-right">-</td>
-    <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
-    <td class="px-4 py-3 text-center">-</td>
-</tr>`;
+                        html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+                    <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
+                    <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right">-</td>
+                    <td class="px-4 py-3 text-right">-</td>
+                    <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-center">-</td>
+                </tr>`;
                         tbody.innerHTML = html;
                     })
                     .catch(err => {
                         console.error(err);
-                        tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-red-500">❌ Lỗi tải dữ liệu</td></tr>';
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-red-500">❌ Lỗi tải dữ liệu</td></tr>';
                     });
             }
 
-            // 🔹 Reset filter
             function resetInventoryFilter() {
-                document.getElementById('filterCategory').value = '';
-                document.getElementById('inventoryDate').value = '<?php echo date("Y-m-d"); ?>';
-                searchInventoryByDate();
-            }
-
-
-            document.addEventListener('DOMContentLoaded', function () {
-                // Chỉ gắn Enter để search, KHÔNG gọi searchInventoryByDate() ngay
-                document.getElementById('inventoryDate')?.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') { e.preventDefault(); searchInventoryByDate(); }
-                });
-
-                // Optional: Gắn event cho dropdown category để search khi đổi 
-                document.getElementById('filterCategory')?.addEventListener('change', function () {
-                    const dateInput = document.getElementById('inventoryDate');
-                    if (dateInput?.value) {  // Chỉ search nếu đã có ngày
-                        searchInventoryByDate();
-                    }
-                });
-            });
-
-            //  VALIDATE CHẶN NGÀY TƯƠNG LAI (KHI GÕ TAY HOẶC DÁN)
-            function validateNoFutureDate(input) {
-                if (!input.value) return; // Cho phép ô trống
-
-                // Lấy ngày hôm nay dạng YYYY-MM-DD theo giờ máy khách
-                const today = new Date();
-                const todayStr = today.getFullYear() + '-' +
-                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(today.getDate()).padStart(2, '0');
-
-                // So sánh chuỗi ngày (định dạng YYYY-MM-DD so sánh > hoạt động chính xác)
-                if (input.value > todayStr) {
-                    alert("⚠️ Không được chọn ngày trong tương lai! Vui lòng chọn lại.");
-                    input.value = '';      // Ép xóa giá trị sai
-                    input.focus();         // Trả con trỏ về ô input
+                if (document.getElementById('filterCategory')) document.getElementById('filterCategory').value = '';
+                const dateInput = document.getElementById('inventoryDate');
+                if (dateInput) {
+                    dateInput.value = '<?php echo date("Y-m-d"); ?>';
+                    searchInventoryByDate();
                 }
             }
 
-            // Gắn sự kiện validate cho 3 ô ngày
+            // 🔹 Init DOM events
             document.addEventListener('DOMContentLoaded', function () {
+                // Init warning stats
+                updateWarningStats();
+
+                // Init report button state
+                updateReportButton();
+
+                // Enter handlers
+                ['reportFromDate', 'reportToDate'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('keypress', e => { if (e.key === 'Enter') generateReport(); });
+                });
+
+                ['warningThreshold', 'warningKeyword'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); searchWarning(); } });
+                });
+
+                const inventoryDate = document.getElementById('inventoryDate');
+                if (inventoryDate) {
+                    inventoryDate.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); searchInventoryByDate(); } });
+                }
+
+                const filterCategory = document.getElementById('filterCategory');
+                if (filterCategory) {
+                    filterCategory.addEventListener('change', function () {
+                        const dateInput = document.getElementById('inventoryDate');
+                        if (dateInput?.value) searchInventoryByDate();
+                    });
+                }
+
+                // Date range validation
+                ['reportFromDate', 'reportToDate'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('change', updateReportButton);
+                        el.setAttribute('max', new Date().toISOString().split('T')[0]);
+                    }
+                });
+
+                // Validate no future date
                 ['inventoryDate', 'reportFromDate', 'reportToDate'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
-                        // Chạy validate khi người dùng chọn xong hoặc rời khỏi ô input
                         el.addEventListener('change', () => validateNoFutureDate(el));
-
-                        // Vẫn giữ max để trình duyệt chặn UI date picker
-                        const today = new Date().toISOString().split('T')[0];
-                        el.setAttribute('max', today);
                     }
                 });
+
+                // ✅ Auto-load warning tab stats on first load
+                searchWarning();
             });
+
+            function validateNoFutureDate(input) {
+                if (!input?.value) return;
+                const today = new Date();
+                const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+                if (input.value > todayStr) {
+                    alert("⚠️ Không được chọn ngày trong tương lai! Vui lòng chọn lại.");
+                    input.value = '';
+                    input.focus();
+                }
+            }
         </script>
 </body>
 
