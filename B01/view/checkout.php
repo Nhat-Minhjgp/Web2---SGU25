@@ -150,8 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 	if (empty($fullname) || strlen($fullname) < 2) {
 		$errors[] = "Họ tên không hợp lệ";
 	}
-	if (!preg_match('/^0[0-9]{9}$/', $phone)) {
-		$errors[] = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
+	if (!preg_match('/^09[0-9]{8}$/', $phone)) {
+		$errors[] = "Số điện thoại phải bắt đầu bằng 09 và có 10 số";
 	}
 
 	if (empty($cart_items)) {
@@ -162,8 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 		if (empty($recipient_name) || strlen($recipient_name) < 2) {
 			$errors[] = "Tên người nhận không hợp lệ";
 		}
-		if (!preg_match('/^0[0-9]{9}$/', $recipient_phone)) {
-			$errors[] = "Số điện thoại người nhận phải bắt đầu bằng 0 và có 10 số";
+		if (!preg_match('/^09[0-9]{8}$/', $recipient_phone)) {
+			$errors[] = "Số điện thoại người nhận phải bắt đầu bằng 09 và có 10 số";
 		}
 	}
 
@@ -1431,7 +1431,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 									value="<?php echo $default_address['add_id'] ?? ''; ?>">
 
 
-
+								<!-- Someone Else Receive -->
+								<div class="pt-2">
+									<label class="flex items-center gap-2 cursor-pointer">
+										<input type="checkbox" id="nhan_hang_giup" name="someoneReceive" value="1"
+											class="w-4 h-4 text-[#FF3F1A] rounded">
+										<span class="text-gray-700"> Nhờ người khác nhận hàng</span>
+									</label>
+								</div>
 
 							</div>
 

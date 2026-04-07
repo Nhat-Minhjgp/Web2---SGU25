@@ -316,17 +316,26 @@ if (!$result) {
                                     <td class="p-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <!-- Nút xem chi tiết -->
-                                            <button onclick="toggleDetails(<?php echo $phieu_id; ?>)" class="action-btn btn-view" id="detail-btn-<?php echo $phieu_id; ?>" title="Xem chi tiết">
+                                            <button onclick="toggleDetails(<?php echo $phieu_id; ?>)" class="action-btn btn-view"
+                                                id="detail-btn-<?php echo $phieu_id; ?>" title="Xem chi tiết">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             
                                             <?php if (!$is_completed): ?>
-                                                <!-- Nút hoàn thành -->
-                                                <a href="?action=complete&id=<?php echo $phieu_id; ?>" class="action-btn btn-complete" onclick="return confirm('Xác nhận hoàn thành phiếu nhập? Hành động này sẽ cập nhật tồn kho và không thể hoàn tác!')">
+                                                <!-- Nút Sửa -->
+                                                <a href="edit_import.php?id=<?php echo $phieu_id; ?>" class="action-btn btn-view" title="Sửa phiếu">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            
+                                                <!-- Nút Hoàn thành -->
+                                                <a href="?action=complete&id=<?php echo $phieu_id; ?>" class="action-btn btn-complete"
+                                                    onclick="return confirm('Xác nhận hoàn thành phiếu nhập? Hành động này sẽ cập nhật tồn kho và không thể hoàn tác!')">
                                                     <i class="fas fa-check"></i> Hoàn thành
                                                 </a>
-                                                <!-- Nút xóa -->
-                                                <a href="?action=delete&id=<?php echo $phieu_id; ?>" class="action-btn btn-delete" onclick="return confirm('Xóa phiếu nhập này?')">
+                                            
+                                                <!-- Nút Xóa -->
+                                                <a href="?action=delete&id=<?php echo $phieu_id; ?>" class="action-btn btn-delete"
+                                                    onclick="return confirm('Xóa phiếu nhập này?')">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             <?php else: ?>
@@ -334,7 +343,7 @@ if (!$result) {
                                                     <i class="fas fa-lock"></i> Đã khóa
                                                 </span>
                                             <?php endif; ?>
-                                        </div>
+                                            </div>
                                     </td>
                                  </tr>
 
