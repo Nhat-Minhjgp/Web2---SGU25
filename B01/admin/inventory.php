@@ -156,7 +156,9 @@ if (isset($_GET['get_report'])) {
     $from_date = $_GET['from'] ?? '';
     $to_date = $_GET['to'] ?? '';
     $product_id = $_GET['product'] ?? '';
-
+    if (!empty($to_date) && empty($from_date)) {
+        $from_date = $to_date;
+    }
     // ============================================
     // 1. XỬ LÝ NHẬP HÀNG
     // ============================================
@@ -267,65 +269,81 @@ if (isset($_GET['get_report'])) {
         return strtotime($a['date']) - strtotime($b['date']);
     });
 
-    // ============================================
-    // 4. ✅ TÍNH TỒN KHO THEO KHOẢNG NGÀY (ĐÃ FIX)
-    // ============================================
-    $inventory_summary = ['has_product' => false];
+ // ============================================
+// 4. TÍNH TỒN KHO THEO KỲ BÁO CÁO (ĐÃ FIX LẦN CUỐI)
+// ============================================
+$inventory_summary = ['has_product' => false];
 
-    if (!empty($product_id)) {
-        // Lấy giá vốn
-        $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
-        $stmt->bind_param("i", $product_id);
-        $stmt->execute();
-        $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
-        $stmt->close();
+if (!empty($product_id)) {
+    // Lấy giá vốn
+    $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
+    $stmt->bind_param("i", $product_id);
+    $stmt->execute();
+    $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
+    $stmt->close();
 
-        // 🎯 XÁC ĐỊNH NGÀY BẮT ĐẦU ĐỂ TÍNH TỒN ĐẦU
-        // Nếu có from_date: tồn đầu = trước from_date
-        // Nếu không có from_date nhưng có to_date: tồn đầu = trước to_date (kỳ là 1 ngày)
-        // Nếu không có cả hai: tồn đầu = 0 (tính từ đầu hệ thống)
-        $reference_date_for_ton_dau = null;
-        if (!empty($from_date)) {
-            $reference_date_for_ton_dau = $from_date;
-        } elseif (!empty($to_date)) {
-            // Khi chỉ có to_date, coi như xem báo cáo cho ngày đó → tồn đầu là trước ngày đó
-            $reference_date_for_ton_dau = $to_date;
-        }
-
-        $ton_dau = 0;
-        if (!empty($reference_date_for_ton_dau)) {
-            $sql_ton_dau = "SELECT 
-                COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
-                    JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
-                    WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
-                COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
-                    JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
-                    WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
-
-            $stmt = $conn->prepare($sql_ton_dau);
-            $stmt->bind_param("isii", $product_id, $reference_date_for_ton_dau, $product_id, $reference_date_for_ton_dau);
-            $stmt->execute();
-            $ton_dau_data = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
-            $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
-        }
-        // Nếu không có reference_date → ton_dau = 0 (bắt đầu từ 0)
-
-        $tong_nhap = array_sum(array_column($imports, 'quantity'));
-        $tong_xuat = array_sum(array_column($exports, 'quantity'));
-        $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
-
-        $inventory_summary = [
-            'ton_dau' => $ton_dau,
-            'ton_cuoi' => $ton_cuoi,
-            'tong_nhap' => $tong_nhap,
-            'tong_xuat' => $tong_xuat,
-            'gia_tri_dau' => $ton_dau * $gia_von,
-            'gia_tri_cuoi' => $ton_cuoi * $gia_von,
-            'gia_von' => $gia_von,
-            'has_product' => true
-        ];
+    $ton_dau = 0;
+    
+    // ========== LOGIC MỚI ==========
+    // Trường hợp 1: Chỉ có to_date (from_date rỗng) -> xem DỮ LIỆU CỦA RIÊNG NGÀY ĐÓ
+    if (empty($from_date) && !empty($to_date)) {
+        // Gán from_date = to_date để tính tồn đầu = trước ngày đó
+        $from_date = $to_date;
     }
+    
+    // Trường hợp 2: Có cả from_date và to_date
+    if (!empty($from_date) && !empty($to_date)) {
+        $sql_ton_dau = "SELECT 
+            COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
+                JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
+                WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
+            COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
+                JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
+                WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
+        $stmt = $conn->prepare($sql_ton_dau);
+        $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+        $stmt->execute();
+        $ton_dau_data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
+    }
+    // Trường hợp 3: Chỉ có from_date (xem từ from_date đến nay)
+    elseif (!empty($from_date) && empty($to_date)) {
+        $sql_ton_dau = "SELECT 
+            COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
+                JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
+                WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
+            COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
+                JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
+                WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
+        $stmt = $conn->prepare($sql_ton_dau);
+        $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+        $stmt->execute();
+        $ton_dau_data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
+    }
+    
+    // Tính nhập/xuất trong kỳ
+    // LƯU Ý: Cần lọc lại import/export theo đúng khoảng ngày sau khi đã xử lý from_date
+    // (Code hiện tại đang lấy $imports/$exports từ trên, nhưng nếu bạn thay đổi from_date thì cần refresh)
+    
+    $tong_nhap = array_sum(array_column($imports, 'quantity'));
+    $tong_xuat = array_sum(array_column($exports, 'quantity'));
+    
+    $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
+    
+    $inventory_summary = [
+        'ton_dau' => $ton_dau,
+        'ton_cuoi' => $ton_cuoi,
+        'tong_nhap' => $tong_nhap,
+        'tong_xuat' => $tong_xuat,
+        'gia_tri_dau' => $ton_dau * $gia_von,
+        'gia_tri_cuoi' => $ton_cuoi * $gia_von,
+        'gia_von' => $gia_von,
+        'has_product' => true
+    ];
+}
 
     // Trả về JSON
     header('Content-Type: application/json');
@@ -932,7 +950,7 @@ if (isset($_GET['get_report'])) {
                                         <th class="px-4 py-3 text-right">Tồn kho</th>
                                         <th class="px-4 py-3 text-right">Ngưỡng cảnh báo</th>
                                         <th class="px-4 py-3 text-center">Trạng thái</th>
-                                        <th class="px-4 py-3 text-center"></th>
+                                        <th class="px-4 py-3 text-center">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="warningTableBody">
@@ -1178,6 +1196,10 @@ if (isset($_GET['get_report'])) {
                 const from = document.getElementById('reportFromDate')?.value || '';
                 const to = document.getElementById('reportToDate')?.value || '';
                 const productId = document.getElementById('reportProductId')?.value || '';
+             
+             
+    
+
 
                 // ✅ VALIDATION 1: Yêu cầu chọn ít nhất 1 ngày
                 if (!from && !to) {
