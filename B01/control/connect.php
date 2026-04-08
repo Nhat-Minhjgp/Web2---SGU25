@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', 1);    // Bật 1 nếu site HTTPS
+    ini_set('session.cookie_secure', 1);    
     ini_set('session.cookie_samesite', 'Lax');
     ini_set('session.use_strict_mode', 1);
     ini_set('session.use_only_cookies', 1);
