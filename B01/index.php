@@ -2,6 +2,7 @@
 
 session_start();
 require_once './control/connect.php';
+require_once './control/check_remember_login.php';
 
 
 // --- KIỂM TRA ĐĂNG NHẬP ---
@@ -553,7 +554,7 @@ if ($is_logged_in) {
                                                                             </a>
                                                                         </div>
                                                                         <div class="grid grid-cols-4 gap-2">
-                                                                       
+
                                                                             <!-- YONEX -->
                                                                             <a href="./view/shop.php?thuonghieu[]=yonex"
                                                                                 class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition group">
@@ -991,7 +992,7 @@ if ($is_logged_in) {
                                         <i class="fas fa-search text-xl"></i>
                                     </button>
 
-                                  
+
                                     <!-- Account Dropdown -->
                                     <div class="user-dropdown relative">
                                         <?php if ($is_logged_in): ?>
@@ -1737,8 +1738,8 @@ if ($is_logged_in) {
                             </div>
                         </div>
                         <div>
-                            <a href="./view/shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            <a href="./view/shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo -
+                                Túi Pickleball</a>
                         </div>
                     </div>
                 </div>

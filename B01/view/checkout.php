@@ -4,6 +4,7 @@
  */
 session_start();
 require_once '../control/connect.php';
+require_once '../control/check_remember_login.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

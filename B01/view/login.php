@@ -1,5 +1,8 @@
 <?php
 session_start();
+$secure_cookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+                 ($_SERVER['SERVER_PORT'] == 443);
+
 // --- KẾT NỐI DATABASE (MySQLi) ---
 require_once '../control/connect.php';
 
@@ -91,14 +94,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['ho_ten'] = $user['Ho_ten'];
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['role'] = $user['role'];
-                        // Remember me
+                        // === THAY THẾ BLOCK REMEMBER ME CŨ ===
+                        $secure_cookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] == 443);
+
                         if ($remember) {
-                            setcookie('remember_user', $form_data['username'], [
+                            $token = bin2hex(random_bytes(32)); // Token 64 ký tự an toàn
+                            $stmt_t = $conn->prepare("UPDATE users SET remember_token = ? WHERE User_id = ?");
+                            $stmt_t->bind_param("si", $token, $user['User_id']);
+                            $stmt_t->execute();
+                            $stmt_t->close();
+
+                            setcookie('auth_remember', $token, [
                                 'expires' => time() + (86400 * 30),
                                 'path' => '/',
+                                'secure' => $secure_cookie, // Tự động đúng môi trường
                                 'httponly' => true,
                                 'samesite' => 'Lax'
                             ]);
+                        } else {
+                            // Không tích ghi nhớ -> xóa token cũ
+                            $stmt_c = $conn->prepare("UPDATE users SET remember_token = NULL WHERE User_id = ?");
+                            $stmt_c->bind_param("i", $user['User_id']);
+                            $stmt_c->execute();
+                            $stmt_c->close();
+
+                            if (isset($_COOKIE['auth_remember'])) {
+                                setcookie('auth_remember', '', time() - 3600, '/', '', $secure_cookie, true);
+                            }
                         }
                         $success = "Đăng nhập thành công! Chuyển hướng...";
                         header("Refresh: 2; URL=../index.php");
@@ -1478,8 +1500,8 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                                 </div>
                             </div>
                             <div>
-                                <a href="./shop.php?danhmuc[]=ba-l"
-                                    class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                                <a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo -
+                                    Túi Pickleball</a>
                             </div>
                         </div>
                     </div>

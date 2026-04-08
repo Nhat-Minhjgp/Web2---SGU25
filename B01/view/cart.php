@@ -2,6 +2,7 @@
 // view/cart.php
 session_start();
 require_once '../control/connect.php';
+require_once '../control/check_remember_login.php';
 
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
@@ -160,14 +161,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // === KIỂM TRA ĐĂNG NHẬP ===
 if (!$is_ajax) {
-   if (!isset($_SESSION['user_id'])) {
-    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
-    header("Location: ./login.php?redirect=my-account");
-    exit();
-}
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
+        header("Location: ./login.php?redirect=my-account");
+        exit();
+    }
     if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
         session_destroy();
-        setcookie('remember_user', '', time() - 3600, '/');
+        $secure_cookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] == 443);
+        setcookie('auth_remember', '', time() - 3600, '/', '', $secure_cookie, true);
         header("Location: login.php?error=staff_not_allowed");
         exit();
     }
@@ -1633,8 +1635,7 @@ $user_info = [
 
                         <!-- Balo -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
+                            <a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo</a>
                         </div>
 
                         <!-- Phụ kiện -->
@@ -1698,8 +1699,8 @@ $user_info = [
                             </div>
                         </div>
                         <div>
-                            <a href="./shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            <a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo - Túi
+                                Pickleball</a>
                         </div>
                     </div>
                 </div>

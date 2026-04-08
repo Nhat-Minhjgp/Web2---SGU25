@@ -2,6 +2,7 @@
 // view/my-account/address-book.php
 session_start();
 require_once '../../control/connect.php';
+require_once '../../control/check_remember_login.php';
 
 // === ✅ HELPER: CHECK SQL INJECTION (ĐỂ ĐẦU FILE) ===
 function checkSQLInjectionInput($value)
@@ -36,7 +37,8 @@ if (!isset($_SESSION['user_id'])) {
 // === CHẶN ROLE 1 (Staff/Admin) ===
 if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
     session_destroy();
-    setcookie('remember_user', '', time() - 3600, '/');
+    $secure_cookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] == 443);
+    setcookie('auth_remember', '', time() - 3600, '/', '', $secure_cookie, true);
     header("Location: login.php?error=staff_not_allowed");
     exit();
 }
@@ -1791,8 +1793,7 @@ $stmt->close();
 
                         <!-- Balo -->
                         <div>
-                            <a href="../shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
+                            <a href="../shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo</a>
                         </div>
 
                         <!-- Phụ kiện -->
@@ -1856,8 +1857,8 @@ $stmt->close();
                             </div>
                         </div>
                         <div>
-                            <a href="../shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            <a href="../shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo - Túi
+                                Pickleball</a>
                         </div>
                     </div>
                 </div>

@@ -697,7 +697,10 @@ ALTER TABLE `tracuutonkho`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`User_id`),
-  ADD UNIQUE KEY `Username` (`Username`);
+  ADD UNIQUE KEY `Username` (`Username`),
+  ADD COLUMN `remember_token` VARCHAR(64) DEFAULT NULL AFTER `created_at`;
+
+CREATE INDEX idx_remember_token ON users(remember_token);
 
 --
 -- AUTO_INCREMENT for dumped tables

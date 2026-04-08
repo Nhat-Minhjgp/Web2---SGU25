@@ -6,6 +6,7 @@
  */
 session_start();
 require_once '../../control/connect.php';
+require_once '../../control/check_remember_login.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -17,6 +18,14 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int) $_SESSION['user_id'];
+// === CHẶN ROLE 1 (Staff/Admin) ===
+if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
+    session_destroy();
+    $secure_cookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] == 443);
+    setcookie('auth_remember', '', time() - 3600, '/', '', $secure_cookie, true);
+    header("Location: ../login.php?error=staff_not_allowed");
+    exit();
+}
 
 
 $cart_count = 0;
@@ -55,7 +64,7 @@ $where_clauses = ["d.User_id = ?"];
 $params = [$user_id];
 $types = "i";
 
- //  FIX: Filter by status integer (0,1,2,3)
+//  FIX: Filter by status integer (0,1,2,3)
 $status_map_int = [
     'pending' => 0,        // Chờ xác nhận
     'confirmed' => 1,      // Đã xác nhận
@@ -1635,8 +1644,7 @@ function getStatusBadge($status)
 
                         <!-- Balo -->
                         <div>
-                            <a href="../shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
+                            <a href="../shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo</a>
                         </div>
 
                         <!-- Phụ kiện -->
@@ -1700,8 +1708,8 @@ function getStatusBadge($status)
                             </div>
                         </div>
                         <div>
-                            <a href="../shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            <a href="../shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo - Túi
+                                Pickleball</a>
                         </div>
                     </div>
                 </div>

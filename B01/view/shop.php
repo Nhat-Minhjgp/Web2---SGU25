@@ -2,6 +2,7 @@
 // view/shop.php
 session_start();
 require_once '../control/connect.php';
+require_once '../control/check_remember_login.php';
 
 // === KIỂM TRA ĐĂNG NHẬP  ===
 $is_logged_in = isset($_SESSION['user_id']);

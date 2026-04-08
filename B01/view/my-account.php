@@ -2,6 +2,7 @@
 // view/my-account.php
 session_start();
 require_once '../control/connect.php';
+require_once '../control/check_remember_login.php';
 
 
 $cart_count = 0;
