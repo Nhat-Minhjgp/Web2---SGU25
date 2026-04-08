@@ -2134,6 +2134,7 @@ if ($is_logged_in) {
         }
     });
 })();
+
 </script>
 </body>
 
