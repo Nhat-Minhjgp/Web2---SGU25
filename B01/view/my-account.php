@@ -1195,7 +1195,7 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                                         Sổ địa chỉ
                                     </a>
                                 </li>
-                               
+
                             </ul>
                         </nav>
                     </div>
@@ -1354,7 +1354,7 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                                 <span>Sổ địa chỉ</span>
                             </a>
                         </li>
-                       
+
                     </ul>
                 </nav>
             </div>
@@ -1530,8 +1530,7 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
 
                         <!-- Balo -->
                         <div>
-                            <a href="./shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo</a>
+                            <a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo</a>
                         </div>
 
                         <!-- Phụ kiện -->
@@ -1595,8 +1594,8 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                             </div>
                         </div>
                         <div>
-                            <a href="./shop.php?danhmuc[]=ba-l"
-                                class="block py-2 text-gray-700 font-medium">Balo - Túi Pickleball</a>
+                            <a href="./shop.php?danhmuc[]=ba-l" class="block py-2 text-gray-700 font-medium">Balo - Túi
+                                Pickleball</a>
                         </div>
                     </div>
                 </div>
@@ -1920,6 +1919,31 @@ $created_date = !empty($user['created_at']) ? date('d/m/Y', strtotime($user['cre
                 });
 
             });</script>
+        <script>
+            (function () {
+                // ⚠️ HARDCODE ĐƯỜNG DẪN TẠI ĐÂY (Sửa cho phù hợp với từng thư mục)
+                const LOGOUT_URL = '../control/logout.php';
+
+                // 1. Lắng nghe tín hiệu đăng xuất từ các tab/window khác
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'nvbplay_logout_sync') {
+                        // Tab khác nhận được lệnh -> chuyển hướng đến logout.php
+                        window.location.href = LOGOUT_URL;
+                    }
+                });
+
+                // 2. Khi người dùng click vào link đăng xuất ở tab hiện tại
+                document.addEventListener('click', function (e) {
+                    // Bắt tất cả link trỏ đến logout.php (kể cả trong dropdown/mobile menu)
+                    const logoutLink = e.target.closest('a[href*="logout.php"]');
+                    if (logoutLink) {
+                        // Gửi tín hiệu sang localStorage để các tab khác nhận được
+                        localStorage.setItem('nvbplay_logout_sync', Date.now().toString());
+                        // Tab hiện tại sẽ tự thực hiện redirect theo href của link (không cần preventDefault)
+                    }
+                });
+            })();
+        </script>
 </body>
 
 </html>
