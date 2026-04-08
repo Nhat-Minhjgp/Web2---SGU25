@@ -281,81 +281,81 @@ if (isset($_GET['get_report'])) {
         return strtotime($a['date']) - strtotime($b['date']);
     });
 
- // ============================================
+    // ============================================
 // 4. TÍNH TỒN KHO THEO KỲ BÁO CÁO (ĐÃ FIX LẦN CUỐI)
 // ============================================
-$inventory_summary = ['has_product' => false];
+    $inventory_summary = ['has_product' => false];
 
-if (!empty($product_id)) {
-    // Lấy giá vốn
-    $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
-    $stmt->bind_param("i", $product_id);
-    $stmt->execute();
-    $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
-    $stmt->close();
+    if (!empty($product_id)) {
+        // Lấy giá vốn
+        $stmt = $conn->prepare("SELECT COALESCE(GiaNhapTB, 0) as gia_von FROM sanpham WHERE SanPham_id = ?");
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $gia_von = $stmt->get_result()->fetch_assoc()['gia_von'] ?? 0;
+        $stmt->close();
 
-    $ton_dau = 0;
-    
-    // ========== LOGIC MỚI ==========
-    // Trường hợp 1: Chỉ có to_date (from_date rỗng) -> xem DỮ LIỆU CỦA RIÊNG NGÀY ĐÓ
-    if (empty($from_date) && !empty($to_date)) {
-        // Gán from_date = to_date để tính tồn đầu = trước ngày đó
-        $from_date = $to_date;
-    }
-    
-    // Trường hợp 2: Có cả from_date và to_date
-    if (!empty($from_date) && !empty($to_date)) {
-        $sql_ton_dau = "SELECT 
+        $ton_dau = 0;
+
+        // ========== LOGIC MỚI ==========
+        // Trường hợp 1: Chỉ có to_date (from_date rỗng) -> xem DỮ LIỆU CỦA RIÊNG NGÀY ĐÓ
+        if (empty($from_date) && !empty($to_date)) {
+            // Gán from_date = to_date để tính tồn đầu = trước ngày đó
+            $from_date = $to_date;
+        }
+
+        // Trường hợp 2: Có cả from_date và to_date
+        if (!empty($from_date) && !empty($to_date)) {
+            $sql_ton_dau = "SELECT 
             COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
                 JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
                 WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
             COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
                 JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
                 WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
-        $stmt = $conn->prepare($sql_ton_dau);
-        $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
-        $stmt->execute();
-        $ton_dau_data = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
-    }
-    // Trường hợp 3: Chỉ có from_date (xem từ from_date đến nay)
-    elseif (!empty($from_date) && empty($to_date)) {
-        $sql_ton_dau = "SELECT 
+            $stmt = $conn->prepare($sql_ton_dau);
+            $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+            $stmt->execute();
+            $ton_dau_data = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
+        }
+        // Trường hợp 3: Chỉ có from_date (xem từ from_date đến nay)
+        elseif (!empty($from_date) && empty($to_date)) {
+            $sql_ton_dau = "SELECT 
             COALESCE((SELECT SUM(ct.SoLuong) FROM chitietphieunhap ct 
                 JOIN phieunhap pn ON ct.PhieuNhap_id = pn.NhapHang_id 
                 WHERE ct.SanPham_id = ? AND DATE(pn.NgayNhap) < DATE(?)), 0) as nhap_truoc,
             COALESCE((SELECT SUM(ctdh.SoLuong) FROM chitiethoadon ctdh 
                 JOIN donhang d ON ctdh.DonHang_id = d.DonHang_id 
                 WHERE ctdh.SanPham_id = ? AND d.TrangThai IN (1,2) AND DATE(d.NgayDat) < DATE(?)), 0) as xuat_truoc";
-        $stmt = $conn->prepare($sql_ton_dau);
-        $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
-        $stmt->execute();
-        $ton_dau_data = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
+            $stmt = $conn->prepare($sql_ton_dau);
+            $stmt->bind_param("isii", $product_id, $from_date, $product_id, $from_date);
+            $stmt->execute();
+            $ton_dau_data = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            $ton_dau = ($ton_dau_data['nhap_truoc'] ?? 0) - ($ton_dau_data['xuat_truoc'] ?? 0);
+        }
+
+        // Tính nhập/xuất trong kỳ
+        // LƯU Ý: Cần lọc lại import/export theo đúng khoảng ngày sau khi đã xử lý from_date
+        // (Code hiện tại đang lấy $imports/$exports từ trên, nhưng nếu bạn thay đổi from_date thì cần refresh)
+
+        $tong_nhap = array_sum(array_column($imports, 'quantity'));
+        $tong_xuat = array_sum(array_column($exports, 'quantity'));
+
+        $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
+
+        $inventory_summary = [
+            'ton_dau' => $ton_dau,
+            'ton_cuoi' => $ton_cuoi,
+            'tong_nhap' => $tong_nhap,
+            'tong_xuat' => $tong_xuat,
+            'gia_tri_dau' => $ton_dau * $gia_von,
+            'gia_tri_cuoi' => $ton_cuoi * $gia_von,
+            'gia_von' => $gia_von,
+            'has_product' => true
+        ];
     }
-    
-    // Tính nhập/xuất trong kỳ
-    // LƯU Ý: Cần lọc lại import/export theo đúng khoảng ngày sau khi đã xử lý from_date
-    // (Code hiện tại đang lấy $imports/$exports từ trên, nhưng nếu bạn thay đổi from_date thì cần refresh)
-    
-    $tong_nhap = array_sum(array_column($imports, 'quantity'));
-    $tong_xuat = array_sum(array_column($exports, 'quantity'));
-    
-    $ton_cuoi = $ton_dau + $tong_nhap - $tong_xuat;
-    
-    $inventory_summary = [
-        'ton_dau' => $ton_dau,
-        'ton_cuoi' => $ton_cuoi,
-        'tong_nhap' => $tong_nhap,
-        'tong_xuat' => $tong_xuat,
-        'gia_tri_dau' => $ton_dau * $gia_von,
-        'gia_tri_cuoi' => $ton_cuoi * $gia_von,
-        'gia_von' => $gia_von,
-        'has_product' => true
-    ];
-}
 
     // Trả về JSON
     header('Content-Type: application/json');
@@ -1239,9 +1239,9 @@ if (!empty($product_id)) {
                 const from = document.getElementById('reportFromDate')?.value || '';
                 const to = document.getElementById('reportToDate')?.value || '';
                 const productId = document.getElementById('reportProductId')?.value || '';
-             
-             
-    
+
+
+
 
 
                 // ✅ VALIDATION 1: Bắt buộc nhập CẢ HAI ngày
@@ -1669,7 +1669,7 @@ if (!empty($product_id)) {
                         }
 
                         let html = '';
-                        let totalDau = 0, totalCuoi = 0;
+                        let totalDau = 0, totalNhap = 0, totalXuat = 0, totalCuoi = 0;
 
                         data.forEach(item => {
                             const tonCuoi = item.ton_cuoi_ngay;
@@ -1680,8 +1680,9 @@ if (!empty($product_id)) {
                             else badge = '<span class="badge-success flex">✅ Còn hàng</span>';
 
                             totalDau += item.ton_dau_ngay;
+                            totalNhap += parseInt(item.nhap_trong_ngay) || 0;
+                            totalXuat += parseInt(item.xuat_trong_ngay) || 0;
                             totalCuoi += tonCuoi;
-
                             html += `<tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-mono">${escapeHtml(item.masp)}</td>
                         <td class="px-4 py-3 font-medium">${escapeHtml(item.ten_sp)}</td>
@@ -1695,13 +1696,13 @@ if (!empty($product_id)) {
                         });
 
                         html += `<tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
-                    <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
-                    <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-right">-</td>
-                    <td class="px-4 py-3 text-right">-</td>
-                    <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-center">-</td>
-                </tr>`;
+    <td colspan="3" class="px-4 py-3 text-right">TỔNG:</td>
+    <td class="px-4 py-3 text-right">${totalDau.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-right text-green-600">+${totalNhap.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-right text-red-600">-${totalXuat.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-right text-indigo-700">${totalCuoi.toLocaleString('vi-VN')}</td>
+    <td class="px-4 py-3 text-center">-</td>
+</tr>`;
                         tbody.innerHTML = html;
                     })
                     .catch(err => {

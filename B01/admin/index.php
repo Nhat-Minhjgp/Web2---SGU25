@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Bạn không có quyền truy cập Admin!';
                 }
             } else {
-                $error = 'Sai mật khẩu! Vui lòng thử lại.';
+                $error = 'Sai thông tin đăng nhập! Vui lòng thử lại.';
             }
         } else {
             $error = 'Tên đăng nhập không tồn tại!';

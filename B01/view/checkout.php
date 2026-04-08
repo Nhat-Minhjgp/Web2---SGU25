@@ -128,53 +128,65 @@ function formatPrice($price)
 }
 
 // === XỬ LÝ FORM SUBMIT ===
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
-	//  Xác định mode ngay đầu block POST
-	$is_buy_now_mode = ($_POST['checkout_mode'] ?? '') === 'buy_now'
-		&& !empty($_SESSION['buy_now_cart']);
+	// Xác định mode
+	$is_buy_now_mode = ($_POST['checkout_mode'] ?? '') === 'buy_now' && !empty($_SESSION['buy_now_cart']);
 	$active_cart = $is_buy_now_mode ? $_SESSION['buy_now_cart'] : ($_SESSION['cart'] ?? []);
-
-
-
 	$payment_method = $_POST['payment_method'] ?? 'cod';
 
-	// Validation
+	// 1. Lấy & Trim dữ liệu
 	$fullname = trim($_POST['fullname'] ?? '');
 	$phone = trim($_POST['phone'] ?? '');
-	$address = trim($_POST['address'] ?? '');
+	$tinh_thanhpho = trim($_POST['tinh_thanhpho'] ?? '');
+	$quan_huyen = trim($_POST['quan_huyen'] ?? '');
+	$dia_chi_chitiet = trim($_POST['dia_chi_chitiet'] ?? '');
 	$someoneReceive = isset($_POST['someoneReceive']) && $_POST['someoneReceive'] == '1';
-	$recipient_name = $someoneReceive ? trim($_POST['recipient_name'] ?? '') : '';
-	$recipient_phone = $someoneReceive ? trim($_POST['recipient_phone'] ?? '') : '';
 
+	// 🗑️ BỎ validation riêng cho recipient_name/recipient_phone
+	// Vì khi reload form sau lỗi, các field address đã là thông tin người nhận thực tế
+
+	// 2. Validation Server-Side
+	$errors = [];
+
+	// ✅ Họ tên
 	if (empty($fullname) || strlen($fullname) < 2) {
-		$errors[] = "Họ tên không hợp lệ";
-	}
-	if (!preg_match('/^09[0-9]{8}$/', $phone)) {
-		$errors[] = "Số điện thoại phải bắt đầu bằng 09 và có 10 số";
+		$errors[] = "Họ tên không hợp lệ (tối thiểu 2 ký tự)";
 	}
 
+	// ✅ Số điện thoại chuẩn VN: 03,05,07,08,09 + 8 số
+	if (!preg_match('/^0[3|5|7|8|9][0-9]{8}$/', $phone)) {
+		$errors[] = "Số điện thoại không hợp lệ (ví dụ: 0912345678)";
+	}
+
+	// ✅ Validation địa chỉ (3 trường bắt buộc)
+	if (empty($tinh_thanhpho) || strlen($tinh_thanhpho) < 2) {
+		$errors[] = "Vui lòng nhập Tỉnh/Thành phố";
+	}
+	if (empty($quan_huyen) || strlen($quan_huyen) < 2) {
+		$errors[] = "Vui lòng nhập Quận/Huyện";
+	}
+	if (empty($dia_chi_chitiet) || strlen($dia_chi_chitiet) < 5) {
+		$errors[] = "Địa chỉ chi tiết phải từ 5 ký tự trở lên";
+	}
+
+	// ✅ Kiểm tra điều khoản (chặn bypass JS)
+	if (empty($_POST['terms']) || $_POST['terms'] !== '1') {
+		$errors[] = "Vui lòng đồng ý với điều khoản & chính sách bảo mật";
+	}
+
+	// ✅ Kiểm tra giỏ hàng
 	if (empty($cart_items)) {
 		$errors[] = "Giỏ hàng trống";
-	}
-	// Nếu có người nhận khác, kiểm tra thông tin người nhận
-	if ($someoneReceive) {
-		if (empty($recipient_name) || strlen($recipient_name) < 2) {
-			$errors[] = "Tên người nhận không hợp lệ";
-		}
-		if (!preg_match('/^09[0-9]{8}$/', $recipient_phone)) {
-			$errors[] = "Số điện thoại người nhận phải bắt đầu bằng 09 và có 10 số";
+	} else {
+		foreach ($cart_items as $item) {
+			$qty = (int) ($item['quantity'] ?? 1);
+			if ($qty > $item['SoLuongTon']) {
+				$errors[] = "Sản phẩm '{$item['TenSP']}' chỉ còn {$item['SoLuongTon']} trong kho";
+			}
 		}
 	}
 
-	// Kiểm tra tồn kho
-	foreach ($cart_items as $item) {
-		$qty = $item['quantity'];
-		if ($qty > $item['SoLuongTon']) {
-			$errors[] = "Sản phẩm '{$item['TenSP']}' chỉ còn {$item['SoLuongTon']} trong kho, bạn đặt $qty";
-		}
-	}
+	// 3. Xử lý nếu KHÔNG có lỗi
 	if (empty($errors)) {
 		$tracking_code = 'NVB' . date('Ymd') . strtoupper(substr(md5(uniqid($user_id . time(), true)), 0, 8));
 		$link_tra_cuu = '/view/track-order.php?code=' . $tracking_code;
@@ -184,19 +196,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			// 1. Xử lý địa chỉ
 			$selected_address_id = !empty($_POST['selected_address_id']) ? (int) $_POST['selected_address_id'] : null;
 
-			// 🆕 Nếu không có địa chỉ được chọn từ sổ (người dùng nhập tay)
 			if ($selected_address_id === null) {
-				$addr_name = trim($_POST['fullname'] ?? '');
-				$addr_phone = trim($_POST['phone'] ?? '');
+				// 🆕 Khởi tạo biến rõ ràng TRƯỚC khi bind_param (bắt buộc với PHP 8+)
+				$addr_user_id = $user_id; // int
+				$addr_ten = trim($_POST['fullname'] ?? ''); // string
+				$addr_sdt = trim($_POST['phone'] ?? ''); // string
+				$addr_duong = ''; // string - để trống hoặc ghép từ $_POST nếu cần
+				$addr_quan = trim($_POST['quan_huyen'] ?? ''); // string
+				$addr_tinh = trim($_POST['tinh_thanhpho'] ?? ''); // string
+				$addr_chitiet = trim($_POST['dia_chi_chitiet'] ?? ''); // string/text
+				$addr_mac_dinh = 0; // tinyint
 
-				// 🆕 Lấy từng phần địa chỉ
-				$tinh_thanhpho = trim($_POST['tinh_thanhpho'] ?? '');
-				$quan_huyen = trim($_POST['quan_huyen'] ?? '');
-				$dia_chi_chitiet = trim($_POST['dia_chi_chitiet'] ?? '');
+				//  SQL khớp đúng thứ tự cột trong bảng diachigh
+				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-				// Insert địa chỉ mới với cấu trúc đầy đủ
-				$stmt = $conn->prepare("INSERT INTO diachigh (User_id, Ten_nguoi_nhan, SDT_nhan, Duong, Quan, Tinh_thanhpho, Dia_chi_chitiet, Mac_dinh) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-				$stmt->bind_param("issssss", $user_id, $addr_name, $addr_phone, $dia_chi_chitiet, $quan_huyen, $tinh_thanhpho, $dia_chi_chitiet);
+				//  bind_param với 8 tham số, tất cả đều là biến đã khai báo
+				// Types: i=integer, s=string, s=string, s=string, s=string, s=string, s=string, i=integer
+				$stmt->bind_param(
+					"issssssi",
+					$addr_user_id,
+					$addr_ten,
+					$addr_sdt,
+					$addr_duong,
+					$addr_quan,
+					$addr_tinh,
+					$addr_chitiet,
+					$addr_mac_dinh
+				);
 
 				if (!$stmt->execute()) {
 					throw new Exception("Không thể lưu địa chỉ mới: " . $stmt->error);
@@ -209,6 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			$order_total_int = (int) round($order_total);
 			$stmt = $conn->prepare("INSERT INTO donhang (User_id, DiaChi_id, PhuongThucTT, TongTien, NgayDat, TrangThai, linkTraCuu) VALUES (?, ?, ?, ?, NOW(), 0, ?)");
 			$stmt->bind_param("iisds", $user_id, $selected_address_id, $payment_method, $order_total_int, $link_tra_cuu);
+
 			if (!$stmt->execute()) {
 				throw new Exception("Insert donhang failed: " . $stmt->error);
 			}
@@ -225,17 +252,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 			}
 			$stmt_detail->close();
 
-			// 4. Cập nhật tồn kho
-			// $stmt_stock = $conn->prepare("UPDATE sanpham SET SoLuongTon = SoLuongTon - ? WHERE SanPham_id = ? AND SoLuongTon >= ?");
-			// foreach ($cart_items as $item) {
-			// 	$qty = (int) ($item['quantity'] ?? 1);
-			// 	$stmt_stock->bind_param("iii", $qty, $item['SanPham_id'], $qty);
-			// 	$stmt_stock->execute();
-			// }
-			// $stmt_stock->close();
-
 			$conn->commit();
 
+			// Xóa giỏ
 			if ($is_buy_now_mode) {
 				unset($_SESSION['buy_now_cart']);
 			} else {
@@ -249,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 		} catch (Exception $e) {
 			$conn->rollback();
 			error_log("Checkout error: " . $e->getMessage());
-			$errors[] = "Lỗi hệ thống: " . $e->getMessage();
+			$errors[] = "Lỗi hệ thống khi đặt hàng. Vui lòng thử lại.";
 		}
 	}
 }
@@ -1491,12 +1510,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 													<p class="font-medium text-lg tracking-wider" id="accountNumber">
 														1030506778</p>
 												</div>
-												<button type="button"
-													class="copy-btn bg-[#FF3F1A] text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition flex items-center gap-2"
-													onclick="copyAccountNumber()">
-													<i class="fas fa-copy"></i>
-													<span>Sao chép</span>
-												</button>
+												
 											</div>
 											<div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
 												<p class="text-sm text-yellow-800 font-medium"><i
@@ -1517,7 +1531,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 							<!-- Terms -->
 							<div class="pt-4 border-t">
 								<label class="flex items-start gap-2">
-									<input type="checkbox" id="terms" required class="mt-1 text-[#FF3F1A] rounded">
+									<input type="checkbox" id="terms" name="terms" value="1" required
+										class="mt-1 text-[#FF3F1A] rounded">
 									<span class="text-sm text-gray-600">Tôi đã đọc và đồng ý với <a href=""
 											class="text-[#FF3F1A] hover:underline">điều khoản</a> và <a href=""
 											class="text-[#FF3F1A] hover:underline">chính sách bảo mật</a></span>
@@ -2371,31 +2386,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 				});
 
 			});</script>
-			<script>
-(function() {
-    // ⚠️ HARDCODE ĐƯỜNG DẪN TẠI ĐÂY (Sửa cho phù hợp với từng thư mục)
-    const LOGOUT_URL = '../control/logout.php'; 
+		<script>
+			(function () {
+				// ⚠️ HARDCODE ĐƯỜNG DẪN TẠI ĐÂY (Sửa cho phù hợp với từng thư mục)
+				const LOGOUT_URL = '../control/logout.php';
 
-    // 1. Lắng nghe tín hiệu đăng xuất từ các tab/window khác
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'nvbplay_logout_sync') {
-            // Tab khác nhận được lệnh -> chuyển hướng đến logout.php
-            window.location.href = LOGOUT_URL;
-        }
-    });
+				// 1. Lắng nghe tín hiệu đăng xuất từ các tab/window khác
+				window.addEventListener('storage', function (e) {
+					if (e.key === 'nvbplay_logout_sync') {
+						// Tab khác nhận được lệnh -> chuyển hướng đến logout.php
+						window.location.href = LOGOUT_URL;
+					}
+				});
 
-    // 2. Khi người dùng click vào link đăng xuất ở tab hiện tại
-    document.addEventListener('click', function(e) {
-        // Bắt tất cả link trỏ đến logout.php (kể cả trong dropdown/mobile menu)
-        const logoutLink = e.target.closest('a[href*="logout.php"]');
-        if (logoutLink) {
-            // Gửi tín hiệu sang localStorage để các tab khác nhận được
-            localStorage.setItem('nvbplay_logout_sync', Date.now().toString());
-            // Tab hiện tại sẽ tự thực hiện redirect theo href của link (không cần preventDefault)
-        }
-    });
-})();
-</script>
+				// 2. Khi người dùng click vào link đăng xuất ở tab hiện tại
+				document.addEventListener('click', function (e) {
+					// Bắt tất cả link trỏ đến logout.php (kể cả trong dropdown/mobile menu)
+					const logoutLink = e.target.closest('a[href*="logout.php"]');
+					if (logoutLink) {
+						// Gửi tín hiệu sang localStorage để các tab khác nhận được
+						localStorage.setItem('nvbplay_logout_sync', Date.now().toString());
+						// Tab hiện tại sẽ tự thực hiện redirect theo href của link (không cần preventDefault)
+					}
+				});
+			})();
+		</script>
 </body>
 
 </html>
