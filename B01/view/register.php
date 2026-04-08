@@ -1404,7 +1404,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div class="flex items-start gap-2 text-xs">
                                                 <input type="checkbox" name="terms" id="terms" class="mt-1" required>
                                                 <label for="terms" class="text-gray-600">Tôi đồng ý với <a
-                                                        href="../chinh-sach-bao-mat.php"
+                                                        href=""
                                                         class="text-[#FF3F1A] hover:underline">điều khoản sử dụng và
                                                         chính sách
                                                         bảo mật</a></label>

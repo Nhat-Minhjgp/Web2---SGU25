@@ -1518,8 +1518,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 							<div class="pt-4 border-t">
 								<label class="flex items-start gap-2">
 									<input type="checkbox" id="terms" required class="mt-1 text-[#FF3F1A] rounded">
-									<span class="text-sm text-gray-600">Tôi đã đọc và đồng ý với <a href="#"
-											class="text-[#FF3F1A] hover:underline">điều khoản</a> và <a href="#"
+									<span class="text-sm text-gray-600">Tôi đã đọc và đồng ý với <a href=""
+											class="text-[#FF3F1A] hover:underline">điều khoản</a> và <a href=""
 											class="text-[#FF3F1A] hover:underline">chính sách bảo mật</a></span>
 								</label>
 								<input type="hidden" name="place_order" value="1">
