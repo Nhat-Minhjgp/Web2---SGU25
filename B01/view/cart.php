@@ -160,10 +160,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // === KIỂM TRA ĐĂNG NHẬP ===
 if (!$is_ajax) {
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: login.php?redirect=cart");
-        exit();
-    }
+   if (!isset($_SESSION['user_id'])) {
+    $_SESSION['login_required'] = 'Vui lòng đăng nhập để tiếp tục';
+    header("Location: ./login.php?redirect=my-account");
+    exit();
+}
     if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
         session_destroy();
         setcookie('remember_user', '', time() - 3600, '/');
