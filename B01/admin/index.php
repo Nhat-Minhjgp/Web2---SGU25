@@ -199,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="flex justify-center mb-4">
-                <img src="../img/icons/logonvb.png" alt="NVBPlay" class="h-16">
+                <img src="../img/icons/logonvb.png " alt="NVBPlay" class="h-16">
             </div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Admin Login</h2>
             <p class="text-gray-500 text-sm">Đăng nhập để quản lý hệ thống</p>

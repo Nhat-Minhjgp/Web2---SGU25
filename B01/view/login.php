@@ -1271,7 +1271,7 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                 </div>
             </div>
         </main>
-         <!-- Footer -->
+          <!-- Footer -->
         <footer id="footer" class="bg-black text-white">
             <div class="container mx-auto px-4 py-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1327,8 +1327,8 @@ if (empty($form_data['username']) && isset($_COOKIE['remember_user'])) {
                         <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
                         <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                     </div>
-                    <p href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
-                            class="h-12 w-auto"></p>
+                    <span href="" target="_blank"><img src="../img/icons/logoBCT.png" alt="Bộ Công Thương"
+                            class="h-12 w-auto"></span>
                 </div>
             </div>
         </footer>

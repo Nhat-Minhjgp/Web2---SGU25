@@ -1510,7 +1510,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 													<p class="font-medium text-lg tracking-wider" id="accountNumber">
 														1030506778</p>
 												</div>
-												
+
 											</div>
 											<div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
 												<p class="text-sm text-yellow-800 font-medium"><i
@@ -1674,67 +1674,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 		</div>
 	</div>
 
-	 <!-- Footer -->
-        <footer id="footer" class="bg-black text-white">
-            <div class="container mx-auto px-4 py-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="pl-5">
-                        <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
-                        <div class="flex space-x-3 mb-4">
-                           <P href="" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fab fa-facebook-f"></i></P>
-                            <p href="" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fab fa-tiktok"></i></p>
-                            <p href="" target="_blank"
-                                class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fas fa-shopping-bag"></i></p>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
-                        <ul class="space-y-2">
-                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</p></li>
-                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</p>
-                            </li>
-                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                    TRẢ</p></li>
-                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</p>
-                            </li>
-                            <li><p href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</p></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
-                        <ul class="space-y-3">
-                            <li><p href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
-                                        chỉ:</span><span class="text-gray-400">62 Lê Bình,
-                                        Tân An, Cần Thơ</span></p></li>
-                            <li>
-                                <div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
-                                        class="text-gray-400">08:00 - 21:00</span></div>
-                            </li>
-                            <li><a href="tel:0987.879.243" class="flex"><span
-                                        class="font-medium w-20">Hotline:</span><span
-                                        class="text-gray-400">0987.879.243</span></a></li>
-                            <li><a href="mailto:info@nvbplay.vn" class="flex"><span
-                                        class="font-medium w-20">Email:</span><span
-                                        class="text-gray-400">info@nvbplay.vn</span></a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="border-t border-gray-800 my-6"></div>
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-gray-500 text-sm mb-4 md:mb-0">
-                        <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
-                        <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
-                    </div>
-                    <p href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
-                            class="h-12 w-auto"></p>
-                </div>
-            </div>
-        </footer>
+	<!-- Footer -->
+	<footer id="footer" class="bg-black text-white">
+		<div class="container mx-auto px-4 py-8">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<div class="pl-5">
+					<h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
+					<div class="flex space-x-3 mb-4">
+						<P href="" target="_blank"
+							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+							<i class="fab fa-facebook-f"></i></P>
+						<p href="" target="_blank"
+							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+							<i class="fab fa-tiktok"></i></p>
+						<p href="" target="_blank"
+							class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+							<i class="fas fa-shopping-bag"></i></p>
+					</div>
+				</div>
+				<div>
+					<h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
+					<ul class="space-y-2">
+						<li>
+							<p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</p>
+						</li>
+						<li>
+							<p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</p>
+						</li>
+						<li>
+							<p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+								TRẢ</p>
+						</li>
+						<li>
+							<p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</p>
+						</li>
+						<li>
+							<p href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</p>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
+					<ul class="space-y-3">
+						<li>
+							<p href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
+									chỉ:</span><span class="text-gray-400">62 Lê Bình,
+									Tân An, Cần Thơ</span></p>
+						</li>
+						<li>
+							<div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
+									class="text-gray-400">08:00 - 21:00</span></div>
+						</li>
+						<li><a href="tel:0987.879.243" class="flex"><span class="font-medium w-20">Hotline:</span><span
+									class="text-gray-400">0987.879.243</span></a></li>
+						<li><a href="mailto:info@nvbplay.vn" class="flex"><span
+									class="font-medium w-20">Email:</span><span
+									class="text-gray-400">info@nvbplay.vn</span></a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="border-t border-gray-800 my-6"></div>
+			<div class="flex flex-col md:flex-row justify-between items-center">
+				<div class="text-gray-500 text-sm mb-4 md:mb-0">
+					<p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
+					<p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
+				</div>
+				<span href="" target="_blank"><img src="../img/icons/logoBCT.png" alt="Bộ Công Thương"
+						class="h-12 w-auto"></span>
+			</div>
+		</div>
+	</footer>
 
 
 	<!-- Mobile Menu -->
