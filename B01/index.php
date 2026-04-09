@@ -1506,36 +1506,36 @@ if ($is_logged_in) {
                     <div class="pl-5">
                         <h3 class="text-4xl font-bold mb-4">Boost<br>your power</h3>
                         <div class="flex space-x-3 mb-4">
-                            <a href="" target="_blank"
+                           <P href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fab fa-facebook-f"></i></a>
-                            <a href="" target="_blank"
+                                    class="fab fa-facebook-f"></i></P>
+                            <p href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fab fa-tiktok"></i></a>
-                            <a href="" target="_blank"
+                                    class="fab fa-tiktok"></i></p>
+                            <p href="" target="_blank"
                                 class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition"><i
-                                    class="fas fa-shopping-bag"></i></a>
+                                    class="fas fa-shopping-bag"></i></p>
                         </div>
                     </div>
                     <div>
                         <h3 class="text-xl font-bold mb-4">Thông tin khác</h3>
                         <ul class="space-y-2">
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</a>
+                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO MẬT</p></li>
+                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH THANH TOÁN</p>
                             </li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
-                                    TRẢ</a></li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</a>
+                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH BẢO HÀNH ĐỔI
+                                    TRẢ</p></li>
+                            <li><p href="" class="text-gray-400 hover:text-white transition">CHÍNH SÁCH VẬN CHUYỂN</p>
                             </li>
-                            <li><a href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</a></li>
+                            <li><p href="" class="text-gray-400 hover:text-white transition">THOẢ THUẬN SỬ DỤNG</p></li>
                         </ul>
                     </div>
                     <div>
                         <h3 class="text-xl font-bold mb-4">Về chúng tôi</h3>
                         <ul class="space-y-3">
-                            <li><a href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
+                            <li><p href="" target="_blank" class="flex"><span class="font-medium w-20">Địa
                                         chỉ:</span><span class="text-gray-400">62 Lê Bình,
-                                        Tân An, Cần Thơ</span></a></li>
+                                        Tân An, Cần Thơ</span></p></li>
                             <li>
                                 <div class="flex"><span class="font-medium w-20">Giờ làm việc:</span><span
                                         class="text-gray-400">08:00 - 21:00</span></div>
@@ -1555,8 +1555,8 @@ if ($is_logged_in) {
                         <p>©2025 CÔNG TY CỔ PHẦN NVB PLAY</p>
                         <p>GPĐKKD số 1801779686 do Sở KHĐT TP. Cần Thơ cấp ngày 22 tháng 01 năm 2025</p>
                     </div>
-                    <a href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
-                            class="h-12 w-auto"></a>
+                    <p href="" target="_blank"><img src="./img/icons/logoBCT.png" alt="Bộ Công Thương"
+                            class="h-12 w-auto"></p>
                 </div>
             </div>
         </footer>
